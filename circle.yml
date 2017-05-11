@@ -1,0 +1,11 @@
+machine:
+  timezone:
+    Asia/Tokyo
+
+dependencies:
+  pre:
+    - make build
+
+test:
+  override:
+    - test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
