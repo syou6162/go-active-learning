@@ -19,3 +19,7 @@ type Examples []*Example
 func NewExample(url string, label LabelType) *Example {
 	return &Example{label, []string{}, url}
 }
+
+func (example *Example) Annotate(label LabelType) {
+	example.label = label
+}
