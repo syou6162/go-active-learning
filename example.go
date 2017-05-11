@@ -14,6 +14,8 @@ type Example struct {
 	url   string
 }
 
+type Examples []*Example
+
 func NewExample(url string, label LabelType) *Example {
 	return &Example{label, []string{}, url}
 }
