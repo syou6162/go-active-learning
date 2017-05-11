@@ -23,3 +23,7 @@ func NewExample(url string, label LabelType) *Example {
 func (example *Example) Annotate(label LabelType) {
 	example.label = label
 }
+
+func (example *Example) IsLabeled() bool {
+	return example.label != UNLABELED
+}
