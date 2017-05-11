@@ -13,3 +13,7 @@ type Example struct {
 	fv    FeatureVector
 	url   string
 }
+
+func NewExample(url string, label LabelType) *Example {
+	return &Example{label, []string{}, url}
+}
