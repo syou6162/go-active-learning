@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"errors"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -24,4 +26,27 @@ func ParseLine(line string) (*Example, error) {
 	} else {
 		return nil, errors.New("Invalid line")
 	}
+}
+
+func ReadExamples(filename string) ([]*Example, error) {
+	fp, err := os.Open(filename)
+	defer fp.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	scanner := bufio.NewScanner(fp)
+	var examples Examples
+	for scanner.Scan() {
+		line := scanner.Text()
+		e, err := ParseLine(line)
+		if err != nil {
+			return nil, err
+		}
+		examples = append(examples, e)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return examples, nil
 }
