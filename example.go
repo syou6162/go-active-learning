@@ -3,9 +3,9 @@ package main
 type LabelType int
 
 const (
-	POSITIVE LabelType = iota
-	NEGATIVE
-	UNLABELED
+	POSITIVE  LabelType = 1
+	NEGATIVE  LabelType = -1
+	UNLABELED LabelType = 0
 )
 
 type Example struct {
