@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func ParseLine(s string) (*Example, error) {
-	tokens := strings.Split(s, "\t")
+func ParseLine(line string) (*Example, error) {
+	tokens := strings.Split(line, "\t")
 	var url string
 	if len(tokens) == 1 {
 		url = tokens[0]
