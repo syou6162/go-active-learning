@@ -50,3 +50,13 @@ func ReadExamples(filename string) ([]*Example, error) {
 	}
 	return examples, nil
 }
+
+func FilterLabeledExamples(examples Examples) Examples {
+	var result Examples
+	for _, e := range examples {
+		if e.IsLabeled() {
+			result = append(result, e)
+		}
+	}
+	return result
+}
