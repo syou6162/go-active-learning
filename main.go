@@ -67,7 +67,8 @@ func main() {
 		}
 	}
 
-	annotationLoop: for {
+annotationLoop:
+	for {
 		e := RandomSelectOneExample(examples)
 		if e == nil {
 			break
