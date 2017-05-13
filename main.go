@@ -50,7 +50,7 @@ func input2ActionType() (ActionType, error) {
 func main() {
 	examples, _ := ReadExamples(os.Args[1])
 
-	for {
+	annotationLoop: for {
 		e := RandomSelectOneExample(examples)
 		if e == nil {
 			break
@@ -77,9 +77,10 @@ func main() {
 		case HELP:
 			fmt.Println("ToDo: SHOW HELP")
 		case EXIT:
-			return
+			fmt.Println("EXIT")
+			break annotationLoop
 		default:
-			return
+			break annotationLoop
 		}
 	}
 
