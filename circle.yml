@@ -4,6 +4,7 @@ machine:
 
 dependencies:
   pre:
+    - go get -t -d -v ./...
     - make build
 
 test:
