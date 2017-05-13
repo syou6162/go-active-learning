@@ -55,7 +55,7 @@ func main() {
 		if e == nil {
 			break
 		}
-		title, err := GetTitle(e.url)
+		title, _ := GetTitle(e.url)
 		fmt.Println("Label this example: " + e.url + " (" + title + ")")
 
 		act, err := input2ActionType()
