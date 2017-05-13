@@ -48,7 +48,24 @@ func input2ActionType() (ActionType, error) {
 }
 
 func main() {
+	cacheFilename := "cache.bin"
+
+	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(os.Args[1])
+	for _, e := range examples {
+		if e.IsLabeled() {
+			var title string
+			fmt.Println("reading: " + e.url)
+			if title, ok := cache.cache[e.url]; ok {
+				e.title = title
+			} else {
+				title, _ = GetTitle(e.url)
+				e.title = title
+				cache.Add(*e)
+			}
+			e.fv = ExtractFeatures(title)
+		}
+	}
 
 	annotationLoop: for {
 		e := RandomSelectOneExample(examples)
@@ -56,7 +73,9 @@ func main() {
 			break
 		}
 		title, _ := GetTitle(e.url)
-		fmt.Println("Label this example: " + e.url + " (" + title + ")")
+		e.title = title
+		fmt.Println("Label this example: " + e.url + " (" + e.title + ")")
+		cache.Add(*e)
 
 		act, err := input2ActionType()
 		if err != nil {
@@ -84,7 +103,5 @@ func main() {
 		}
 	}
 
-	for _, e := range examples {
-		fmt.Println(e)
-	}
+	cache.Save(cacheFilename)
 }
