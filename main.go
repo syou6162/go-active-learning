@@ -7,31 +7,37 @@ import (
 	"github.com/mattn/go-tty"
 )
 
-func ask(e *Example) (bool, error) {
-	fmt.Println("Label this example: " + e.url)
+type ActionType int
+
+const (
+	LABEL_AS_POSITIVE ActionType = iota
+	LABEL_AS_NEGATIVE
+	SAVE
+	HELP
+	SKIP
+	EXIT
+)
+
+func input2ActionType() (ActionType, error) {
 	t, err := tty.Open()
 	defer t.Close()
 	if err != nil {
-		return false, err
+		return EXIT, err
 	}
 	var r rune
 	for r == 0 {
 		r, err = t.ReadRune()
 		if err != nil {
-			return false, err
+			return SKIP, err
 		}
 	}
 	switch r {
-	case 'p':
-		e.Annotate(POSITIVE)
-		fmt.Println("Labeled as positive")
-		return true, nil
-	case 'n':
-		e.Annotate(NEGATIVE)
-		fmt.Println("Labeled as negative")
-		return true, nil
-	default:
-		return false, nil
+	case 'p': return LABEL_AS_POSITIVE, nil
+	case 'n':	return LABEL_AS_NEGATIVE, nil
+	case 's': return SAVE, nil
+	case 'h': return HELP, nil
+	case 'e': return EXIT, nil
+	default: return SKIP, nil
 	}
 }
 
@@ -43,7 +49,30 @@ func main() {
 		if e == nil {
 			break
 		}
-		ask(e)
+		fmt.Println("Label this example: " + e.url)
+		act, err := input2ActionType()
+		if err != nil {
+			return
+		}
+		switch act {
+		case LABEL_AS_POSITIVE:
+			fmt.Println("Labeled as positive")
+			e.Annotate(POSITIVE)
+		case LABEL_AS_NEGATIVE:
+			fmt.Println("Labeled as negative")
+			e.Annotate(NEGATIVE)
+		case SKIP:
+			fmt.Println("Skiped this example")
+			continue
+		case SAVE:
+			fmt.Println("Saved labeld examples")
+		case HELP:
+			fmt.Println("ToDo: SHOW HELP")
+		case EXIT:
+			return
+		default:
+			return
+		}
 	}
 
 	for _, e := range examples {
