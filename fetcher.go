@@ -16,4 +16,3 @@ func GetTitle(url string) (string, error) {
 	})
 	return title, nil
 }
-

@@ -32,12 +32,18 @@ func input2ActionType() (ActionType, error) {
 		}
 	}
 	switch r {
-	case 'p': return LABEL_AS_POSITIVE, nil
-	case 'n':	return LABEL_AS_NEGATIVE, nil
-	case 's': return SAVE, nil
-	case 'h': return HELP, nil
-	case 'e': return EXIT, nil
-	default: return SKIP, nil
+	case 'p':
+		return LABEL_AS_POSITIVE, nil
+	case 'n':
+		return LABEL_AS_NEGATIVE, nil
+	case 's':
+		return SAVE, nil
+	case 'h':
+		return HELP, nil
+	case 'e':
+		return EXIT, nil
+	default:
+		return SKIP, nil
 	}
 }
 
