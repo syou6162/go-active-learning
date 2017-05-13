@@ -49,7 +49,9 @@ func main() {
 		if e == nil {
 			break
 		}
-		fmt.Println("Label this example: " + e.url)
+		title, err := GetTitle(e.url)
+		fmt.Println("Label this example: " + e.url + " (" + title + ")")
+
 		act, err := input2ActionType()
 		if err != nil {
 			return
