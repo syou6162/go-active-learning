@@ -17,4 +17,13 @@ func getTitle(url string) string {
 	return title
 }
 
+func GetTitle(url string) string {
+	ch := make(chan string, 1)
+	go func(url string) { ch <- getTitle(url) }(url)
+	select {
+	case title := <-ch:
+		return title
+	case <-time.After(10 * time.Second):
+		return UNKNOWN_TITLE
+	}
 }
