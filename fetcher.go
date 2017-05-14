@@ -1,18 +1,20 @@
 package main
 
 import (
-	"github.com/PuerkitoBio/goquery"
+	"time"
+	"github.com/msoap/html2data"
 )
 
-func GetTitle(url string) (string, error) {
-	var title string
-	doc, err := goquery.NewDocument(url)
-	if err != nil {
-		return title, err
+const UNKNOWN_TITLE = "UNKNOWN_TITLE"
+
+func getTitle(url string) string {
+	doc := html2data.FromURL(url)
+	if doc.Err != nil {
+		return UNKNOWN_TITLE
 	}
 
-	doc.Find("title").Each(func(index int, item *goquery.Selection) {
-		title = item.Text()
-	})
-	return title, nil
+	title, _ := doc.GetDataSingle("title")
+	return title
+}
+
 }
