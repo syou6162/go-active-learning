@@ -13,12 +13,13 @@ type Example struct {
 	fv    FeatureVector
 	url   string
 	title string
+	score float64
 }
 
 type Examples []*Example
 
 func NewExample(url string, label LabelType) *Example {
-	return &Example{label, []string{}, url, ""}
+	return &Example{label, []string{}, url, "", 0.0}
 }
 
 func (example *Example) Annotate(label LabelType) {
