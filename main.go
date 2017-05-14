@@ -53,18 +53,17 @@ func main() {
 	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(os.Args[1])
 	for _, e := range examples {
-		if e.IsLabeled() {
-			var title string
-			fmt.Println("reading: " + e.url)
-			if title, ok := cache.cache[e.url]; ok {
-				e.title = title
-			} else {
-				title, _ = GetTitle(e.url)
-				e.title = title
-				cache.Add(*e)
-			}
-			e.fv = ExtractFeatures(title)
+		if title, ok := cache.cache[e.url]; ok {
+			e.title = title
+		} else {
+			title = GetTitle(e.url)
+			fmt.Println("Fetching: " + e.url)
+			e.title = title
+			cache.Add(*e)
 		}
+		e.fv = ExtractFeatures(e.title)
+	}
+
 	}
 
 annotationLoop:
@@ -73,8 +72,6 @@ annotationLoop:
 		if e == nil {
 			break
 		}
-		title, _ := GetTitle(e.url)
-		e.title = title
 		fmt.Println("Label this example: " + e.url + " (" + e.title + ")")
 		cache.Add(*e)
 
