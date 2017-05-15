@@ -104,6 +104,7 @@ func (model Model) SortByScore(examples Examples) Examples {
 
 func TrainedModel(examples Examples) *Model {
 	train := FilterLabeledExamples(examples)
+	shuffle(train)
 	model := NewModel()
 	for iter := 0; iter < 10; iter++ {
 		for _, example := range train {
