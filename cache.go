@@ -1,8 +1,9 @@
 package main
 
 import (
-	"encoding/gob"
 	"os"
+	"io/ioutil"
+	"encoding/json"
 )
 
 type Cache struct {
@@ -23,23 +24,26 @@ func (c *Cache) Save(filename string) error {
 	if err != nil {
 		return err
 	}
-
-	enc := gob.NewEncoder(file)
-	enc.Encode(&c.cache)
+	json, err := json.Marshal(*c)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filename, json, 0644)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func LoadCache(filename string) (*Cache, error) {
 	cache := NewCache()
-	file, err := os.Open(filename)
-	defer file.Close()
+	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return cache, err
 	}
 
-	decoder := gob.NewDecoder(file)
-	c := make(map[string]string)
-	decoder.Decode(&c)
-	cache.cache = c
+	if err := json.Unmarshal(bytes, cache); err != nil {
+		return cache, err
+	}
 	return cache, nil
 }
