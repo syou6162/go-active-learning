@@ -102,3 +102,19 @@ func (model Model) SortByScore(examples Examples) Examples {
 	return unlabeledExamples
 }
 
+func TrainedModel(examples Examples) *Model {
+	train := FilterLabeledExamples(examples)
+	model := NewModel()
+	for iter := 0; iter < 10; iter++ {
+		for _, example := range train {
+			model.Learn(*example)
+		}
+
+		trainPredicts := make([]LabelType, len(train))
+		for i, example := range train {
+			trainPredicts[i] = model.Predict(example.fv)
+		}
+		// fmt.Println(fmt.Sprintf("Iter:%d\tAccuracy:%0.03f", iter, GetAccuracy(ExtractGoldLabels(train), trainPredicts)))
+	}
+	return model
+}
