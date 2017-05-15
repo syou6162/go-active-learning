@@ -37,7 +37,7 @@ func (slice Examples) Len() int {
 }
 
 func (slice Examples) Less(i, j int) bool {
-	return math.Abs(slice[i].score) < math.Abs(slice[j].score);
+	return math.Abs(slice[i].score) < math.Abs(slice[j].score)
 }
 
 func (slice Examples) Swap(i, j int) {
