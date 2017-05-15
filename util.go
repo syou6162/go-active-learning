@@ -51,6 +51,25 @@ func ReadExamples(filename string) ([]*Example, error) {
 	return examples, nil
 }
 
+func WriteExamples(examples Examples, filename string) error {
+	fp, err := os.Create(filename)
+	defer fp.Close()
+	if err != nil {
+		return err
+	}
+
+	writer := bufio.NewWriter(fp)
+	for _, e := range examples {
+		_, err := writer.WriteString(e.url + "\t" + strconv.Itoa(int(e.label)) + "\n")
+		if err != nil {
+			return err
+		}
+	}
+
+	writer.Flush()
+	return nil
+}
+
 func FilterLabeledExamples(examples Examples) Examples {
 	var result Examples
 	for _, e := range examples {
