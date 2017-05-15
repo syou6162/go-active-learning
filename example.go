@@ -11,25 +11,27 @@ const (
 )
 
 type Example struct {
-	label LabelType
-	fv    FeatureVector
-	url   string
-	title string
-	score float64
+	Label       LabelType `json:"Label"`
+	Fv          FeatureVector
+	Url         string `json:"Url"`
+	Title       string `json:"Title"`
+	Description string `json:"Description"`
+	Body        string `json:"body"`
+	Score       float64
 }
 
 type Examples []*Example
 
 func NewExample(url string, label LabelType) *Example {
-	return &Example{label, []string{}, url, "", 0.0}
+	return &Example{label, []string{}, url, "", "", "", 0.0}
 }
 
 func (example *Example) Annotate(label LabelType) {
-	example.label = label
+	example.Label = label
 }
 
 func (example *Example) IsLabeled() bool {
-	return example.label != UNLABELED
+	return example.Label != UNLABELED
 }
 
 func (slice Examples) Len() int {
@@ -37,7 +39,7 @@ func (slice Examples) Len() int {
 }
 
 func (slice Examples) Less(i, j int) bool {
-	return math.Abs(slice[i].score) < math.Abs(slice[j].score)
+	return math.Abs(slice[i].Score) < math.Abs(slice[j].Score)
 }
 
 func (slice Examples) Swap(i, j int) {

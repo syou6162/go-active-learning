@@ -21,7 +21,7 @@ func ParseLine(line string) (*Example, error) {
 		case POSITIVE, NEGATIVE, UNLABELED:
 			return NewExample(url, LabelType(label)), nil
 		default:
-			return nil, errors.New("Invalid label type")
+			return nil, errors.New("Invalid Label type")
 		}
 	} else {
 		return nil, errors.New("Invalid line")
@@ -60,7 +60,7 @@ func WriteExamples(examples Examples, filename string) error {
 
 	writer := bufio.NewWriter(fp)
 	for _, e := range examples {
-		_, err := writer.WriteString(e.url + "\t" + strconv.Itoa(int(e.label)) + "\n")
+		_, err := writer.WriteString(e.Url + "\t" + strconv.Itoa(int(e.Label)) + "\n")
 		if err != nil {
 			return err
 		}

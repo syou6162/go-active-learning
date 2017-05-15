@@ -28,13 +28,13 @@ func GetAccuracy(gold []LabelType, predict []LabelType) float64 {
 }
 
 func (model *Model) Learn(example Example) {
-	predict := model.predictForTraining(example.fv)
-	if example.label != predict {
-		for _, f := range example.fv {
+	predict := model.predictForTraining(example.Fv)
+	if example.Label != predict {
+		for _, f := range example.Fv {
 			w, _ := model.weight[f]
 			cumW, _ := model.cumWeight[f]
-			model.weight[f] = w + float64(example.label)*1.0
-			model.cumWeight[f] = cumW + float64(model.count)*float64(example.label)*1.0
+			model.weight[f] = w + float64(example.Label)*1.0
+			model.cumWeight[f] = cumW + float64(model.count)*float64(example.Label)*1.0
 		}
 		model.count += 1
 	}
@@ -81,7 +81,7 @@ func (model Model) Predict(features FeatureVector) LabelType {
 func ExtractGoldLabels(examples Examples) []LabelType {
 	golds := make([]LabelType, 0, 0)
 	for _, e := range examples {
-		golds = append(golds, e.label)
+		golds = append(golds, e.Label)
 	}
 	return golds
 }
@@ -89,13 +89,10 @@ func ExtractGoldLabels(examples Examples) []LabelType {
 func (model Model) SortByScore(examples Examples) Examples {
 	var unlabeledExamples Examples
 	for _, e := range examples {
-		if !e.IsLabeled() {
+		e.Score = model.PredictScore(e.Fv)
+		if !e.IsLabeled() && e.Score != 0.0 {
 			unlabeledExamples = append(unlabeledExamples, e)
 		}
-	}
-
-	for _, e := range unlabeledExamples {
-		e.score = model.PredictScore(e.fv)
 	}
 
 	sort.Sort(unlabeledExamples)
@@ -113,7 +110,7 @@ func TrainedModel(examples Examples) *Model {
 
 		trainPredicts := make([]LabelType, len(train))
 		for i, example := range train {
-			trainPredicts[i] = model.Predict(example.fv)
+			trainPredicts[i] = model.Predict(example.Fv)
 		}
 		// fmt.Println(fmt.Sprintf("Iter:%d\tAccuracy:%0.03f", iter, GetAccuracy(ExtractGoldLabels(train), trainPredicts)))
 	}

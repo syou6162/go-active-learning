@@ -6,15 +6,15 @@ import (
 )
 
 type Cache struct {
-	cache map[string]string
+	Cache map[string]Example `json:"Cache"`
 }
 
 func NewCache() *Cache {
-	return &Cache{make(map[string]string)}
+	return &Cache{make(map[string]Example)}
 }
 
 func (c *Cache) Add(example Example) {
-	c.cache[example.url] = example.title
+	c.Cache[example.Url] = example
 }
 
 func (c *Cache) Save(filename string) error {
