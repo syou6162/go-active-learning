@@ -1,8 +1,8 @@
 package main
 
 import (
-	"time"
 	"github.com/msoap/html2data"
+	"time"
 )
 
 const UNKNOWN_TITLE = "UNKNOWN_TITLE"

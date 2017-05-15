@@ -53,29 +53,29 @@ func main() {
 	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(os.Args[1])
 	for _, e := range examples {
-		if e.IsLabeled() {
-			var title string
-			fmt.Println("reading: " + e.url)
-			if title, ok := cache.cache[e.url]; ok {
-				e.title = title
-			} else {
-				title, _ = GetTitle(e.url)
-				e.title = title
-				cache.Add(*e)
-			}
-			e.fv = ExtractFeatures(title)
+		if title, ok := cache.cache[e.url]; ok {
+			e.title = title
+		} else {
+			title = GetTitle(e.url)
+			fmt.Println("Fetching: " + e.url)
+			e.title = title
+			cache.Add(*e)
 		}
+		e.fv = ExtractFeatures(e.title)
 	}
+	model := TrainedModel(examples)
 
 annotationLoop:
 	for {
-		e := RandomSelectOneExample(examples)
+		unlabeledExamples := model.SortByScore(examples)
+		if len(unlabeledExamples) == 0 {
+			break
+		}
+		e := unlabeledExamples[0]
 		if e == nil {
 			break
 		}
-		title, _ := GetTitle(e.url)
-		e.title = title
-		fmt.Println("Label this example: " + e.url + " (" + e.title + ")")
+		fmt.Println("Label this example (score: " + fmt.Sprintf("%0.03f", e.score) + "): " + e.url + " (" + e.title + ")")
 		cache.Add(*e)
 
 		act, err := input2ActionType()
@@ -102,6 +102,7 @@ annotationLoop:
 		default:
 			break annotationLoop
 		}
+		model = TrainedModel(examples)
 	}
 
 	cache.Save(cacheFilename)
