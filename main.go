@@ -105,5 +105,6 @@ annotationLoop:
 		model = TrainedModel(examples)
 	}
 
+	WriteExamples(examples, os.Args[2])
 	cache.Save(cacheFilename)
 }
