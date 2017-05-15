@@ -1,29 +1,33 @@
 package main
 
 import (
-	"github.com/msoap/html2data"
 	"time"
+	"github.com/advancedlogic/GoOse"
 )
 
-const UNKNOWN_TITLE = "UNKNOWN_TITLE"
-
-func getTitle(url string) string {
-	doc := html2data.FromURL(url)
-	if doc.Err != nil {
-		return UNKNOWN_TITLE
-	}
-
-	title, _ := doc.GetDataSingle("title")
-	return title
+type Article struct {
+	Url         string
+	Title       string
+	Description string
+	Body        string
 }
 
-func GetTitle(url string) string {
-	ch := make(chan string, 1)
-	go func(url string) { ch <- getTitle(url) }(url)
+func getArticle(url string) Article {
+	g := goose.New()
+	article, err := g.ExtractFromURL(url)
+	if err != nil {
+		return Article{}
+	}
+	return Article{url, article.Title, article.MetaDescription, article.CleanedText}
+}
+
+func GetArticle(url string) Article {
+	ch := make(chan Article, 1)
+	go func(url string) { ch <- getArticle(url) }(url)
 	select {
-	case title := <-ch:
-		return title
+	case article := <-ch:
+		return article
 	case <-time.After(10 * time.Second):
-		return UNKNOWN_TITLE
+		return Article{}
 	}
 }
