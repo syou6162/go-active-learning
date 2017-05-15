@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 type LabelType int
 
 const (
@@ -28,4 +30,16 @@ func (example *Example) Annotate(label LabelType) {
 
 func (example *Example) IsLabeled() bool {
 	return example.label != UNLABELED
+}
+
+func (slice Examples) Len() int {
+	return len(slice)
+}
+
+func (slice Examples) Less(i, j int) bool {
+	return math.Abs(slice[i].score) < math.Abs(slice[j].score);
+}
+
+func (slice Examples) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
 }
