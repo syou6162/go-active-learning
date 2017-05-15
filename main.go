@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-
+	"sync"
 	"github.com/mattn/go-tty"
 )
 
@@ -53,17 +53,33 @@ func main() {
 	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(os.Args[1])
 	shuffle(examples)
+
+	wg := &sync.WaitGroup{}
+	cpus := 20
+	semaphore := make(chan int, cpus)
 	for _, e := range examples {
-		if title, ok := cache.cache[e.url]; ok {
-			e.title = title
-		} else {
-			title = GetTitle(e.url)
-			fmt.Println("Fetching: " + e.url)
-			e.title = title
-			cache.Add(*e)
-		}
-		e.fv = ExtractFeatures(e.title)
+		wg.Add(1)
+		go func(example *Example) {
+			defer wg.Done()
+			semaphore <- 1
+			if e, ok := cache.Cache[example.Url]; ok {
+				example.Title = e.Title
+				example.Description = e.Description
+				example.Body = e.Body
+			} else {
+				article := GetArticle(example.Url)
+				fmt.Println("Fetching: " + example.Url)
+				example.Title = article.Title
+				example.Description = article.Description
+				example.Body = article.Body
+				cache.Add(*example)
+			}
+			example.Fv = ExtractFeatures(*example)
+			<-semaphore
+		}(e)
 	}
+	wg.Wait()
+
 	model := TrainedModel(examples)
 
 annotationLoop:
