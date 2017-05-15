@@ -1,5 +1,9 @@
 package main
 
+import (
+	"sort"
+)
+
 type Model struct {
 	weight    map[string]float64
 	cumWeight map[string]float64
@@ -81,3 +85,20 @@ func ExtractGoldLabels(examples Examples) []LabelType {
 	}
 	return golds
 }
+
+func (model Model) SortByScore(examples Examples) Examples {
+	var unlabeledExamples Examples
+	for _, e := range examples {
+		if !e.IsLabeled() {
+			unlabeledExamples = append(unlabeledExamples, e)
+		}
+	}
+
+	for _, e := range unlabeledExamples {
+		e.score = model.PredictScore(e.fv)
+	}
+
+	sort.Sort(unlabeledExamples)
+	return unlabeledExamples
+}
+
