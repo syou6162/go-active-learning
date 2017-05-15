@@ -52,6 +52,7 @@ func main() {
 
 	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(os.Args[1])
+	shuffle(examples)
 	for _, e := range examples {
 		if title, ok := cache.cache[e.url]; ok {
 			e.title = title
