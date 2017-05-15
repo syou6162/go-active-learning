@@ -63,30 +63,19 @@ func main() {
 		}
 		e.fv = ExtractFeatures(e.title)
 	}
-
-	train := FilterLabeledExamples(examples)
-
-	model := NewModel()
-	trainGolds := ExtractGoldLabels(train)
-	for iter := 0; iter < 10; iter++ {
-		for _, example := range train {
-			model.Learn(*example)
-		}
-
-		trainPredicts := make([]LabelType, len(train))
-		for i, example := range train {
-			trainPredicts[i] = model.Predict(example.fv)
-		}
-		fmt.Println(fmt.Sprintf("Iter:%d\tAccuracy:%0.03f", iter, GetAccuracy(trainGolds, trainPredicts)))
-	}
+	model := TrainedModel(examples)
 
 annotationLoop:
 	for {
-		e := RandomSelectOneExample(examples)
+		unlabeledExamples := model.SortByScore(examples)
+		if len(unlabeledExamples) == 0 {
+			break
+		}
+		e := unlabeledExamples[0]
 		if e == nil {
 			break
 		}
-		fmt.Println("Label this example: " + e.url + " (" + e.title + ")")
+		fmt.Println("Label this example (score: " + fmt.Sprintf("%0.03f", e.score) + "): " + e.url + " (" + e.title + ")")
 		cache.Add(*e)
 
 		act, err := input2ActionType()
@@ -113,6 +102,7 @@ annotationLoop:
 		default:
 			break annotationLoop
 		}
+		model = TrainedModel(examples)
 	}
 
 	cache.Save(cacheFilename)
