@@ -50,7 +50,7 @@ func (model *Model) predictForTraining(features FeatureVector) LabelType {
 	return NEGATIVE
 }
 
-func (model Model) Predict(features FeatureVector) LabelType {
+func (model Model) PredictScore(features FeatureVector) float64 {
 	result := 0.0
 	for _, f := range features {
 		w, ok := model.weight[f]
@@ -64,7 +64,11 @@ func (model Model) Predict(features FeatureVector) LabelType {
 		}
 
 	}
-	if result > 0 {
+	return result
+}
+
+func (model Model) Predict(features FeatureVector) LabelType {
+	if model.PredictScore(features) > 0 {
 		return POSITIVE
 	}
 	return NEGATIVE
