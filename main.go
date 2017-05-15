@@ -92,7 +92,7 @@ annotationLoop:
 		if e == nil {
 			break
 		}
-		fmt.Println("Label this example (score: " + fmt.Sprintf("%0.03f", e.score) + "): " + e.url + " (" + e.title + ")")
+		fmt.Println("Label this example (Score: " + fmt.Sprintf("%0.03f", e.Score) + "): " + e.Url + " (" + e.Title + ")")
 		cache.Add(*e)
 
 		act, err := input2ActionType()
