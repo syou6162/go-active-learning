@@ -4,9 +4,15 @@
 
 go-active-learning is a command line annotation tool for binary classification problem written in Go. It uses simple active learning algorithm to minimize annotation time. 
 
-# Build from source
+# Install
 
-```sh
+```console
+% go get github.com/syou6162/go-active-learning
+```
+
+## Build from source
+
+```console
 % git clone https://github.com/syou6162/go-active-learning.git
 % cd go-active-learning
 % make build
