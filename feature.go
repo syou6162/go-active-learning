@@ -37,16 +37,19 @@ func ExtractFeatures(e Example) FeatureVector {
 	if !utf8.ValidString(e.Title) {
 		return fv
 	}
+	fv = append(fv, "VALID_TITLE")
 	fv = append(fv, ExtractNounFeatures(e.Title, "TITLE")...)
 
 	if !utf8.ValidString(e.Description) {
 		return fv
 	}
+	fv = append(fv, "VALID_DESCRIPTION")
 	fv = append(fv, ExtractNounFeatures(e.Description, "DESCRIPTION")...)
 
 	if !utf8.ValidString(e.Body) {
 		return fv
 	}
+	fv = append(fv, "VALID_TITLE")
 	fv = append(fv, ExtractNounFeatures(e.Body, "BODY")...)
 
 	return fv
