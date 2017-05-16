@@ -96,6 +96,7 @@ func AttachMetaData(cache *Cache, examples Examples) {
 func doAnnotate(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
 	outputFilename := c.String("output-filename")
+	openUrl := c.Bool("openurl")
 
 	if inputFilename == "" {
 		_ = cli.ShowCommandHelp(c, "annotate")
@@ -125,8 +126,11 @@ annotationLoop:
 			break
 		}
 		fmt.Println("Label this example (Score: " + fmt.Sprintf("%0.03f", e.Score) + "): " + e.Url + " (" + e.Title + ")")
-		browser.OpenURL(e.Url)
 		cache.Add(*e)
+
+		if openUrl {
+			browser.OpenURL(e.Url)
+		}
 
 		act, err := input2ActionType()
 		if err != nil {
@@ -172,6 +176,7 @@ Annotate URLs using active learning.
 	Flags: []cli.Flag{
 		cli.StringFlag{Name: "input-filename"},
 		cli.StringFlag{Name: "output-filename"},
+		cli.BoolFlag{Name: "openurl", Usage: "Open url in background"},
 	},
 }
 
