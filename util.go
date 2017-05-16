@@ -60,9 +60,11 @@ func WriteExamples(examples Examples, filename string) error {
 
 	writer := bufio.NewWriter(fp)
 	for _, e := range examples {
-		_, err := writer.WriteString(e.Url + "\t" + strconv.Itoa(int(e.Label)) + "\n")
-		if err != nil {
-			return err
+		if e.IsNew && e.IsLabeled() {
+			_, err := writer.WriteString(e.Url + "\t" + strconv.Itoa(int(e.Label)) + "\n")
+			if err != nil {
+				return err
+			}
 		}
 	}
 

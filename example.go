@@ -16,14 +16,20 @@ type Example struct {
 	Url         string `json:"Url"`
 	Title       string `json:"Title"`
 	Description string `json:"Description"`
-	Body        string `json:"body"`
+	Body        string `json:"Body"`
+	RawHTML     string `json:"RawHTML"`
 	Score       float64
+	IsNew       bool
 }
 
 type Examples []*Example
 
 func NewExample(url string, label LabelType) *Example {
-	return &Example{label, []string{}, url, "", "", "", 0.0}
+	IsNew := false
+	if label == UNLABELED {
+		IsNew = true
+	}
+	return &Example{label, []string{}, url, "", "", "", "", 0.0, IsNew}
 }
 
 func (example *Example) Annotate(label LabelType) {
