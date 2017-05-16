@@ -112,7 +112,7 @@ func (model Model) SortByScore(examples Examples) Examples {
 func TrainedModel(examples Examples) *Model {
 	train := FilterLabeledExamples(examples)
 	model := NewModel()
-	for iter := 0; iter < 10; iter++ {
+	for iter := 0; iter < 30; iter++ {
 		shuffle(train)
 		for _, example := range train {
 			model.Learn(*example)
