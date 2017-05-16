@@ -27,6 +27,7 @@ func ExtractNounFeatures(s string, prefix string) FeatureVector {
 
 func ExtractFeatures(e Example) FeatureVector {
 	var fv FeatureVector
+	fv = append(fv, "BIAS")
 
 	html := strings.ToLower(strings.Replace(e.RawHTML, " ", "", -1))
 	if !utf8.ValidString(html) {
