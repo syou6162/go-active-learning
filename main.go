@@ -52,25 +52,7 @@ func input2ActionType() (ActionType, error) {
 	}
 }
 
-func doAnnotate(c *cli.Context) error {
-	inputFilename := c.String("input-filename")
-	outputFilename := c.String("output-filename")
-
-	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "annotate")
-		return cli.NewExitError("`input-filename` is a required field.", 1)
-	}
-
-	if outputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "annotate")
-		return cli.NewExitError("`output-filename` is a required field.", 1)
-	}
-
-	cacheFilename := "cache.bin"
-
-	cache, _ := LoadCache(cacheFilename)
-	examples, _ := ReadExamples(inputFilename)
-
+func AttachMetaData(cache *Cache, examples Examples) {
 	shuffle(examples)
 
 	wg := &sync.WaitGroup{}
@@ -101,7 +83,27 @@ func doAnnotate(c *cli.Context) error {
 		}(e, idx)
 	}
 	wg.Wait()
+}
 
+func doAnnotate(c *cli.Context) error {
+	inputFilename := c.String("input-filename")
+	outputFilename := c.String("output-filename")
+
+	if inputFilename == "" {
+		_ = cli.ShowCommandHelp(c, "annotate")
+		return cli.NewExitError("`input-filename` is a required field.", 1)
+	}
+
+	if outputFilename == "" {
+		_ = cli.ShowCommandHelp(c, "annotate")
+		return cli.NewExitError("`output-filename` is a required field.", 1)
+	}
+
+	cacheFilename := "cache.bin"
+
+	cache, _ := LoadCache(cacheFilename)
+	examples, _ := ReadExamples(inputFilename)
+	AttachMetaData(cache, examples)
 	model := TrainedModel(examples)
 
 annotationLoop:
