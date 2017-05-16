@@ -102,6 +102,7 @@ annotationLoop:
 			break
 		}
 		fmt.Println("Label this example (Score: " + fmt.Sprintf("%0.03f", e.Score) + "): " + e.Url + " (" + e.Title + ")")
+		browser.OpenURL(e.Url)
 		cache.Add(*e)
 
 		act, err := input2ActionType()
