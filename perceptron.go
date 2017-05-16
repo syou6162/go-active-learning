@@ -87,9 +87,19 @@ func ExtractGoldLabels(examples Examples) []LabelType {
 }
 
 func (model Model) SortByScore(examples Examples) Examples {
+	alreadyLabeled := make(map[string]bool)
+
+	for _, e := range FilterLabeledExamples(examples) {
+		alreadyLabeled[e.Url] = true
+	}
+
 	var unlabeledExamples Examples
 	for _, e := range examples {
 		e.Score = model.PredictScore(e.Fv)
+		if _, ok := alreadyLabeled[e.Url]; ok {
+			continue
+		}
+
 		if !e.IsLabeled() && e.Score != 0.0 {
 			unlabeledExamples = append(unlabeledExamples, e)
 		}
