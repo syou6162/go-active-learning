@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -19,6 +20,7 @@ func (c *Cache) Add(example Example) {
 }
 
 func (c *Cache) Save(filename string) error {
+	fmt.Println("Saving cache...")
 	file, err := os.Create(filename)
 	defer file.Close()
 	if err != nil {
@@ -36,6 +38,7 @@ func (c *Cache) Save(filename string) error {
 }
 
 func LoadCache(filename string) (*Cache, error) {
+	fmt.Println("Loading cache...")
 	cache := NewCache()
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
