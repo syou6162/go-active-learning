@@ -1,9 +1,9 @@
 package main
 
 import (
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"os"
 )
 
 type Cache struct {

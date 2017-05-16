@@ -2,6 +2,9 @@ package main
 
 import (
 	"github.com/ikawaha/kagome/tokenizer"
+	"strings"
+
+	"unicode/utf8"
 )
 
 type FeatureVector []string
@@ -12,7 +15,7 @@ func ExtractNounFeatures(s string, prefix string) FeatureVector {
 	tokens := t.Tokenize(s)
 	for _, token := range tokens {
 		if token.Pos() == "名詞" {
-			fv = append(fv, prefix + ":" + token.Surface)
+			fv = append(fv, prefix+":"+token.Surface)
 		}
 	}
 	return fv
