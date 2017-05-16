@@ -2,7 +2,7 @@
 [![CircleCI](https://circleci.com/gh/syou6162/go-active-learning.svg?style=shield)](https://circleci.com/gh/syou6162/go-active-learning)
 [![Go Report Card](https://goreportcard.com/badge/github.com/syou6162/go-active-learning)](https://goreportcard.com/report/github.com/syou6162/go-active-learning)
 
-go-active-learning is a command line annotation tool for binary classification problem written in Go. It uses simple active learning algorithm to minimize annotation time. 
+go-active-learning is a command line annotation tool for binary classification problem written in Go. It uses simple active learning algorithm to reduce annotation time.
 
 # Install
 
