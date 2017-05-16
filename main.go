@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
 )
@@ -51,13 +52,25 @@ func input2ActionType() (ActionType, error) {
 	}
 }
 
-func main() {
+func doAnnotate(c *cli.Context) error {
+	inputFilename := c.String("input-filename")
+	outputFilename := c.String("output-filename")
+
+	if inputFilename == "" {
+		_ = cli.ShowCommandHelp(c, "annotate")
+		return cli.NewExitError("`input-filename` is a required field.", 1)
+	}
+
+	if outputFilename == "" {
+		_ = cli.ShowCommandHelp(c, "annotate")
+		return cli.NewExitError("`output-filename` is a required field.", 1)
+	}
+
 	cacheFilename := "cache.bin"
 
 	cache, _ := LoadCache(cacheFilename)
-	examples, _ := ReadExamples(os.Args[1])
+	examples, _ := ReadExamples(inputFilename)
 
-	outputFilename := os.Args[2]
 	shuffle(examples)
 
 	wg := &sync.WaitGroup{}
@@ -107,7 +120,7 @@ annotationLoop:
 
 		act, err := input2ActionType()
 		if err != nil {
-			return
+			return err
 		}
 		switch act {
 		case LABEL_AS_POSITIVE:
@@ -135,4 +148,31 @@ annotationLoop:
 
 	WriteExamples(examples, outputFilename)
 	cache.Save(cacheFilename)
+
+	return nil
+}
+
+var commandAnnotate = cli.Command{
+	Name:  "annotate",
+	Usage: "Annotate URLs",
+	Description: `
+Annotate URLs using active learning.
+`,
+	Action: doAnnotate,
+	Flags: []cli.Flag{
+		cli.StringFlag{Name: "input-filename"},
+		cli.StringFlag{Name: "output-filename"},
+	},
+}
+
+var Commands = []cli.Command{
+	commandAnnotate,
+}
+
+func main() {
+	app := cli.NewApp()
+	app.Name = "go-active-learning"
+	app.Commands = Commands
+
+	app.Run(os.Args)
 }
