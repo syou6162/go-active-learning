@@ -9,6 +9,7 @@ type Article struct {
 	Title       string
 	Description string
 	Body        string
+	RawHTML     string
 }
 
 func GetArticle(url string) Article {
@@ -17,5 +18,5 @@ func GetArticle(url string) Article {
 	if err != nil {
 		return Article{}
 	}
-	return Article{url, article.Title, article.MetaDescription, article.CleanedText}
+	return Article{url, article.Title, article.MetaDescription, article.CleanedText, article.RawHTML}
 }
