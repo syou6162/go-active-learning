@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strconv"
 	"sync"
 
 	"github.com/mattn/go-tty"
@@ -60,28 +61,31 @@ func main() {
 	shuffle(examples)
 
 	wg := &sync.WaitGroup{}
-	cpus := 20
-	semaphore := make(chan int, cpus)
-	for _, e := range examples {
+	cpus := runtime.NumCPU()
+	runtime.GOMAXPROCS(cpus)
+	sem := make(chan struct{}, cpus)
+	for idx, e := range examples {
 		wg.Add(1)
-		go func(example *Example) {
+		sem <- struct{}{}
+		go func(e *Example, idx int) {
 			defer wg.Done()
-			semaphore <- 1
-			if e, ok := cache.Cache[example.Url]; ok {
-				example.Title = e.Title
-				example.Description = e.Description
-				example.Body = e.Body
+			if example, ok := cache.Cache[e.Url]; ok {
+				e.Title = example.Title
+				e.Description = example.Description
+				e.Body = example.Body
+				e.RawHTML = example.RawHTML
 			} else {
-				article := GetArticle(example.Url)
-				fmt.Println("Fetching: " + example.Url)
-				example.Title = article.Title
-				example.Description = article.Description
-				example.Body = article.Body
-				cache.Add(*example)
+				article := GetArticle(e.Url)
+				fmt.Println("Fetching(" + strconv.Itoa(idx) + "): " + e.Url)
+				e.Title = article.Title
+				e.Description = article.Description
+				e.Body = article.Body
+				e.RawHTML = article.RawHTML
+				cache.Add(*e)
 			}
-			example.Fv = ExtractFeatures(*example)
-			<-semaphore
-		}(e)
+			e.Fv = removeDuplicate(ExtractFeatures(*e))
+			<-sem
+		}(e, idx)
 	}
 	wg.Wait()
 
