@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"sync"
+
 	"github.com/mattn/go-tty"
+	"github.com/pkg/browser"
 )
 
 type ActionType int
