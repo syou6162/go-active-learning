@@ -81,3 +81,15 @@ func FilterLabeledExamples(examples Examples) Examples {
 	}
 	return result
 }
+
+func removeDuplicate(args []string) []string {
+	results := make([]string, 0)
+	encountered := map[string]bool{}
+	for i := 0; i < len(args); i++ {
+		if !encountered[args[i]] {
+			encountered[args[i]] = true
+			results = append(results, args[i])
+		}
+	}
+	return results
+}
