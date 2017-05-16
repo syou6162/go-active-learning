@@ -52,6 +52,8 @@ func main() {
 
 	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(os.Args[1])
+
+	outputFilename := os.Args[2]
 	shuffle(examples)
 
 	wg := &sync.WaitGroup{}
@@ -111,6 +113,7 @@ annotationLoop:
 			continue
 		case SAVE:
 			fmt.Println("Saved labeld examples")
+			WriteExamples(examples, outputFilename)
 		case HELP:
 			fmt.Println("ToDo: SHOW HELP")
 		case EXIT:
@@ -122,6 +125,6 @@ annotationLoop:
 		model = TrainedModel(examples)
 	}
 
-	WriteExamples(examples, os.Args[2])
+	WriteExamples(examples, outputFilename)
 	cache.Save(cacheFilename)
 }
