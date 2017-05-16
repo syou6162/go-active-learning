@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/ikawaha/kagome/tokenizer"
 	"strings"
+
+	"github.com/ikawaha/kagome/tokenizer"
 
 	"unicode/utf8"
 )
