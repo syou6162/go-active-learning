@@ -52,6 +52,14 @@ func input2ActionType() (ActionType, error) {
 	}
 }
 
+var ActionHelpDoc = `
+p: Label this example as positive.
+n: Label this example as negative.
+s: Save additionally annotated examples in 'output-filename'.
+h: Show this help.
+e: Exit.
+`
+
 func AttachMetaData(cache *Cache, examples Examples) {
 	shuffle(examples)
 
@@ -138,7 +146,7 @@ annotationLoop:
 			fmt.Println("Saved labeld examples")
 			WriteExamples(examples, outputFilename)
 		case HELP:
-			fmt.Println("ToDo: SHOW HELP")
+			fmt.Println(ActionHelpDoc)
 		case EXIT:
 			fmt.Println("EXIT")
 			break annotationLoop
