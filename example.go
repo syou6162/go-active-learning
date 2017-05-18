@@ -20,6 +20,7 @@ type Example struct {
 	RawHTML     string `json:"RawHTML"`
 	Score       float64
 	IsNew       bool
+	StatusCode  int    `json:StatusCode`
 }
 
 type Examples []*Example
@@ -29,7 +30,7 @@ func NewExample(url string, label LabelType) *Example {
 	if label == UNLABELED {
 		IsNew = true
 	}
-	return &Example{label, []string{}, url, "", "", "", "", 0.0, IsNew}
+	return &Example{label, []string{}, url, "", "", "", "", 0.0, IsNew, 0}
 }
 
 func (example *Example) Annotate(label LabelType) {

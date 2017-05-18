@@ -76,6 +76,7 @@ func AttachMetaData(cache *Cache, examples Examples) {
 				e.Description = example.Description
 				e.Body = example.Body
 				e.RawHTML = example.RawHTML
+				e.StatusCode = example.StatusCode
 			} else {
 				article := GetArticle(e.Url)
 				fmt.Println("Fetching(" + strconv.Itoa(idx) + "): " + e.Url)
@@ -83,6 +84,7 @@ func AttachMetaData(cache *Cache, examples Examples) {
 				e.Description = article.Description
 				e.Body = article.Body
 				e.RawHTML = article.RawHTML
+				e.StatusCode = article.StatusCode
 				cache.Add(*e)
 			}
 			e.Fv = removeDuplicate(ExtractFeatures(*e))
