@@ -19,7 +19,7 @@ type Example struct {
 	Body        string `json:"Body"`
 	Score       float64
 	IsNew       bool
-	StatusCode  int `json:StatusCode`
+	StatusCode  int `json:"StatusCode"`
 }
 
 type Examples []*Example
