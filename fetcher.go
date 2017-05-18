@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"net/http"
+	"time"
 	"github.com/advancedlogic/GoOse"
 )
 
@@ -17,7 +18,12 @@ type Article struct {
 
 func GetArticle(url string) Article {
 	g := goose.New()
-	resp, err := http.Get(url)
+	timeout := time.Duration(5 * time.Second)
+	client := http.Client{
+		Timeout: timeout,
+	}
+
+	resp, err := client.Get(url)
 	if err != nil {
 		return Article{}
 	}
