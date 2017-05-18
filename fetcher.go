@@ -17,10 +17,17 @@ type Article struct {
 
 func GetArticle(url string) Article {
 	g := goose.New()
-	resp, _ := http.Get(url)
+	resp, err := http.Get(url)
+	if err != nil {
+		return Article{StatusCode:resp.StatusCode}
+	}
 	defer resp.Body.Close()
 
-	html, _ := ioutil.ReadAll(resp.Body)
+	html, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return Article{StatusCode:resp.StatusCode}
+	}
+
 	article, err := g.ExtractFromRawHTML(url, string(html))
 	if err != nil {
 		return Article{StatusCode:resp.StatusCode}
