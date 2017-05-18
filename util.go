@@ -109,7 +109,7 @@ func AttachMetaData(cache *Cache, examples Examples) {
 		sem <- struct{}{}
 		go func(e *Example, idx int) {
 			defer wg.Done()
-			if example, ok := cache.Cache[e.Url]; ok {
+			if example, ok := cache.Get(*e); ok {
 				e.Title = example.Title
 				e.Description = example.Description
 				e.Body = example.Body

@@ -5,19 +5,32 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sync"
 )
 
 type Cache struct {
 	Cache map[string]Example `json:"Cache"`
+	mu    sync.RWMutex
 }
 
 var CacheFilename = "cache.bin"
 
 func NewCache() *Cache {
-	return &Cache{make(map[string]Example)}
+	return &Cache{Cache: make(map[string]Example)}
+}
+
+func (c *Cache) Get(example Example) (Example, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	e, ok := c.Cache[example.Url]
+	return e, ok
 }
 
 func (c *Cache) Add(example Example) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	c.Cache[example.Url] = example
 }
 
