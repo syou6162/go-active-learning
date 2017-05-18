@@ -60,6 +60,7 @@ func doAnnotate(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
 	outputFilename := c.String("output-filename")
 	openUrl := c.Bool("openurl")
+	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 
 	if inputFilename == "" {
 		_ = cli.ShowCommandHelp(c, "annotate")
@@ -76,6 +77,9 @@ func doAnnotate(c *cli.Context) error {
 	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(inputFilename)
 	AttachMetaData(cache, examples)
+	if filterStatusCodeOk {
+		examples = FilterStatusCodeOkExamples(examples)
+	}
 	model := TrainedModel(examples)
 
 annotationLoop:
@@ -140,5 +144,6 @@ Annotate URLs using active learning.
 		cli.StringFlag{Name: "input-filename"},
 		cli.StringFlag{Name: "output-filename"},
 		cli.BoolFlag{Name: "openurl", Usage: "Open url in background"},
+		cli.BoolFlag{Name: "filter-status-code-ok", Usage:"Use only examples with status code = 200"},
 	},
 }

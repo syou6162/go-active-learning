@@ -131,3 +131,15 @@ func AttachMetaData(cache *Cache, examples Examples) {
 	}
 	wg.Wait()
 }
+
+func FilterStatusCodeOkExamples(examples Examples) Examples {
+	result := Examples{}
+
+	for _, e := range examples {
+		if e.StatusCode == 200 {
+			result = append(result, e)
+		}
+	}
+
+	return result
+}
