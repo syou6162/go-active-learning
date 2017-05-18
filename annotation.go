@@ -59,7 +59,7 @@ e: Exit.
 func doAnnotate(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
 	outputFilename := c.String("output-filename")
-	openUrl := c.Bool("openurl")
+	openUrl := c.Bool("open-url")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 
 	if inputFilename == "" {
@@ -143,7 +143,7 @@ Annotate URLs using active learning.
 	Flags: []cli.Flag{
 		cli.StringFlag{Name: "input-filename"},
 		cli.StringFlag{Name: "output-filename"},
-		cli.BoolFlag{Name: "openurl", Usage: "Open url in background"},
+		cli.BoolFlag{Name: "open-url", Usage: "Open url in background"},
 		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
 	},
 }
