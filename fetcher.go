@@ -13,7 +13,6 @@ type Article struct {
 	Title       string
 	Description string
 	Body        string
-	RawHTML     string
 	StatusCode  int
 }
 
@@ -40,5 +39,5 @@ func GetArticle(url string) Article {
 		return Article{StatusCode: resp.StatusCode}
 	}
 
-	return Article{url, article.Title, article.MetaDescription, article.CleanedText, article.RawHTML, resp.StatusCode}
+	return Article{url, article.Title, article.MetaDescription, article.CleanedText, resp.StatusCode}
 }

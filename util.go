@@ -113,7 +113,6 @@ func AttachMetaData(cache *Cache, examples Examples) {
 				e.Title = example.Title
 				e.Description = example.Description
 				e.Body = example.Body
-				e.RawHTML = example.RawHTML
 				e.StatusCode = example.StatusCode
 			} else {
 				article := GetArticle(e.Url)
@@ -121,7 +120,6 @@ func AttachMetaData(cache *Cache, examples Examples) {
 				e.Title = article.Title
 				e.Description = article.Description
 				e.Body = article.Body
-				e.RawHTML = article.RawHTML
 				e.StatusCode = article.StatusCode
 				cache.Add(*e)
 			}
