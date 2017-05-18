@@ -107,7 +107,7 @@ func doAnnotate(c *cli.Context) error {
 		return cli.NewExitError("`output-filename` is a required field.", 1)
 	}
 
-	cacheFilename := "cache.bin"
+	cacheFilename := CacheFilename
 
 	cache, _ := LoadCache(cacheFilename)
 	examples, _ := ReadExamples(inputFilename)

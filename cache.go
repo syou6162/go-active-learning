@@ -11,6 +11,8 @@ type Cache struct {
 	Cache map[string]Example `json:"Cache"`
 }
 
+var CacheFilename = "cache.bin"
+
 func NewCache() *Cache {
 	return &Cache{make(map[string]Example)}
 }
