@@ -8,6 +8,7 @@ import (
 
 var Commands = []cli.Command{
 	commandAnnotate,
+	commandDiagnose,
 }
 
 func main() {
