@@ -65,6 +65,7 @@ func doDiagnose(c *cli.Context) error {
 	sort.Sort(correctExamples)
 	for _, e := range correctExamples {
 		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + e.Title)
+		idx++
 	}
 
 	cache.Save(CacheFilename)
