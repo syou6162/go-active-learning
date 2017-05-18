@@ -41,7 +41,7 @@ func (c *Cache) Save(filename string) error {
 	if err != nil {
 		return err
 	}
-	json, err := json.Marshal(*c)
+	json, err := json.Marshal(c.Cache)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func LoadCache(filename string) (*Cache, error) {
 		return cache, err
 	}
 
-	if err := json.Unmarshal(bytes, cache); err != nil {
+	if err := json.Unmarshal(bytes, &cache.Cache); err != nil {
 		return cache, err
 	}
 	return cache, nil
