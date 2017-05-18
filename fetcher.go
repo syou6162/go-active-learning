@@ -19,7 +19,7 @@ func GetArticle(url string) Article {
 	g := goose.New()
 	resp, err := http.Get(url)
 	if err != nil {
-		return Article{StatusCode:resp.StatusCode}
+		return Article{}
 	}
 	defer resp.Body.Close()
 
