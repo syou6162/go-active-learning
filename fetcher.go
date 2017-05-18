@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io/ioutil"
+	"net/http"
 	"github.com/advancedlogic/GoOse"
 )
 
@@ -10,13 +12,19 @@ type Article struct {
 	Description string
 	Body        string
 	RawHTML     string
+	StatusCode  int
 }
 
 func GetArticle(url string) Article {
 	g := goose.New()
-	article, err := g.ExtractFromURL(url)
+	resp, _ := http.Get(url)
+	defer resp.Body.Close()
+
+	html, _ := ioutil.ReadAll(resp.Body)
+	article, err := g.ExtractFromRawHTML(url, string(html))
 	if err != nil {
-		return Article{}
+		return Article{StatusCode:resp.StatusCode}
 	}
-	return Article{url, article.Title, article.MetaDescription, article.CleanedText, article.RawHTML}
+
+	return Article{url, article.Title, article.MetaDescription, article.CleanedText, article.RawHTML, resp.StatusCode}
 }
