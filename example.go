@@ -20,7 +20,7 @@ type Example struct {
 	RawHTML     string `json:"RawHTML"`
 	Score       float64
 	IsNew       bool
-	StatusCode  int    `json:StatusCode`
+	StatusCode  int `json:StatusCode`
 }
 
 type Examples []*Example

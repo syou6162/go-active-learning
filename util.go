@@ -117,7 +117,7 @@ func AttachMetaData(cache *Cache, examples Examples) {
 				e.StatusCode = example.StatusCode
 			} else {
 				article := GetArticle(e.Url)
-				fmt.Fprintln(os.Stderr, "Fetching(" + strconv.Itoa(idx) + "): " + e.Url)
+				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				e.Title = article.Title
 				e.Description = article.Description
 				e.Body = article.Body

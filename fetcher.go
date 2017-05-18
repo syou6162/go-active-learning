@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
 	"github.com/advancedlogic/GoOse"
 )
 
@@ -31,12 +32,12 @@ func GetArticle(url string) Article {
 
 	html, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Article{StatusCode:resp.StatusCode}
+		return Article{StatusCode: resp.StatusCode}
 	}
 
 	article, err := g.ExtractFromRawHTML(url, string(html))
 	if err != nil {
-		return Article{StatusCode:resp.StatusCode}
+		return Article{StatusCode: resp.StatusCode}
 	}
 
 	return Article{url, article.Title, article.MetaDescription, article.CleanedText, article.RawHTML, resp.StatusCode}

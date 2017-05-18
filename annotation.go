@@ -144,6 +144,6 @@ Annotate URLs using active learning.
 		cli.StringFlag{Name: "input-filename"},
 		cli.StringFlag{Name: "output-filename"},
 		cli.BoolFlag{Name: "openurl", Usage: "Open url in background"},
-		cli.BoolFlag{Name: "filter-status-code-ok", Usage:"Use only examples with status code = 200"},
+		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
 	},
 }
