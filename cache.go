@@ -10,7 +10,7 @@ import (
 
 type Cache struct {
 	Cache map[string]Example `json:"Cache"`
-	mu    sync.RWMutex
+	sync.RWMutex
 }
 
 var CacheFilename = "cache.bin"
@@ -20,16 +20,16 @@ func NewCache() *Cache {
 }
 
 func (c *Cache) Get(example Example) (Example, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	e, ok := c.Cache[example.Url]
 	return e, ok
 }
 
 func (c *Cache) Add(example Example) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	c.Cache[example.Url] = example
 }
