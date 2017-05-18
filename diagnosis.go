@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/codegangsta/cli"
 )
@@ -58,13 +59,15 @@ func doDiagnose(c *cli.Context) error {
 
 	idx := 0
 	for _, e := range wrongExamples {
-		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + e.Title)
+		title := strings.Replace(e.Title, "\n", "", -1)
+		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + title)
 		idx++
 	}
 
 	sort.Sort(correctExamples)
 	for _, e := range correctExamples {
-		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + e.Title)
+		title := strings.Replace(e.Title, "\n", "", -1)
+		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + title)
 		idx++
 	}
 
