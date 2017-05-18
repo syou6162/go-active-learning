@@ -22,7 +22,7 @@ func (c *Cache) Add(example Example) {
 }
 
 func (c *Cache) Save(filename string) error {
-	fmt.Println("Saving cache...")
+	fmt.Fprintln(os.Stderr, "Saving cache...")
 	file, err := os.Create(filename)
 	defer file.Close()
 	if err != nil {
@@ -40,7 +40,7 @@ func (c *Cache) Save(filename string) error {
 }
 
 func LoadCache(filename string) (*Cache, error) {
-	fmt.Println("Loading cache...")
+	fmt.Fprintln(os.Stderr, "Loading cache...")
 	cache := NewCache()
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
