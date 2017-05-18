@@ -2,9 +2,6 @@ package main
 
 import (
 	"fmt"
-	"runtime"
-	"strconv"
-	"sync"
 
 	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
@@ -58,41 +55,6 @@ s: Save additionally annotated examples in 'output-filename'.
 h: Show this help.
 e: Exit.
 `
-
-func AttachMetaData(cache *Cache, examples Examples) {
-	shuffle(examples)
-
-	wg := &sync.WaitGroup{}
-	cpus := runtime.NumCPU()
-	runtime.GOMAXPROCS(cpus)
-	sem := make(chan struct{}, cpus)
-	for idx, e := range examples {
-		wg.Add(1)
-		sem <- struct{}{}
-		go func(e *Example, idx int) {
-			defer wg.Done()
-			if example, ok := cache.Cache[e.Url]; ok {
-				e.Title = example.Title
-				e.Description = example.Description
-				e.Body = example.Body
-				e.RawHTML = example.RawHTML
-				e.StatusCode = example.StatusCode
-			} else {
-				article := GetArticle(e.Url)
-				fmt.Println("Fetching(" + strconv.Itoa(idx) + "): " + e.Url)
-				e.Title = article.Title
-				e.Description = article.Description
-				e.Body = article.Body
-				e.RawHTML = article.RawHTML
-				e.StatusCode = article.StatusCode
-				cache.Add(*e)
-			}
-			e.Fv = removeDuplicate(ExtractFeatures(*e))
-			<-sem
-		}(e, idx)
-	}
-	wg.Wait()
-}
 
 func doAnnotate(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
