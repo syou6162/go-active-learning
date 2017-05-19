@@ -13,9 +13,9 @@ import (
 
 var commandDiagnose = cli.Command{
 	Name:  "diagnose",
-	Usage: "Diagnose URLs",
+	Usage: "Diagnose label conflicts in training data",
 	Description: `
-Diagnose URLs.
+Diagnose label conflicts in training data. 'conflict' means that an annotated label is '-1/1', but a predicted label by model is '1/-1'.
 `,
 	Action: doDiagnose,
 	Flags: []cli.Flag{
