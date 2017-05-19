@@ -19,13 +19,13 @@ go-active-learning is a command line annotation tool for binary classification p
 ```
 
 # Usage
-go-active-learning has `annotate` (annotate new examples suggested by active learning) mode. To see the detail options, type `./go-active-learning --help`.
+go-active-learning has `annotate` (annotate new examples suggested by active learning) mode and `diagnose` (check label conflicts in training data) mode. To see the detail options, type `./go-active-learning --help`.
 
 ## Annotate new examples
-To see the detail options, type `./go-active-learning train --help`.
+To see the detail options, type `./go-active-learning annotate --help`.
 
 ```console
-% ./go-active-learning annotate --input-filename tech_input_example.txt --output-filename additionaly_annotated_examples.txt --openurl
+% ./go-active-learning annotate --input-filename tech_input_example.txt --output-filename additionaly_annotated_examples.txt --open-url
 Loading cache...
 Label this example (Score: 0.600): http://srdk.rakuten.jp/ (それどこ)
 
@@ -41,6 +41,9 @@ Saving cache...
 % cat additionaly_annotated_examples.txt
 http://srdk.rakuten.jp/ -1
 ```
+
+## Diagnose training data
+To see the detail options, type `./go-active-learning diagnose --help`.
 
 # Author
 Yasuhisa Yoshida
