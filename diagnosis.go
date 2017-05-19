@@ -59,18 +59,24 @@ func doDiagnose(c *cli.Context) error {
 
 	idx := 0
 	for _, e := range wrongExamples {
-		title := strings.Replace(e.Title, "\n", "", -1)
+		title := encodeTitle(e.Title)
 		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + title)
 		idx++
 	}
 
 	sort.Sort(correctExamples)
 	for _, e := range correctExamples {
-		title := strings.Replace(e.Title, "\n", "", -1)
+		title := encodeTitle(e.Title)
 		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + title)
 		idx++
 	}
 
 	cache.Save(CacheFilename)
 	return nil
+}
+
+func encodeTitle(title string) string {
+	t := strings.Replace(title, "\n", "", -1)
+	t = strings.Replace(t, `"`, ``, -1)
+	return t
 }
