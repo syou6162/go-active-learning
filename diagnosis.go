@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
-	"strings"
+
+	"encoding/csv"
 
 	"github.com/codegangsta/cli"
 )
@@ -53,30 +55,38 @@ func doDiagnose(c *cli.Context) error {
 		}
 	}
 
-	fmt.Println("Index\tLabel\tScore\tURL\tTitle")
-
 	sort.Sort(sort.Reverse(wrongExamples))
-
-	idx := 0
-	for _, e := range wrongExamples {
-		title := encodeTitle(e.Title)
-		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + title)
-		idx++
-	}
-
 	sort.Sort(correctExamples)
-	for _, e := range correctExamples {
-		title := encodeTitle(e.Title)
-		fmt.Println(strconv.Itoa(idx) + "\t" + strconv.Itoa(int(e.Label)) + "\t" + fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)) + "\t" + e.Url + "\t" + title)
-		idx++
-	}
+	printResult(model, correctExamples, wrongExamples)
 
 	cache.Save(CacheFilename)
 	return nil
 }
 
-func encodeTitle(title string) string {
-	t := strings.Replace(title, "\n", "", -1)
-	t = strings.Replace(t, `"`, ``, -1)
-	return t
+func printResult(model *Model, correctExamples Examples, wrongExamples Examples) error {
+	fmt.Println("Index\tLabel\tScore\tURL\tTitle")
+	result := append(wrongExamples, correctExamples...)
+
+	w := csv.NewWriter(os.Stdout)
+	w.Comma = '\t'
+
+	for idx, e := range result {
+		record := []string{
+			strconv.Itoa(idx),
+			strconv.Itoa(int(e.Label)),
+			fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)),
+			e.Url,
+			e.Title,
+		}
+		if err := w.Write(record); err != nil {
+			return err
+		}
+	}
+
+	w.Flush()
+	if err := w.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
