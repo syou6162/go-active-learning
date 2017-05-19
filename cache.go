@@ -60,8 +60,10 @@ func LoadCache(filename string) (*Cache, error) {
 		return cache, err
 	}
 
-	if err := json.Unmarshal(bytes, &cache.Cache); err != nil {
+	c := make(map[string]Example)
+	if err := json.Unmarshal(bytes, &c); err != nil {
 		return cache, err
 	}
+	cache.Cache = c
 	return cache, nil
 }
