@@ -6,6 +6,8 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
+	"math"
+	"sort"
 )
 
 type ActionType int
@@ -61,6 +63,7 @@ func doAnnotate(c *cli.Context) error {
 	outputFilename := c.String("output-filename")
 	openUrl := c.Bool("open-url")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
+	showActiveFeatures := c.Bool("show-active-features")
 
 	if inputFilename == "" {
 		_ = cli.ShowCommandHelp(c, "annotate")
@@ -97,6 +100,9 @@ annotationLoop:
 
 		if openUrl {
 			browser.OpenURL(e.Url)
+		}
+		if showActiveFeatures {
+			ShowActiveFeatures(model, *e, 5)
 		}
 
 		act, err := input2ActionType()
@@ -145,5 +151,42 @@ Annotate URLs using active learning.
 		cli.StringFlag{Name: "output-filename"},
 		cli.BoolFlag{Name: "open-url", Usage: "Open url in background"},
 		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
+		cli.BoolFlag{Name: "show-active-features"},
 	},
+}
+
+type FeatureWeightPair struct {
+	Feature string
+	Weight  float64
+}
+
+type FeatureWeightPairs []FeatureWeightPair
+
+func ShowActiveFeatures(model *Model, example Example, n int) {
+	result := FeatureWeightPairs{}
+	for _, f := range example.Fv {
+		result = append(result, FeatureWeightPair{f, model.GetAveragedWeight(f)})
+	}
+	sort.Sort(sort.Reverse(result))
+
+	cnt := 0
+	for _, pair := range result {
+		if cnt >= n {
+			break
+		}
+		fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
+		cnt++
+	}
+}
+
+func (slice FeatureWeightPairs) Len() int {
+	return len(slice)
+}
+
+func (slice FeatureWeightPairs) Less(i, j int) bool {
+	return math.Abs(slice[i].Weight) < math.Abs(slice[j].Weight)
+}
+
+func (slice FeatureWeightPairs) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
 }

@@ -126,3 +126,17 @@ func TrainedModel(examples Examples) *Model {
 	}
 	return model
 }
+
+func (model Model) GetAveragedWeight(f string) float64 {
+	result := 0.0
+	w, ok := model.weight[f]
+	if ok {
+		result = result + w*1.0
+	}
+
+	w, ok = model.cumWeight[f]
+	if ok {
+		result = result - w*1.0/float64(model.count)
+	}
+	return result
+}
