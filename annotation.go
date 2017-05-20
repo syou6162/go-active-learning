@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"os"
+
+	"math"
+	"sort"
 
 	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
-	"math"
-	"sort"
 )
 
 type ActionType int
@@ -77,8 +79,16 @@ func doAnnotate(c *cli.Context) error {
 
 	cacheFilename := CacheFilename
 
-	cache, _ := LoadCache(cacheFilename)
-	examples, _ := ReadExamples(inputFilename)
+	cache, err := LoadCache(cacheFilename)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+
+	examples, err := ReadExamples(inputFilename)
+	if err != nil {
+		return err
+	}
+
 	AttachMetaData(cache, examples)
 	if filterStatusCodeOk {
 		examples = FilterStatusCodeOkExamples(examples)
