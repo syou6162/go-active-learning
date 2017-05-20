@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"github.com/ikawaha/kagome/tokenizer"
 )
 
@@ -12,10 +13,14 @@ func ExtractNounFeatures(s string, prefix string) FeatureVector {
 		return fv
 	}
 	t := tokenizer.New()
-	tokens := t.Tokenize(s)
+	tokens := t.Tokenize(strings.ToLower(s))
 	for _, token := range tokens {
 		if token.Pos() == "名詞" {
-			fv = append(fv, prefix+":"+token.Surface)
+			surface := token.Surface
+			if len(token.Features()) >= 2 && token.Features()[1] == "数" {
+				surface = "NUM"
+			}
+			fv = append(fv, prefix+":"+surface)
 		}
 	}
 	return fv
