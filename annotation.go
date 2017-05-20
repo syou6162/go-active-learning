@@ -184,8 +184,10 @@ func ShowActiveFeatures(model *Model, example Example, n int) {
 		if cnt >= n {
 			break
 		}
-		fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
-		cnt++
+		if (example.Score > 0.0 && pair.Weight > 0.0) || (example.Score < 0.0 && pair.Weight < 0.0) {
+			fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
+			cnt++
+		}
 	}
 }
 
