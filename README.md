@@ -43,7 +43,23 @@ http://srdk.rakuten.jp/ -1
 ```
 
 ## Diagnose training data
-To see the detail options, type `./go-active-learning diagnose --help`.
+To see the detail options, type `./go-active-learning diagnose --help`. This mode diagnoses label conflicts in training data. 'conflict' means that an annotated label is '-1/1', but a predicted label by model is '1/-1'. In the above example, `http://www3.nhk.or.jp/news/` is a conflict case ('Label' is -1, but 'Score' is positive). You may need to collect such news articles to train a good classifier.
+
+```console
+% ./go-active-learning diagnose --input-filename tech_input_example.txt
+Loading cache...
+Index   Label   Score   URL     Title
+0       -1      0.491   http://www3.nhk.or.jp/news/
+1       1       0.491   http://blog.yuuk.io/
+2       1       0.491   http://www.yasuhisay.info/
+3       -1      -3.057  http://r.gnavi.co.jp/g-interview/       ぐるなび みんなのごはん
+4       1       4.264   http://hakobe932.hatenablog.com/        hakobe-blog ♨
+5       -1      -7.151  http://suumo.jp/town/   SUUMOタウン
+6       -1      -26.321 https://www.facebook.com/       ログイン (日本語)
+7       1       44.642  http://www.songmu.jp/riji/      おそらくはそれさえも平凡な日々
+8       1       121.170 http://motemen.hatenablog.com/  詩と創作・思索のひろば
+Saving cache...
+```
 
 # Author
 Yasuhisa Yoshida
