@@ -103,7 +103,7 @@ func AttachMetaData(cache *Cache, examples Examples) {
 	wg := &sync.WaitGroup{}
 	cpus := runtime.NumCPU()
 	runtime.GOMAXPROCS(cpus)
-	sem := make(chan struct{}, 20)
+	sem := make(chan struct{}, 2000)
 	for idx, e := range examples {
 		wg.Add(1)
 		sem <- struct{}{}
