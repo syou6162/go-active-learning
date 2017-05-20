@@ -24,10 +24,10 @@ func ParseLine(line string) (*Example, error) {
 		case POSITIVE, NEGATIVE, UNLABELED:
 			return NewExample(url, LabelType(label)), nil
 		default:
-			return nil, errors.New("Invalid Label type")
+			return nil, errors.New(fmt.Sprintf("Invalid Label type %d in %s", label, line))
 		}
 	} else {
-		return nil, errors.New("Invalid line")
+		return nil, errors.New(fmt.Sprintf("Invalid line: %s", line))
 	}
 }
 
