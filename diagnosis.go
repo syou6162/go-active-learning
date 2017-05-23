@@ -13,14 +13,36 @@ import (
 
 var commandDiagnose = cli.Command{
 	Name:  "diagnose",
-	Usage: "Diagnose label conflicts in training data",
+	Usage: "Diagnose training data or learned model",
 	Description: `
+Diagnose training data or learned model. This mode has two subcommand: label-conflict and feature-weight.
+`,
+
+	Subcommands: []cli.Command{
+		{
+			Name:  "label-conflict",
+			Usage: "Diagnose label conflicts in training data",
+			Description: `
 Diagnose label conflicts in training data. 'conflict' means that an annotated label is '-1/1', but a predicted label by model is '1/-1'.
 `,
-	Action: doDiagnose,
-	Flags: []cli.Flag{
-		cli.StringFlag{Name: "input-filename"},
-		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
+			Action: doDiagnose,
+			Flags: []cli.Flag{
+				cli.StringFlag{Name: "input-filename"},
+				cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
+			},
+		},
+		{
+			Name:  "feature-weight",
+			Usage: "List feature weight",
+			Description: `
+List feature weight.
+`,
+			Action: doListFeatureWeight,
+			Flags: []cli.Flag{
+				cli.StringFlag{Name: "input-filename"},
+				cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
+			},
+		},
 	},
 }
 
@@ -88,5 +110,49 @@ func printResult(model *Model, correctExamples Examples, wrongExamples Examples)
 		return err
 	}
 
+	return nil
+}
+
+type Feature struct {
+	Key    string
+	Weight float64
+}
+
+type FeatureList []Feature
+
+func (p FeatureList) Len() int           { return len(p) }
+func (p FeatureList) Less(i, j int) bool { return p[i].Weight < p[j].Weight }
+func (p FeatureList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
+func doListFeatureWeight(c *cli.Context) error {
+	inputFilename := c.String("input-filename")
+	filterStatusCodeOk := c.Bool("filter-status-code-ok")
+
+	if inputFilename == "" {
+		_ = cli.ShowCommandHelp(c, "feature-weight")
+	}
+
+	cache, _ := LoadCache(CacheFilename)
+	examples, _ := ReadExamples(inputFilename)
+	AttachMetaData(cache, examples)
+	training := FilterLabeledExamples(examples)
+
+	if filterStatusCodeOk {
+		training = FilterStatusCodeOkExamples(training)
+	}
+
+	model := TrainedModel(training)
+
+	tmp := make(FeatureList, 0)
+	for k := range model.cumWeight {
+		tmp = append(tmp, Feature{k, model.GetAveragedWeight(k)})
+	}
+	sort.Sort(sort.Reverse(tmp))
+
+	for _, p := range tmp {
+		fmt.Println(fmt.Sprintf("%+0.2f\t%s", p.Weight, p.Key))
+	}
+
+	cache.Save(CacheFilename)
 	return nil
 }
