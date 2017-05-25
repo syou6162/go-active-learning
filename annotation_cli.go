@@ -116,22 +116,30 @@ type FeatureWeightPair struct {
 
 type FeatureWeightPairs []FeatureWeightPair
 
-func ShowActiveFeatures(model *Model, example Example, n int) {
-	result := FeatureWeightPairs{}
+func SortedActiveFeatures(model *Model, example Example, n int) FeatureWeightPairs {
+	pairs := FeatureWeightPairs{}
 	for _, f := range example.Fv {
-		result = append(result, FeatureWeightPair{f, model.GetAveragedWeight(f)})
+		pairs = append(pairs, FeatureWeightPair{f, model.GetAveragedWeight(f)})
 	}
-	sort.Sort(sort.Reverse(result))
+	sort.Sort(sort.Reverse(pairs))
 
+	result := FeatureWeightPairs{}
 	cnt := 0
-	for _, pair := range result {
+	for _, pair := range pairs {
 		if cnt >= n {
 			break
 		}
 		if (example.Score > 0.0 && pair.Weight > 0.0) || (example.Score < 0.0 && pair.Weight < 0.0) {
-			fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
+			result = append(result, pair)
 			cnt++
 		}
+	}
+	return result
+}
+
+func ShowActiveFeatures(model *Model, example Example, n int) {
+	for _, pair := range SortedActiveFeatures(model, example, n) {
+		fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
 	}
 }
 
