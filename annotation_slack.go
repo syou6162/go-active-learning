@@ -52,6 +52,9 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	go rtm.ManageConnection()
 
 	example := NextExampleToBeAnnotated(model, examples)
+	if example == nil {
+		return errors.New("No example to annotate")
+	}
 
 	rtm.SendMessage(rtm.NewOutgoingMessage("Ready to annotate!", channelID))
 	rtm.SendMessage(rtm.NewOutgoingMessage(example.Url, channelID))
@@ -96,6 +99,9 @@ annotationLoop:
 					break annotationLoop
 				}
 				example = NextExampleToBeAnnotated(model, examples)
+				if example == nil {
+					return errors.New("No example to annotate")
+				}
 				rtm.SendMessage(rtm.NewOutgoingMessage(example.Url, channelID))
 			case *slack.InvalidAuthEvent:
 				return errors.New("Invalid credentials")
