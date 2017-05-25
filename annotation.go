@@ -106,7 +106,6 @@ annotationLoop:
 			break
 		}
 		fmt.Println("Label this example (Score: " + fmt.Sprintf("%+0.03f", e.Score) + "): " + e.Url + " (" + e.Title + ")")
-		cache.Add(*e)
 
 		if openUrl {
 			browser.OpenURL(e.Url)
