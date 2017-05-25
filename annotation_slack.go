@@ -112,6 +112,7 @@ annotationLoop:
 			}
 		}
 	}
+	WriteExamples(examples, outputFilename)
 	cache.Save(cacheFilename)
 	return nil
 }
