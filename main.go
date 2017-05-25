@@ -9,6 +9,7 @@ import (
 
 var Commands = []cli.Command{
 	commandAnnotate,
+	commandApply,
 	commandDiagnose,
 }
 
