@@ -85,6 +85,30 @@ func FilterLabeledExamples(examples Examples) Examples {
 	return result
 }
 
+func FilterUnlabeledExamples(examples Examples) Examples {
+	result := Examples{}
+
+	alreadyLabeledByURL := make(map[string]bool)
+	alreadyLabeledByTitle := make(map[string]bool)
+	for _, e := range FilterLabeledExamples(examples) {
+		alreadyLabeledByURL[e.Url] = true
+		alreadyLabeledByTitle[e.Title] = true
+	}
+
+	for _, e := range examples {
+		if _, ok := alreadyLabeledByURL[e.Url]; ok {
+			continue
+		}
+		if _, ok := alreadyLabeledByTitle[e.Title]; ok {
+			continue
+		}
+		if !e.IsLabeled() {
+			result = append(result, e)
+		}
+	}
+	return result
+}
+
 func removeDuplicate(args []string) []string {
 	results := make([]string, 0)
 	encountered := map[string]bool{}
