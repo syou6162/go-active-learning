@@ -68,6 +68,9 @@ annotationLoop:
 			case *slack.AckMessage:
 				prevTimestamp = ev.Timestamp
 			case *slack.MessageEvent:
+				if ev.Channel != channelID {
+					break
+				}
 				text := ev.Text
 				if len(text) > 1 || len(text) == 0 {
 					break
