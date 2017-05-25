@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"os"
 
+	"encoding/json"
+
 	"github.com/codegangsta/cli"
 )
 
 func doApply(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
+	jsonOutput := c.Bool("json-output")
 
 	if inputFilename == "" {
 		_ = cli.ShowCommandHelp(c, "apply")
@@ -36,7 +39,15 @@ func doApply(c *cli.Context) error {
 
 	for _, e := range FilterUnlabeledExamples(examples) {
 		e.Score = model.PredictScore(e.Fv)
-		fmt.Println(fmt.Sprintf("%0.03f\t%s", e.Score, e.Url))
+		if jsonOutput {
+			b, err := json.Marshal(e)
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(b))
+		} else {
+			fmt.Println(fmt.Sprintf("%0.03f\t%s", e.Score, e.Url))
+		}
 	}
 
 	cache.Save(cacheFilename)
@@ -53,5 +64,6 @@ Apply classifier to unlabeled examples, and print a pair of score and url.
 	Flags: []cli.Flag{
 		cli.StringFlag{Name: "input-filename"},
 		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
+		cli.BoolFlag{Name: "json-output"},
 	},
 }
