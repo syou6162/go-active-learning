@@ -36,7 +36,7 @@ func rune2ActionType(r rune) ActionType {
 	case 'e':
 		return EXIT
 	default:
-		return SKIP
+		return HELP
 	}
 }
 
@@ -50,7 +50,7 @@ func input2ActionType() (ActionType, error) {
 	for r == 0 {
 		r, err = t.ReadRune()
 		if err != nil {
-			return SKIP, err
+			return HELP, err
 		}
 	}
 	return rune2ActionType(r), nil
