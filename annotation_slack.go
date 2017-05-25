@@ -112,5 +112,6 @@ annotationLoop:
 			}
 		}
 	}
+	cache.Save(cacheFilename)
 	return nil
 }
