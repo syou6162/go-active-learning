@@ -69,18 +69,18 @@ annotationLoop:
 				if len(text) > 1 || len(text) == 0 {
 					break
 				}
-
-				rtm.SendMessage(rtm.NewOutgoingMessage(example.Url, channelID))
 				r := []rune(text)[0]
 				act := rune2ActionType(r)
 
 				switch act {
 				case LABEL_AS_POSITIVE:
-					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, ev.Timestamp))
 					example.Annotate(POSITIVE)
+					model = TrainedModel(examples)
+					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, ev.Timestamp))
 				case LABEL_AS_NEGATIVE:
-					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 					example.Annotate(NEGATIVE)
+					model = TrainedModel(examples)
+					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case SKIP:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Skiped this example", channelID))
 					break
@@ -95,8 +95,8 @@ annotationLoop:
 				default:
 					break annotationLoop
 				}
-				model = TrainedModel(examples)
 				example = NextExampleToBeAnnotated(model, examples)
+				rtm.SendMessage(rtm.NewOutgoingMessage(example.Url, channelID))
 			case *slack.InvalidAuthEvent:
 				return errors.New("Invalid credentials")
 			default:
