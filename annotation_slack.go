@@ -79,7 +79,7 @@ annotationLoop:
 				case LABEL_AS_POSITIVE:
 					example.Annotate(POSITIVE)
 					model = TrainedModel(examples)
-					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, ev.Timestamp))
+					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
 					example.Annotate(NEGATIVE)
 					model = TrainedModel(examples)
