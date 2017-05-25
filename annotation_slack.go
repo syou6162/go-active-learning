@@ -57,7 +57,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	}
 
 	rtm.SendMessage(rtm.NewOutgoingMessage("Ready to annotate!", channelID))
-	rtm.SendMessage(rtm.NewOutgoingMessage(example.Url, channelID))
+	showExample(rtm, model, example, channelID)
 	prevTimestamp := ""
 
 annotationLoop:
@@ -105,7 +105,7 @@ annotationLoop:
 				if example == nil {
 					return errors.New("No example to annotate")
 				}
-				rtm.SendMessage(rtm.NewOutgoingMessage(example.Url, channelID))
+				showExample(rtm, model, example, channelID)
 			case *slack.InvalidAuthEvent:
 				return errors.New("Invalid credentials")
 			default:
@@ -115,4 +115,12 @@ annotationLoop:
 	WriteExamples(examples, outputFilename)
 	cache.Save(cacheFilename)
 	return nil
+}
+
+func showExample(rtm *slack.RTM, model *Model, example *Example, channelID string) {
+	activeFeaturesStr := "Active Features: "
+	for _, pair := range SortedActiveFeatures(model, *example, 5) {
+		activeFeaturesStr += fmt.Sprintf("%s(%+0.1f) ", pair.Feature, pair.Weight)
+	}
+	rtm.SendMessage(rtm.NewOutgoingMessage(fmt.Sprintf("%s\nScore: %+0.2f\n%s", example.Url, example.Score, activeFeaturesStr, ), channelID))
 }
