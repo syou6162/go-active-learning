@@ -103,6 +103,8 @@ func FilterUnlabeledExamples(examples Examples) Examples {
 			continue
 		}
 		if !e.IsLabeled() {
+			alreadyLabeledByURL[e.Url] = true
+			alreadyLabeledByTitle[e.Title] = true
 			result = append(result, e)
 		}
 	}
