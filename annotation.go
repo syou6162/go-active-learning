@@ -23,6 +23,23 @@ const (
 	EXIT
 )
 
+func rune2ActionType(r rune) ActionType {
+	switch r {
+	case 'p':
+		return LABEL_AS_POSITIVE
+	case 'n':
+		return LABEL_AS_NEGATIVE
+	case 's':
+		return SAVE
+	case 'h':
+		return HELP
+	case 'e':
+		return EXIT
+	default:
+		return SKIP
+	}
+}
+
 func input2ActionType() (ActionType, error) {
 	t, err := tty.Open()
 	defer t.Close()
@@ -36,20 +53,7 @@ func input2ActionType() (ActionType, error) {
 			return SKIP, err
 		}
 	}
-	switch r {
-	case 'p':
-		return LABEL_AS_POSITIVE, nil
-	case 'n':
-		return LABEL_AS_NEGATIVE, nil
-	case 's':
-		return SAVE, nil
-	case 'h':
-		return HELP, nil
-	case 'e':
-		return EXIT, nil
-	default:
-		return SKIP, nil
-	}
+	return rune2ActionType(r), nil
 }
 
 func NextExampleToBeAnnotated(model *Model, examples Examples) *Example {
