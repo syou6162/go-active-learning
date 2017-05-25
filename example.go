@@ -51,3 +51,18 @@ func (slice Examples) Less(i, j int) bool {
 func (slice Examples) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
+
+func GetStat(examples Examples) map[string]int {
+	stat := make(map[string]int)
+	for _, e := range examples {
+		switch e.Label {
+		case POSITIVE:
+			stat["positive"]++
+		case NEGATIVE:
+			stat["negative"]++
+		case UNLABELED:
+			stat["unlabeled"]++
+		}
+	}
+	return stat
+}

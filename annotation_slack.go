@@ -30,6 +30,10 @@ func doAnnotateWithSlack(c *cli.Context) error {
 		return cli.NewExitError("`channel` is a required field.", 1)
 	}
 
+	api := slack.New(os.Getenv("SLACK_TOKEN"))
+	rtm := api.NewRTM()
+	go rtm.ManageConnection()
+
 	cacheFilename := CacheFilename
 	cache, err := LoadCache(cacheFilename)
 	if err != nil {
@@ -41,16 +45,15 @@ func doAnnotateWithSlack(c *cli.Context) error {
 		return err
 	}
 
+	stat := GetStat(examples)
+	msg := rtm.NewOutgoingMessage(fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]), channelID)
+	rtm.SendMessage(msg)
+
 	AttachMetaData(cache, examples)
 	if filterStatusCodeOk {
 		examples = FilterStatusCodeOkExamples(examples)
 	}
 	model := TrainedModel(examples)
-
-	api := slack.New(os.Getenv("SLACK_TOKEN"))
-	rtm := api.NewRTM()
-	go rtm.ManageConnection()
-
 	example := NextExampleToBeAnnotated(model, examples)
 	if example == nil {
 		return errors.New("No example to annotate")
