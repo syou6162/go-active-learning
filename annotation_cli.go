@@ -12,34 +12,6 @@ import (
 	"github.com/pkg/browser"
 )
 
-type ActionType int
-
-const (
-	LABEL_AS_POSITIVE ActionType = iota
-	LABEL_AS_NEGATIVE
-	SAVE
-	HELP
-	SKIP
-	EXIT
-)
-
-func rune2ActionType(r rune) ActionType {
-	switch r {
-	case 'p':
-		return LABEL_AS_POSITIVE
-	case 'n':
-		return LABEL_AS_NEGATIVE
-	case 's':
-		return SAVE
-	case 'h':
-		return HELP
-	case 'e':
-		return EXIT
-	default:
-		return HELP
-	}
-}
-
 func input2ActionType() (ActionType, error) {
 	t, err := tty.Open()
 	defer t.Close()
@@ -56,26 +28,6 @@ func input2ActionType() (ActionType, error) {
 	return rune2ActionType(r), nil
 }
 
-func NextExampleToBeAnnotated(model *Model, examples Examples) *Example {
-	unlabeledExamples := model.SortByScore(examples)
-	if len(unlabeledExamples) == 0 {
-		return nil
-	}
-	e := unlabeledExamples[0]
-	if e == nil {
-		return nil
-	}
-	return e
-}
-
-var ActionHelpDoc = `
-p: Label this example as positive.
-n: Label this example as negative.
-s: Save additionally annotated examples in 'output-filename'.
-h: Show this help.
-e: Exit.
-`
-
 func doAnnotate(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
 	outputFilename := c.String("output-filename")
@@ -84,12 +36,12 @@ func doAnnotate(c *cli.Context) error {
 	showActiveFeatures := c.Bool("show-active-features")
 
 	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "annotate")
+		_ = cli.ShowCommandHelp(c, "cli")
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
 	if outputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "annotate")
+		_ = cli.ShowCommandHelp(c, "cli")
 		return cli.NewExitError("`output-filename` is a required field.", 1)
 	}
 
@@ -155,22 +107,6 @@ annotationLoop:
 	cache.Save(cacheFilename)
 
 	return nil
-}
-
-var commandAnnotate = cli.Command{
-	Name:  "annotate",
-	Usage: "Annotate URLs",
-	Description: `
-Annotate URLs using active learning.
-`,
-	Action: doAnnotate,
-	Flags: []cli.Flag{
-		cli.StringFlag{Name: "input-filename"},
-		cli.StringFlag{Name: "output-filename"},
-		cli.BoolFlag{Name: "open-url", Usage: "Open url in background"},
-		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
-		cli.BoolFlag{Name: "show-active-features"},
-	},
 }
 
 type FeatureWeightPair struct {
