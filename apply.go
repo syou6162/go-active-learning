@@ -34,9 +34,18 @@ func doApply(c *cli.Context) error {
 	}
 	model := TrainedModel(examples)
 
+	alreadyLabeled := make(map[string]bool)
+	for _, e := range FilterLabeledExamples(examples) {
+		alreadyLabeled[e.Url] = true
+	}
 	for _, e := range examples {
-		e.Score = model.PredictScore(e.Fv)
-		fmt.Println(fmt.Sprintf("%0.03f\t%s", e.Score, e.Url))
+		if _, ok := alreadyLabeled[e.Url]; ok {
+			continue
+		}
+		if !e.IsLabeled() {
+			e.Score = model.PredictScore(e.Fv)
+			fmt.Println(fmt.Sprintf("%0.03f\t%s", e.Score, e.Url))
+		}
 	}
 
 	cache.Save(cacheFilename)
