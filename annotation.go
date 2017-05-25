@@ -52,6 +52,18 @@ func input2ActionType() (ActionType, error) {
 	}
 }
 
+func NextExampleToBeAnnotated(model *Model, examples Examples) *Example {
+	unlabeledExamples := model.SortByScore(examples)
+	if len(unlabeledExamples) == 0 {
+		return nil
+	}
+	e := unlabeledExamples[0]
+	if e == nil {
+		return nil
+	}
+	return e
+}
+
 var ActionHelpDoc = `
 p: Label this example as positive.
 n: Label this example as negative.
@@ -97,14 +109,7 @@ func doAnnotate(c *cli.Context) error {
 
 annotationLoop:
 	for {
-		unlabeledExamples := model.SortByScore(examples)
-		if len(unlabeledExamples) == 0 {
-			break
-		}
-		e := unlabeledExamples[0]
-		if e == nil {
-			break
-		}
+		e := NextExampleToBeAnnotated(model, examples)
 		fmt.Println("Label this example (Score: " + fmt.Sprintf("%+0.03f", e.Score) + "): " + e.Url + " (" + e.Title + ")")
 
 		if openUrl {
