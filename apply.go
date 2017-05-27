@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"encoding/json"
-
-	"strings"
 
 	"github.com/codegangsta/cli"
 )
@@ -15,6 +14,10 @@ func doApply(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 	jsonOutput := c.Bool("json-output")
+	subsetSelection := c.Bool("subset-selection")
+	sizeConstraint := c.Int("size-constraint")
+	alpha := c.Float64("alpha")
+	r := c.Float64("r")
 
 	if inputFilename == "" {
 		_ = cli.ShowCommandHelp(c, "apply")
@@ -39,7 +42,20 @@ func doApply(c *cli.Context) error {
 	}
 	model := TrainedModel(examples)
 
+	result := Examples{}
 	for _, e := range FilterUnlabeledExamples(examples) {
+		e.Score = model.PredictScore(e.Fv)
+		e.Title = strings.Replace(e.Title, "\n", " ", -1)
+		if e.Score > 0.0 {
+			result = append(result, e)
+		}
+	}
+
+	if subsetSelection {
+		result = SelectSubExamplesBySubModular(model, result, sizeConstraint, alpha, r)
+	}
+
+	for _, e := range result {
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if jsonOutput {
@@ -67,6 +83,10 @@ Apply classifier to unlabeled examples, and print a pair of score and url.
 	Flags: []cli.Flag{
 		cli.StringFlag{Name: "input-filename"},
 		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
-		cli.BoolFlag{Name: "json-output"},
+		cli.BoolFlag{Name: "json-output", Usage: "Make output with json format or not (tsv format)."},
+		cli.BoolFlag{Name: "subset-selection", Usage: "Use subset selection algorithm (maximizing submodular function) to filter entries"},
+		cli.Int64Flag{Name: "size-constraint", Value: 10, Usage: "Budget constraint. Max number of entries to be contained"},
+		cli.Float64Flag{Name: "alpha", Value: 1.0},
+		cli.Float64Flag{Name: "r", Value: 1.0, Usage: "Scaling factor for number of words"},
 	},
 }
