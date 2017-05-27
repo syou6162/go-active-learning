@@ -83,10 +83,10 @@ Apply classifier to unlabeled examples, and print a pair of score and url.
 	Flags: []cli.Flag{
 		cli.StringFlag{Name: "input-filename"},
 		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
-		cli.BoolFlag{Name: "subset-selection"},
-		cli.BoolFlag{Name: "json-output"},
-		cli.Int64Flag{Name: "size-constraint", Value: 10},
+		cli.BoolFlag{Name: "json-output", Usage: "Make output with json format or not (tsv format)."},
+		cli.BoolFlag{Name: "subset-selection", Usage: "Use subset selection algorithm (maximizing submodular function) to filter entries"},
+		cli.Int64Flag{Name: "size-constraint", Value: 10, Usage: "Budget constraint. Max number of entries to be contained"},
 		cli.Float64Flag{Name: "alpha", Value: 1.0},
-		cli.Float64Flag{Name: "r", Value: 1.0},
+		cli.Float64Flag{Name: "r", Value: 1.0, Usage: "Scaling factor for number of words"},
 	},
 }
