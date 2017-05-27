@@ -16,6 +16,8 @@ func SelectSubExamplesBySubModular(model *Model, whole Examples, sizeConstraint 
 		selected = append(selected, remainings[argmax])
 		remainings = append(remainings[:argmax], remainings[argmax+1:]...)
 	}
+	// (1 - 1/e)/2の保証を与えるためにはもうちょっと頑張る必要があるが、省略している
+	// http://www.anthology.aclweb.org/E/E09/E09-1089.pdf
 	return selected
 }
 
