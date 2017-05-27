@@ -9,7 +9,7 @@ func SelectSubExamplesBySubModular(model *Model, whole Examples, sizeConstraint 
 	remainings := whole
 	simMat := GetSimilarityMatrix(model, whole)
 	for {
-		if len(selected) >= sizeConstraint {
+		if len(selected) >= sizeConstraint || len(remainings) == 0 {
 			break
 		}
 		argmax := SelectBestExample(simMat, remainings, selected, whole, alpha, r)
