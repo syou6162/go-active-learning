@@ -137,13 +137,15 @@ func AttachMetaData(cache *Cache, examples Examples) {
 			defer wg.Done()
 			if example, ok := cache.Get(*e); ok {
 				e.Title = example.Title
+				e.FinalUrl = example.FinalUrl
 				e.Description = example.Description
 				e.Body = example.Body
 				e.StatusCode = example.StatusCode
 			} else {
 				article := GetArticle(e.Url)
-				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
+				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+article.Url)
 				e.Title = article.Title
+				e.FinalUrl = article.Url
 				e.Description = article.Description
 				e.Body = article.Body
 				e.StatusCode = article.StatusCode

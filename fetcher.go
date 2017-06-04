@@ -39,5 +39,5 @@ func GetArticle(url string) Article {
 		return Article{StatusCode: resp.StatusCode}
 	}
 
-	return Article{url, article.Title, article.MetaDescription, article.CleanedText, resp.StatusCode}
+	return Article{resp.Request.URL.String(), article.Title, article.MetaDescription, article.CleanedText, resp.StatusCode}
 }
