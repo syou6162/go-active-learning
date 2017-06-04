@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/url"
 	"strings"
 
 	"github.com/ikawaha/kagome/tokenizer"
@@ -27,9 +28,19 @@ func ExtractNounFeatures(s string, prefix string) FeatureVector {
 	return fv
 }
 
+func ExtractHostFeature(urlString string) string {
+	prefix := "HOST"
+	u, err := url.Parse(urlString)
+	if err != nil {
+		return prefix + ":INVALID_HOST"
+	}
+	return prefix + ":" + u.Host
+}
+
 func ExtractFeatures(e Example) FeatureVector {
 	var fv FeatureVector
 	fv = append(fv, "BIAS")
+	fv = append(fv, ExtractHostFeature(e.FinalUrl))
 	fv = append(fv, ExtractNounFeatures(e.Title, "TITLE")...)
 	fv = append(fv, ExtractNounFeatures(e.Description, "DESCRIPTION")...)
 	fv = append(fv, ExtractNounFeatures(e.Body, "BODY")...)
