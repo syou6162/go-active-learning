@@ -3,13 +3,50 @@ package main
 import (
 	"net/url"
 	"strings"
+	"unicode"
 
 	"github.com/ikawaha/kagome/tokenizer"
+	"github.com/jdkato/prose/tag"
+	"github.com/jdkato/prose/tokenize"
 )
 
 type FeatureVector []string
 
-func ExtractNounFeatures(s string, prefix string) FeatureVector {
+func isJapanese(str string) bool {
+	flag := false
+	for _, r := range str {
+		if unicode.In(r, unicode.Hiragana) || unicode.In(r, unicode.Katakana) {
+			flag = true
+		}
+	}
+
+	if strings.ContainsAny(str, "。、") {
+		flag = true
+	}
+
+	return flag
+}
+
+func extractEngNounFeatures(s string, prefix string) FeatureVector {
+	var fv FeatureVector
+	if s == "" {
+		return fv
+	}
+
+	words := tokenize.NewTreebankWordTokenizer().Tokenize(s)
+	tagger := tag.NewPerceptronTagger()
+	for _, tok := range tagger.Tag(words) {
+		switch tok.Tag {
+		// https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
+		case "NN", "NNS", "NNP", "NNPS", "PRP", "PRP$":
+			fv = append(fv, prefix+":"+tok.Text)
+		}
+	}
+
+	return fv
+}
+
+func extractJpnNounFeatures(s string, prefix string) FeatureVector {
 	var fv FeatureVector
 	if s == "" {
 		return fv
@@ -26,6 +63,14 @@ func ExtractNounFeatures(s string, prefix string) FeatureVector {
 		}
 	}
 	return fv
+}
+
+func ExtractNounFeatures(s string, prefix string) FeatureVector {
+	if isJapanese(s) {
+		return extractJpnNounFeatures(s, prefix)
+	} else {
+		return extractEngNounFeatures(s, prefix)
+	}
 }
 
 func ExtractHostFeature(urlString string) string {
