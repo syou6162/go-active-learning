@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"sort"
 )
 
@@ -25,6 +27,34 @@ func GetAccuracy(gold []LabelType, predict []LabelType) float64 {
 		}
 	}
 	return sum / float64(len(gold))
+}
+
+func GetPrecision(gold []LabelType, predict []LabelType) float64 {
+	tp := 0.0
+	fp := 0.0
+	for i, v := range gold {
+		if v == predict[i] {
+			tp += 1.0
+		}
+		if predict[i] == POSITIVE && v == NEGATIVE {
+			fp += 1.0
+		}
+	}
+	return tp / (tp + fp)
+}
+
+func GetRecall(gold []LabelType, predict []LabelType) float64 {
+	tp := 0.0
+	fn := 0.0
+	for i, v := range gold {
+		if v == predict[i] {
+			tp += 1.0
+		}
+		if predict[i] == NEGATIVE && v == POSITIVE {
+			fn += 1.0
+		}
+	}
+	return tp / (tp + fn)
 }
 
 func (model *Model) Learn(example Example) {
@@ -112,7 +142,11 @@ func TrainedModel(examples Examples) *Model {
 		for i, example := range train {
 			trainPredicts[i] = model.Predict(example.Fv)
 		}
-		// fmt.Println(fmt.Sprintf("Iter:%d\tAccuracy:%0.03f", iter, GetAccuracy(ExtractGoldLabels(train), trainPredicts)))
+		accuracy := GetAccuracy(ExtractGoldLabels(train), trainPredicts)
+		precision := GetPrecision(ExtractGoldLabels(train), trainPredicts)
+		recall := GetRecall(ExtractGoldLabels(train), trainPredicts)
+		f := (2 * recall * precision) / (recall + precision)
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("Iter:%d\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", iter, accuracy, precision, recall, f))
 	}
 	return model
 }
