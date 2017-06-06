@@ -21,8 +21,8 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	}
 
 	if outputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "slack")
-		return cli.NewExitError("`output-filename` is a required field.", 1)
+		outputFilename = NewOutputFilename()
+		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
 	}
 
 	if channelID == "" {

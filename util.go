@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 func ParseLine(line string) (*Example, error) {
@@ -179,4 +180,9 @@ func FilterStatusCodeOkExamples(examples Examples) Examples {
 	}
 
 	return result
+}
+
+func NewOutputFilename() string {
+	t := time.Now()
+	return fmt.Sprintf("%d-%02d-%02d-%02d-%02d.txt", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
 }
