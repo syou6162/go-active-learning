@@ -65,7 +65,11 @@ func WriteExamples(examples Examples, filename string) error {
 	writer := bufio.NewWriter(fp)
 	for _, e := range examples {
 		if e.IsNew && e.IsLabeled() {
-			_, err := writer.WriteString(e.Url + "\t" + strconv.Itoa(int(e.Label)) + "\n")
+			url := e.FinalUrl
+			if url == "" {
+				url = e.Url
+			}
+			_, err := writer.WriteString(url + "\t" + strconv.Itoa(int(e.Label)) + "\n")
 			if err != nil {
 				return err
 			}
