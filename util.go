@@ -124,6 +124,16 @@ func removeDuplicate(args []string) []string {
 }
 
 func AttachMetaData(cache *Cache, examples Examples) {
+	oldStdout := os.Stdout
+	readFile, writeFile, _ := os.Pipe()
+	os.Stdout = writeFile
+
+	defer func() {
+		writeFile.Close()
+		readFile.Close()
+		os.Stdout = oldStdout
+	}()
+
 	shuffle(examples)
 
 	wg := &sync.WaitGroup{}
