@@ -39,7 +39,7 @@ func extractEngNounFeatures(s string, prefix string) FeatureVector {
 		switch tok.Tag {
 		// https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
 		case "NN", "NNS", "NNP", "NNPS", "PRP", "PRP$":
-			fv = append(fv, prefix+":"+tok.Text)
+			fv = append(fv, prefix+":"+strings.ToLower(tok.Text))
 		}
 	}
 
