@@ -82,10 +82,20 @@ func ExtractHostFeature(urlString string) string {
 	return prefix + ":" + u.Host
 }
 
+func extractPath(urlString string) string {
+	path := ""
+	u, err := url.Parse(urlString)
+	if err != nil {
+		path = u.Path
+	}
+	return path
+}
+
 func ExtractFeatures(e Example) FeatureVector {
 	var fv FeatureVector
 	fv = append(fv, "BIAS")
 	fv = append(fv, ExtractHostFeature(e.FinalUrl))
+	fv = append(fv, extractJpnNounFeatures(extractPath(e.FinalUrl), "URL")...)
 	fv = append(fv, ExtractNounFeatures(e.Title, "TITLE")...)
 	fv = append(fv, ExtractNounFeatures(e.Description, "DESCRIPTION")...)
 	fv = append(fv, ExtractNounFeatures(e.Body, "BODY")...)
