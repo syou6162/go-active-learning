@@ -51,7 +51,8 @@ func doDiagnose(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 
 	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "diagnose")
+		_ = cli.ShowCommandHelp(c, "label-conflict")
+		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
 	cache, _ := LoadCache(CacheFilename)
@@ -130,6 +131,7 @@ func doListFeatureWeight(c *cli.Context) error {
 
 	if inputFilename == "" {
 		_ = cli.ShowCommandHelp(c, "feature-weight")
+		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
 	cache, _ := LoadCache(CacheFilename)
