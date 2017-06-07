@@ -86,9 +86,9 @@ func extractPath(urlString string) string {
 	path := ""
 	u, err := url.Parse(urlString)
 	if err != nil {
-		path = u.Path
+		return path
 	}
-	return path
+	return u.Path
 }
 
 func ExtractFeatures(e Example) FeatureVector {
