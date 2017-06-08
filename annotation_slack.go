@@ -53,7 +53,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = FilterStatusCodeOkExamples(examples)
 	}
-	model := NewPerceptronClassifier(examples)
+	model := NewBinaryClassifier(examples)
 	example := NextExampleToBeAnnotated(model, examples)
 	if example == nil {
 		return errors.New("No example to annotate")
@@ -84,11 +84,11 @@ annotationLoop:
 				switch act {
 				case LABEL_AS_POSITIVE:
 					example.Annotate(POSITIVE)
-					model = NewPerceptronClassifier(examples)
+					model = NewBinaryClassifier(examples)
 					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
 					example.Annotate(NEGATIVE)
-					model = NewPerceptronClassifier(examples)
+					model = NewBinaryClassifier(examples)
 					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case SKIP:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Skiped this example", channelID))
