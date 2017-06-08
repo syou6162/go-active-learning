@@ -86,7 +86,7 @@ func doDiagnose(c *cli.Context) error {
 	return nil
 }
 
-func printResult(model *Model, correctExamples Examples, wrongExamples Examples) error {
+func printResult(model BinaryClassifier, correctExamples Examples, wrongExamples Examples) error {
 	fmt.Println("Index\tLabel\tScore\tURL\tTitle")
 	result := append(wrongExamples, correctExamples...)
 
@@ -147,7 +147,7 @@ func doListFeatureWeight(c *cli.Context) error {
 
 	tmp := make(FeatureList, 0)
 	for k := range model.cumWeight {
-		tmp = append(tmp, Feature{k, model.GetAveragedWeight(k)})
+		tmp = append(tmp, Feature{k, model.GetWeight(k)})
 	}
 	sort.Sort(sort.Reverse(tmp))
 

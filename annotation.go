@@ -32,7 +32,7 @@ func rune2ActionType(r rune) ActionType {
 	}
 }
 
-func NextExampleToBeAnnotated(model *Model, examples Examples) *Example {
+func NextExampleToBeAnnotated(model BinaryClassifier, examples Examples) *Example {
 	unlabeledExamples := model.SortByScore(examples)
 	if len(unlabeledExamples) == 0 {
 		return nil

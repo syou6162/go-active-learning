@@ -6,17 +6,17 @@ import (
 	"sort"
 )
 
-type Model struct {
+type PerceptronClassifier struct {
 	weight    map[string]float64
 	cumWeight map[string]float64
 	count     int
 }
 
-func NewModel() *Model {
-	return &Model{make(map[string]float64), make(map[string]float64), 1}
+func NewPerceptronClassifier() *PerceptronClassifier {
+	return &PerceptronClassifier{make(map[string]float64), make(map[string]float64), 1}
 }
 
-func (model *Model) Learn(example Example) {
+func (model *PerceptronClassifier) Learn(example Example) {
 	predict := model.predictForTraining(example.Fv)
 	if example.Label != predict {
 		for _, f := range example.Fv {
@@ -29,7 +29,7 @@ func (model *Model) Learn(example Example) {
 	}
 }
 
-func (model *Model) predictForTraining(features FeatureVector) LabelType {
+func (model *PerceptronClassifier) predictForTraining(features FeatureVector) LabelType {
 	result := 0.0
 	for _, f := range features {
 		w, ok := model.weight[f]
@@ -43,7 +43,7 @@ func (model *Model) predictForTraining(features FeatureVector) LabelType {
 	return NEGATIVE
 }
 
-func (model Model) PredictScore(features FeatureVector) float64 {
+func (model PerceptronClassifier) PredictScore(features FeatureVector) float64 {
 	result := 0.0
 	for _, f := range features {
 		w, ok := model.weight[f]
@@ -60,7 +60,7 @@ func (model Model) PredictScore(features FeatureVector) float64 {
 	return result
 }
 
-func (model Model) Predict(features FeatureVector) LabelType {
+func (model PerceptronClassifier) Predict(features FeatureVector) LabelType {
 	if model.PredictScore(features) > 0 {
 		return POSITIVE
 	}
@@ -75,7 +75,7 @@ func ExtractGoldLabels(examples Examples) []LabelType {
 	return golds
 }
 
-func (model Model) SortByScore(examples Examples) Examples {
+func (model PerceptronClassifier) SortByScore(examples Examples) Examples {
 	var unlabeledExamples Examples
 	for _, e := range FilterUnlabeledExamples(examples) {
 		e.Score = model.PredictScore(e.Fv)
@@ -88,9 +88,9 @@ func (model Model) SortByScore(examples Examples) Examples {
 	return unlabeledExamples
 }
 
-func TrainedModel(examples Examples) *Model {
+func TrainedModel(examples Examples) *PerceptronClassifier {
 	train := FilterLabeledExamples(examples)
-	model := NewModel()
+	model := NewPerceptronClassifier()
 	for iter := 0; iter < 30; iter++ {
 		shuffle(train)
 		for _, example := range train {
@@ -110,7 +110,7 @@ func TrainedModel(examples Examples) *Model {
 	return model
 }
 
-func (model Model) GetAveragedWeight(f string) float64 {
+func (model PerceptronClassifier) GetWeight(f string) float64 {
 	result := 0.0
 	w, ok := model.weight[f]
 	if ok {

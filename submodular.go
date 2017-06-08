@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func SelectSubExamplesBySubModular(model *Model, whole Examples, sizeConstraint int, alpha float64, r float64) Examples {
+func SelectSubExamplesBySubModular(model BinaryClassifier, whole Examples, sizeConstraint int, alpha float64, r float64) Examples {
 	selected := Examples{}
 	remainings := whole
 	simMat := GetSimilarityMatrix(model, whole)
@@ -62,7 +62,7 @@ func coverageFunction(mat SimilarityMatrix, example *Example, examples Examples)
 
 type SimilarityMatrix map[string]float64
 
-func GetSimilarityMatrix(model *Model, examples Examples) SimilarityMatrix {
+func GetSimilarityMatrix(model BinaryClassifier, examples Examples) SimilarityMatrix {
 	mat := SimilarityMatrix{}
 	for _, e1 := range examples {
 		for _, e2 := range examples {
@@ -76,7 +76,7 @@ func GetCosineSimilarity(mat SimilarityMatrix, e1 *Example, e2 *Example) float64
 	return mat[e1.Url+"+"+e2.Url]
 }
 
-func cosineSimilarity(model *Model, e1 *Example, e2 *Example) float64 {
+func cosineSimilarity(model BinaryClassifier, e1 *Example, e2 *Example) float64 {
 	sum := 0.0
 
 	// Find features that exist in both e1 and e2
@@ -91,16 +91,16 @@ func cosineSimilarity(model *Model, e1 *Example, e2 *Example) float64 {
 	}
 
 	for k := range existBoth {
-		w := model.GetAveragedWeight(k)
+		w := model.GetWeight(k)
 		sum += w * w
 	}
 	return sum / (Norm(model, e1) * Norm(model, e2))
 }
 
-func Norm(model *Model, e *Example) float64 {
+func Norm(model BinaryClassifier, e *Example) float64 {
 	sum := 0.0
 	for _, f := range e.Fv {
-		w := model.GetAveragedWeight(f)
+		w := model.GetWeight(f)
 		sum += w * w
 	}
 	return math.Sqrt(sum)
