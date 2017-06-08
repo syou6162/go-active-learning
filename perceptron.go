@@ -15,7 +15,7 @@ func NewPerceptronClassifier() *PerceptronClassifier {
 	return &PerceptronClassifier{make(map[string]float64), make(map[string]float64), 1}
 }
 
-func (model *PerceptronClassifier) Learn(example Example) {
+func (model *PerceptronClassifier) learn(example Example) {
 	predict := model.predictForTraining(example.Fv)
 	if example.Label != predict {
 		for _, f := range example.Fv {
@@ -84,7 +84,7 @@ func TrainedModel(examples Examples) *PerceptronClassifier {
 	for iter := 0; iter < 30; iter++ {
 		shuffle(train)
 		for _, example := range train {
-			model.Learn(*example)
+			model.learn(*example)
 		}
 
 		trainPredicts := make([]LabelType, len(train))
