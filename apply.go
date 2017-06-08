@@ -76,7 +76,7 @@ func doApply(c *cli.Context) error {
 
 var commandApply = cli.Command{
 	Name:  "apply",
-	Usage: "apply classifier to unlabeled examples",
+	Usage: "Apply classifier to unlabeled examples",
 	Description: `
 Apply classifier to unlabeled examples, and print a pair of score and url.
 `,
