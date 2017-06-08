@@ -64,7 +64,7 @@ func doAnnotate(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = FilterStatusCodeOkExamples(examples)
 	}
-	model := TrainedModel(examples)
+	model := NewPerceptronClassifier(examples)
 
 annotationLoop:
 	for {
@@ -103,7 +103,7 @@ annotationLoop:
 		default:
 			break annotationLoop
 		}
-		model = TrainedModel(examples)
+		model = NewPerceptronClassifier(examples)
 	}
 
 	WriteExamples(examples, outputFilename)

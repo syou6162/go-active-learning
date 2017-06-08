@@ -11,8 +11,30 @@ type PerceptronClassifier struct {
 	count     int
 }
 
-func NewPerceptronClassifier() *PerceptronClassifier {
+func newPerceptronClassifier() *PerceptronClassifier {
 	return &PerceptronClassifier{make(map[string]float64), make(map[string]float64), 1}
+}
+
+func NewPerceptronClassifier(examples Examples) *PerceptronClassifier {
+	train := FilterLabeledExamples(examples)
+	model := newPerceptronClassifier()
+	for iter := 0; iter < 30; iter++ {
+		shuffle(train)
+		for _, example := range train {
+			model.learn(*example)
+		}
+
+		trainPredicts := make([]LabelType, len(train))
+		for i, example := range train {
+			trainPredicts[i] = model.Predict(example.Fv)
+		}
+		accuracy := GetAccuracy(ExtractGoldLabels(train), trainPredicts)
+		precision := GetPrecision(ExtractGoldLabels(train), trainPredicts)
+		recall := GetRecall(ExtractGoldLabels(train), trainPredicts)
+		f := (2 * recall * precision) / (recall + precision)
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("Iter:%d\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", iter, accuracy, precision, recall, f))
+	}
+	return model
 }
 
 func (model *PerceptronClassifier) learn(example Example) {
@@ -76,28 +98,6 @@ func ExtractGoldLabels(examples Examples) []LabelType {
 
 func (model PerceptronClassifier) SortByScore(examples Examples) Examples {
 	return SortByScore(model, examples)
-}
-
-func TrainedModel(examples Examples) *PerceptronClassifier {
-	train := FilterLabeledExamples(examples)
-	model := NewPerceptronClassifier()
-	for iter := 0; iter < 30; iter++ {
-		shuffle(train)
-		for _, example := range train {
-			model.learn(*example)
-		}
-
-		trainPredicts := make([]LabelType, len(train))
-		for i, example := range train {
-			trainPredicts[i] = model.Predict(example.Fv)
-		}
-		accuracy := GetAccuracy(ExtractGoldLabels(train), trainPredicts)
-		precision := GetPrecision(ExtractGoldLabels(train), trainPredicts)
-		recall := GetRecall(ExtractGoldLabels(train), trainPredicts)
-		f := (2 * recall * precision) / (recall + precision)
-		fmt.Fprintln(os.Stderr, fmt.Sprintf("Iter:%d\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", iter, accuracy, precision, recall, f))
-	}
-	return model
 }
 
 func (model PerceptronClassifier) GetWeight(f string) float64 {

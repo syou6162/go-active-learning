@@ -41,7 +41,7 @@ func doApply(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = FilterStatusCodeOkExamples(examples)
 	}
-	model := TrainedModel(examples)
+	model := NewPerceptronClassifier(examples)
 
 	result := Examples{}
 	for _, e := range FilterUnlabeledExamples(examples) {

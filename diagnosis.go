@@ -64,7 +64,7 @@ func doDiagnose(c *cli.Context) error {
 		training = FilterStatusCodeOkExamples(training)
 	}
 
-	model := TrainedModel(training)
+	model := NewPerceptronClassifier(training)
 
 	wrongExamples := Examples{}
 	correctExamples := Examples{}
@@ -143,7 +143,7 @@ func doListFeatureWeight(c *cli.Context) error {
 		training = FilterStatusCodeOkExamples(training)
 	}
 
-	model := TrainedModel(training)
+	model := NewPerceptronClassifier(training)
 
 	tmp := make(FeatureList, 0)
 	for k := range model.cumWeight {
