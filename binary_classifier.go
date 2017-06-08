@@ -7,6 +7,9 @@ type BinaryClassifier interface {
 	Predict(FeatureVector) LabelType
 	SortByScore(Examples) Examples
 	GetWeight(string) float64
+	GetActiveFeatures() []string
+}
+
 func NewBinaryClassifier(examples Examples) BinaryClassifier {
 	// return NewPerceptronClassifier(examples)
 	return NewMIRAClassifierByCrossValidation(examples)

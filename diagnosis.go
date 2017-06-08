@@ -146,7 +146,7 @@ func doListFeatureWeight(c *cli.Context) error {
 	model := NewBinaryClassifier(training)
 
 	tmp := make(FeatureList, 0)
-	for k := range model.cumWeight {
+	for _, k := range model.GetActiveFeatures() {
 		tmp = append(tmp, Feature{k, model.GetWeight(k)})
 	}
 	sort.Sort(sort.Reverse(tmp))

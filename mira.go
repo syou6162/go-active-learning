@@ -111,3 +111,11 @@ func (model MIRAClassifier) GetWeight(f string) float64 {
 	}
 	return 0.0
 }
+
+func (model MIRAClassifier) GetActiveFeatures() []string {
+	result := make([]string, 0)
+	for f, _ := range model.weight {
+		result = append(result, f)
+	}
+	return result
+}

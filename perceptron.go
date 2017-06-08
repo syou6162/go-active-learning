@@ -113,3 +113,11 @@ func (model PerceptronClassifier) GetWeight(f string) float64 {
 	}
 	return result
 }
+
+func (model PerceptronClassifier) GetActiveFeatures() []string {
+	result := make([]string, 0)
+	for f, _ := range model.weight {
+		result = append(result, f)
+	}
+	return result
+}
