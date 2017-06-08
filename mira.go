@@ -15,12 +15,6 @@ func newMIRAClassifier(c float64) *MIRAClassifier {
 	return &MIRAClassifier{make(map[string]float64), c}
 }
 
-func splitTrainAndDev(examples Examples) (train Examples, dev Examples) {
-	shuffle(examples)
-	n := int(0.8 * float64(len(examples)))
-	return examples[0:n], examples[n+1 : len(examples)-1]
-}
-
 func NewMIRAClassifier(examples Examples, c float64) *MIRAClassifier {
 	train := FilterLabeledExamples(examples)
 	model := newMIRAClassifier(c)

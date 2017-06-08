@@ -192,3 +192,9 @@ func NewOutputFilename() string {
 	t := time.Now()
 	return fmt.Sprintf("%d-%02d-%02d-%02d-%02d.txt", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
 }
+
+func splitTrainAndDev(examples Examples) (train Examples, dev Examples) {
+	shuffle(examples)
+	n := int(0.8 * float64(len(examples)))
+	return examples[0:n], examples[n+1 : len(examples)-1]
+}
