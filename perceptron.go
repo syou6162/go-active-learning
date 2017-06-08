@@ -16,7 +16,7 @@ func newPerceptronClassifier() *PerceptronClassifier {
 }
 
 func NewPerceptronClassifier(examples Examples) *PerceptronClassifier {
-	train := FilterLabeledExamples(examples)
+	train, dev := splitTrainAndDev(FilterLabeledExamples(examples))
 	model := newPerceptronClassifier()
 	for iter := 0; iter < 30; iter++ {
 		shuffle(train)
@@ -24,13 +24,13 @@ func NewPerceptronClassifier(examples Examples) *PerceptronClassifier {
 			model.learn(*example)
 		}
 
-		trainPredicts := make([]LabelType, len(train))
-		for i, example := range train {
-			trainPredicts[i] = model.Predict(example.Fv)
+		devPredicts := make([]LabelType, len(dev))
+		for i, example := range dev {
+			devPredicts[i] = model.Predict(example.Fv)
 		}
-		accuracy := GetAccuracy(ExtractGoldLabels(train), trainPredicts)
-		precision := GetPrecision(ExtractGoldLabels(train), trainPredicts)
-		recall := GetRecall(ExtractGoldLabels(train), trainPredicts)
+		accuracy := GetAccuracy(ExtractGoldLabels(dev), devPredicts)
+		precision := GetPrecision(ExtractGoldLabels(dev), devPredicts)
+		recall := GetRecall(ExtractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
 		fmt.Fprintln(os.Stderr, fmt.Sprintf("Iter:%d\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", iter, accuracy, precision, recall, f))
 	}
