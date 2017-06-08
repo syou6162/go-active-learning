@@ -97,6 +97,7 @@ func FilterUnlabeledExamples(examples Examples) Examples {
 	alreadyLabeledByTitle := make(map[string]bool)
 	for _, e := range FilterLabeledExamples(examples) {
 		alreadyLabeledByURL[e.Url] = true
+		alreadyLabeledByURL[e.FinalUrl] = true
 		alreadyLabeledByTitle[e.Title] = true
 	}
 
@@ -109,6 +110,7 @@ func FilterUnlabeledExamples(examples Examples) Examples {
 		}
 		if !e.IsLabeled() {
 			alreadyLabeledByURL[e.Url] = true
+			alreadyLabeledByURL[e.FinalUrl] = true
 			alreadyLabeledByTitle[e.Title] = true
 			result = append(result, e)
 		}
