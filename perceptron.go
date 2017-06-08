@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"sort"
 )
 
 type PerceptronClassifier struct {
@@ -76,16 +75,7 @@ func ExtractGoldLabels(examples Examples) []LabelType {
 }
 
 func (model PerceptronClassifier) SortByScore(examples Examples) Examples {
-	var unlabeledExamples Examples
-	for _, e := range FilterUnlabeledExamples(examples) {
-		e.Score = model.PredictScore(e.Fv)
-		if !e.IsLabeled() && e.Score != 0.0 {
-			unlabeledExamples = append(unlabeledExamples, e)
-		}
-	}
-
-	sort.Sort(unlabeledExamples)
-	return unlabeledExamples
+	return SortByScore(model, examples)
 }
 
 func TrainedModel(examples Examples) *PerceptronClassifier {
