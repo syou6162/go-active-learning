@@ -18,7 +18,7 @@ func newMIRAClassifier(c float64) *MIRAClassifier {
 func NewMIRAClassifier(examples Examples, c float64) *MIRAClassifier {
 	train := FilterLabeledExamples(examples)
 	model := newMIRAClassifier(c)
-	for iter := 0; iter < 10; iter++ {
+	for iter := 0; iter < 30; iter++ {
 		shuffle(train)
 		for _, example := range train {
 			model.learn(*example)
@@ -41,7 +41,7 @@ func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 func NewMIRAClassifierByCrossValidation(examples Examples) *MIRAClassifier {
 	train, dev := splitTrainAndDev(FilterLabeledExamples(examples))
 
-	params := []float64{10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01}
+	params := []float64{100.0, 50.0, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01}
 	miraResults := MIRAResultList{}
 
 	for _, c := range params {
