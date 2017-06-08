@@ -10,6 +10,7 @@ import (
 var Commands = []cli.Command{
 	commandAnnotate,
 	commandApply,
+	commandExpandURL,
 	commandDiagnose,
 }
 
