@@ -7,7 +7,7 @@ import (
 func SelectSubExamplesBySubModular(model BinaryClassifier, whole Examples, sizeConstraint int, alpha float64, r float64) Examples {
 	selected := Examples{}
 	remainings := whole
-	simMat := GetSimilarityMatrix(model, whole)
+	simMat := GetSimilarityMatrixByFeatureWeight(model, whole)
 	for {
 		if len(selected) >= sizeConstraint || len(remainings) == 0 {
 			break
@@ -62,7 +62,7 @@ func coverageFunction(mat SimilarityMatrix, example *Example, examples Examples)
 
 type SimilarityMatrix map[string]float64
 
-func GetSimilarityMatrix(model BinaryClassifier, examples Examples) SimilarityMatrix {
+func GetSimilarityMatrixByFeatureWeight(model BinaryClassifier, examples Examples) SimilarityMatrix {
 	mat := SimilarityMatrix{}
 	for _, e1 := range examples {
 		for _, e2 := range examples {
