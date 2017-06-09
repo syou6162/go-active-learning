@@ -4,11 +4,10 @@ import (
 	"math"
 )
 
-func SelectSubExamplesBySubModular(model BinaryClassifier, whole Examples, sizeConstraint int, alpha float64, r float64) Examples {
+func SelectSubExamplesBySubModular(whole Examples, sizeConstraint int, alpha float64, r float64) Examples {
 	selected := Examples{}
 	remainings := whole
 	simMat := GetSimilarityMatrixByTFIDF(whole)
-	// simMat := GetSimilarityMatrixByFeatureWeight(model, whole)
 	for {
 		if len(selected) >= sizeConstraint || len(remainings) == 0 {
 			break
@@ -63,16 +62,6 @@ func coverageFunction(mat SimilarityMatrix, example *Example, examples Examples)
 
 type SimilarityMatrix map[string]float64
 
-func GetSimilarityMatrixByFeatureWeight(model BinaryClassifier, examples Examples) SimilarityMatrix {
-	mat := SimilarityMatrix{}
-	for _, e1 := range examples {
-		for _, e2 := range examples {
-			mat[e1.Url+"+"+e2.Url] = cosineSimilarity(model, e1, e2)
-		}
-	}
-	return mat
-}
-
 func GetSimilarityMatrixByTFIDF(examples Examples) SimilarityMatrix {
 	idf := GetIDF(examples)
 
@@ -112,36 +101,6 @@ func GetCosineSimilarity(mat SimilarityMatrix, e1 *Example, e2 *Example) float64
 	return mat[e1.Url+"+"+e2.Url]
 }
 
-func cosineSimilarity(model BinaryClassifier, e1 *Example, e2 *Example) float64 {
-	sum := 0.0
-
-	// Find features that exist in both e1 and e2
-	existBoth := make(map[string]bool)
-	for _, f := range e1.Fv {
-		existBoth[f] = true
-	}
-	for _, f := range e2.Fv {
-		if _, ok := existBoth[f]; !ok {
-			delete(existBoth, f)
-		}
-	}
-
-	for k := range existBoth {
-		w := model.GetWeight(k)
-		sum += w * w
-	}
-	return sum / (Norm(model, e1) * Norm(model, e2))
-}
-
-func Norm(model BinaryClassifier, e *Example) float64 {
-	sum := 0.0
-	for _, f := range e.Fv {
-		w := model.GetWeight(f)
-		sum += w * w
-	}
-	return math.Sqrt(sum)
-}
-
 func GetDF(example Example) map[string]float64 {
 	df := make(map[string]float64)
 	n := 0.0
@@ -175,4 +134,3 @@ func GetIDF(examples Examples) map[string]float64 {
 	}
 	return idf
 }
-

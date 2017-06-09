@@ -53,7 +53,7 @@ func doApply(c *cli.Context) error {
 	}
 
 	if subsetSelection {
-		result = SelectSubExamplesBySubModular(model, result, sizeConstraint, alpha, r)
+		result = SelectSubExamplesBySubModular(result, sizeConstraint, alpha, r)
 	}
 
 	for _, e := range result {
