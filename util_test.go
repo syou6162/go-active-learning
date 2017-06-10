@@ -111,3 +111,24 @@ func TestFilterStatusCodeOkExamples(t *testing.T) {
 		t.Error("Number of examples (status code = 200) should be 1")
 	}
 }
+
+func TestSplitTrainAndDev(t *testing.T) {
+	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e3 := NewExample("http://google.com", UNLABELED)
+	e4 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e5 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e6 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e7 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e8 := NewExample("http://google.com", UNLABELED)
+	e9 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e10 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+
+	train, dev := splitTrainAndDev(Examples{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
+	if len(train) != 8 {
+		t.Error("Number of training examples should be 8")
+	}
+	if len(dev) != 2 {
+		t.Error("Number of dev examples should be 2")
+	}
+}
