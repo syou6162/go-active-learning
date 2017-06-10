@@ -10,15 +10,6 @@ func shuffle(examples Examples) {
 	}
 }
 
-func findFirstUnlabeledExample(examples Examples) *Example {
-	for _, e := range examples {
-		if !e.IsLabeled() {
-			return e
-		}
-	}
-	return nil
-}
-
 func RandomSelectOneExample(examples Examples) *Example {
 	shuffle(examples)
 	return findFirstUnlabeledExample(examples)
