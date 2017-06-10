@@ -9,8 +9,3 @@ func shuffle(examples Examples) {
 		examples[i], examples[j] = examples[j], examples[i]
 	}
 }
-
-func RandomSelectOneExample(examples Examples) *Example {
-	shuffle(examples)
-	return findFirstUnlabeledExample(examples)
-}
