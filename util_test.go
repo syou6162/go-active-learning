@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestParseLine(t *testing.T) {
 	line1 := "http://example.com\t1"
@@ -38,5 +41,36 @@ func TestParseLine(t *testing.T) {
 
 	if e != nil {
 		t.Error("wrong line format")
+	}
+}
+
+func TestReadExamples(t *testing.T) {
+	filename := "tech_input_example.txt"
+	examples, err := ReadExamples(filename)
+
+	if err != nil {
+		t.Error(fmt.Printf("Cannot read examples from %s", filename))
+	}
+	if len(examples) == 0 {
+		t.Error(fmt.Printf("%s should contain more than one examples", filename))
+	}
+}
+
+func TestWriteExamples(t *testing.T) {
+	filename := ".write_test.txt"
+	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+
+	err := WriteExamples(Examples{e1, e2}, filename)
+	if err != nil {
+		t.Error(fmt.Printf("Cannot write examples to %s", filename))
+	}
+
+	examples, err := ReadExamples(filename)
+	if err != nil {
+		t.Error(fmt.Printf("Cannot read examples from %s", filename))
+	}
+	if len(examples) == 2 {
+		t.Error(fmt.Printf("%s should contain two examples", filename))
 	}
 }
