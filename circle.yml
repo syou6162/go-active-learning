@@ -4,6 +4,7 @@ machine:
 
 dependencies:
   pre:
+    - make deps
     - go get -t -d -v ./...
     - make build
 
