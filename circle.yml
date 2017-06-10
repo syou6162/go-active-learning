@@ -10,3 +10,6 @@ dependencies:
 test:
   override:
     - test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
+    - make cover COVERAGE='/home/ubuntu/coverage.out'
+  post:
+    - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=/home/ubuntu/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
