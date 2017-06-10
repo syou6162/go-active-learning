@@ -17,10 +17,10 @@ func GetPrecision(gold []LabelType, predict []LabelType) float64 {
 	tp := 0.0
 	fp := 0.0
 	for i, v := range gold {
-		if v == predict[i] {
+		if v == POSITIVE && predict[i] == POSITIVE {
 			tp += 1.0
 		}
-		if predict[i] == POSITIVE && v == NEGATIVE {
+		if v == NEGATIVE && predict[i] == POSITIVE {
 			fp += 1.0
 		}
 	}
@@ -31,10 +31,10 @@ func GetRecall(gold []LabelType, predict []LabelType) float64 {
 	tp := 0.0
 	fn := 0.0
 	for i, v := range gold {
-		if v == predict[i] {
+		if v == POSITIVE && predict[i] == POSITIVE {
 			tp += 1.0
 		}
-		if predict[i] == NEGATIVE && v == POSITIVE {
+		if v == POSITIVE && predict[i] == NEGATIVE {
 			fn += 1.0
 		}
 	}
