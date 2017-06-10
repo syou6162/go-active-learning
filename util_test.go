@@ -112,6 +112,15 @@ func TestFilterStatusCodeOkExamples(t *testing.T) {
 	}
 }
 
+func TestRemoveDuplicate(t *testing.T) {
+	args := []string{"hoge", "fuga", "piyo", "hoge"}
+
+	result := removeDuplicate(args)
+	if len(result) != 3 {
+		t.Error("Number of unique string in args should be 3")
+	}
+}
+
 func TestSplitTrainAndDev(t *testing.T) {
 	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
 	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
