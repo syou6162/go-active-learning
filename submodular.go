@@ -112,7 +112,7 @@ func GetDF(example Example) map[string]float64 {
 	}
 
 	for k, v := range df {
-		df[k] = v/ n
+		df[k] = v / n
 	}
 	return df
 }
@@ -130,7 +130,7 @@ func GetIDF(examples Examples) map[string]float64 {
 	}
 
 	for k, v := range cnt {
-		idf[k] = math.Log(n / v) + 1
+		idf[k] = math.Log(n/v) + 1
 	}
 	return idf
 }
