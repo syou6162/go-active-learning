@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"sort"
+	"sync"
 )
 
 type MIRAClassifier struct {
@@ -44,9 +46,23 @@ func NewMIRAClassifierByCrossValidation(examples Examples) *MIRAClassifier {
 	params := []float64{10.0, 1.0, 0.1}
 	miraResults := MIRAResultList{}
 
-	for _, c := range params {
-		model := NewMIRAClassifier(train, c)
+	wg := &sync.WaitGroup{}
+	cpus := runtime.NumCPU()
+	runtime.GOMAXPROCS(cpus)
 
+	models := make([]*MIRAClassifier, len(params))
+	for idx, c := range params {
+		wg.Add(1)
+		go func(idx int, c float64) {
+			defer wg.Done()
+			model := NewMIRAClassifier(train, c)
+			models[idx] = model
+		}(idx, c)
+	}
+	wg.Wait()
+
+	for _, model := range models {
+		c := model.c
 		devPredicts := make([]LabelType, len(dev))
 		for i, example := range dev {
 			devPredicts[i] = model.Predict(example.Fv)
