@@ -1,3 +1,5 @@
+COVERAGE = coverage.out
+
 all: build
 
 .PHONY: build
@@ -18,3 +20,7 @@ vet:
 
 .PHONY: test-all
 test-all: vet test
+
+.PHONY: cover
+cover:
+	go test -v -cover -race -coverprofile=${COVERAGE}
