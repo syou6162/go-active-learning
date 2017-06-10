@@ -97,3 +97,17 @@ func TestFilterUnlabeledExamples(t *testing.T) {
 		t.Error("Number of unlabeled examples should be 1")
 	}
 }
+
+func TestFilterStatusCodeOkExamples(t *testing.T) {
+	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e1.StatusCode = 200
+	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e2.StatusCode = 404
+	e3 := NewExample("http://google.com", UNLABELED)
+	e3.StatusCode = 304
+
+	examples := FilterStatusCodeOkExamples(Examples{e1, e2, e3})
+	if len(examples) != 1 {
+		t.Error("Number of examples (status code = 200) should be 1")
+	}
+}
