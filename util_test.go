@@ -74,3 +74,26 @@ func TestWriteExamples(t *testing.T) {
 		t.Error(fmt.Printf("%s should contain two examples", filename))
 	}
 }
+
+func TestFilterLabeledExamples(t *testing.T) {
+	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e3 := NewExample("http://google.com", UNLABELED)
+
+	examples := FilterLabeledExamples(Examples{e1, e2, e3})
+	if len(examples) != 2 {
+		t.Error("Number of labeled examples should be 2")
+	}
+}
+
+func TestFilterUnlabeledExamples(t *testing.T) {
+	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e3 := NewExample("http://google.com", UNLABELED)
+	e3.Title = "Google"
+
+	examples := FilterUnlabeledExamples(Examples{e1, e2, e3})
+	if len(examples) != 1 {
+		t.Error("Number of unlabeled examples should be 1")
+	}
+}
