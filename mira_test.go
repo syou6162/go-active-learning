@@ -21,8 +21,8 @@ func TestPredictScore(t *testing.T) {
 	examples := Examples{e1, e2, e3, e4}
 	c := NewBinaryClassifier(examples)
 
-	if c.PredictScore(e4.Fv) <= 0.0 {
-		t.Errorf("c.PredictScore(e4.Fv) == %f, want > 0", c.PredictScore(e4.Fv))
+	if c.PredictScore(e4.Fv) < 0.0 {
+		t.Errorf("c.PredictScore(e4.Fv) == %f, want >= 0", c.PredictScore(e4.Fv))
 	}
 }
 
