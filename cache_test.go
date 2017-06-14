@@ -22,3 +22,15 @@ func TestCacheGet(t *testing.T) {
 		t.Error(fmt.Printf("Urls must be same(%s, %s)", example.Url, e.Url))
 	}
 }
+
+func TestCacheSave(t *testing.T) {
+	c := NewCache()
+	example := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	c.Add(*example)
+	c.Get(*example)
+	err := c.Save(CacheFilename)
+
+	if err != nil {
+		t.Error(fmt.Printf("Error (%s) occurs when saving cache file", err))
+	}
+}
