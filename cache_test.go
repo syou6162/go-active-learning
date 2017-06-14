@@ -1,0 +1,24 @@
+package main
+
+import (
+	"fmt"
+	"testing"
+)
+
+func TestCacheGet(t *testing.T) {
+	c := NewCache()
+	example := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e, ok := c.Get(*example)
+	if ok {
+		t.Error(fmt.Printf("Cache must not contain %s", example.Url))
+	}
+
+	c.Add(*example)
+	e, ok = c.Get(*example)
+	if !ok {
+		t.Error(fmt.Printf("Cache must return %s", example.Url))
+	}
+	if example.Url != e.Url {
+		t.Error(fmt.Printf("Urls must be same(%s, %s)", example.Url, e.Url))
+	}
+}
