@@ -150,9 +150,9 @@ func TestAttachMetaData(t *testing.T) {
 	AttachMetaData(NewCache(), examples)
 
 	if examples[0].Title == "" {
-		t.Error("Title must not be empty")
+		t.Errorf("Title must not be empty for %s", examples[0].Url)
 	}
 	if len(examples[0].Fv) == 0 {
-		t.Error("Feature vector must not be empty")
+		t.Errorf("Feature vector must not be empty for %s", examples[0].Url)
 	}
 }
