@@ -145,7 +145,7 @@ func TestSplitTrainAndDev(t *testing.T) {
 func TestAttachMetaData(t *testing.T) {
 	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
 	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e3 := NewExample("http://google.com", UNLABELED)
+	e3 := NewExample("https://github.com", UNLABELED)
 	examples := Examples{e1, e2, e3}
 	AttachMetaData(NewCache(), examples)
 
