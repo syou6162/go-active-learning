@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"runtime"
 	"strconv"
@@ -130,7 +131,7 @@ func removeDuplicate(args []string) []string {
 	return results
 }
 
-func AttachMetaData(cache *Cache, examples Examples) {
+func attachMetaData(cache *Cache, examples Examples) {
 	oldStdout := os.Stdout
 	readFile, writeFile, _ := os.Pipe()
 	os.Stdout = writeFile
@@ -160,8 +161,8 @@ func AttachMetaData(cache *Cache, examples Examples) {
 				e.StatusCode = example.StatusCode
 				e.Fv = example.Fv
 			} else {
+				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				article := GetArticle(e.Url)
-				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+article.Url)
 				e.Title = article.Title
 				e.FinalUrl = article.Url
 				e.Description = article.Description
@@ -174,6 +175,21 @@ func AttachMetaData(cache *Cache, examples Examples) {
 		}(e, idx)
 	}
 	wg.Wait()
+}
+
+func AttachMetaData(cache *Cache, examples Examples) {
+	batchSize := 1000
+	examplesList := make([]Examples, 0)
+	n := len(examples)
+
+	for i := 0; i < n; i += batchSize {
+		max := int(math.Min(float64(i+batchSize), float64(n)))
+		examplesList = append(examplesList, examples[i:max])
+	}
+	for _, l := range examplesList {
+		attachMetaData(cache, l)
+		cache.Save(CacheFilename)
+	}
 }
 
 func FilterStatusCodeOkExamples(examples Examples) Examples {
