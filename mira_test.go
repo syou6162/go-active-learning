@@ -66,6 +66,6 @@ func TestGetActiveFeatures(t *testing.T) {
 	c := NewBinaryClassifier(examples)
 
 	if len(c.GetActiveFeatures()) <= 0 {
-		t.Errorf("len(c.GetActiveFeatures()) <= %f, want > 0", len(c.GetActiveFeatures()))
+		t.Errorf("len(c.GetActiveFeatures()) <= %d, want > 0", len(c.GetActiveFeatures()))
 	}
 }
