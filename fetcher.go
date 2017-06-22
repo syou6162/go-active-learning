@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"unicode/utf8"
+
 	"github.com/advancedlogic/GoOse"
 )
 
@@ -34,10 +36,13 @@ func GetArticle(url string) Article {
 		return Article{StatusCode: resp.StatusCode}
 	}
 
+	if !utf8.Valid(html) {
+		return Article{Url: resp.Request.URL.String(), StatusCode: resp.StatusCode}
+	}
+
 	article, err := g.ExtractFromRawHTML(url, string(html))
 	if err != nil {
 		return Article{StatusCode: resp.StatusCode}
 	}
-
 	return Article{resp.Request.URL.String(), article.Title, article.MetaDescription, article.CleanedText, resp.StatusCode}
 }
