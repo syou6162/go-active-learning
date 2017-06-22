@@ -11,7 +11,7 @@ func doExpandURL(c *cli.Context) error {
 	inputFilename := c.String("input-filename")
 
 	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "apply")
+		_ = cli.ShowCommandHelp(c, "expand-url")
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
