@@ -180,7 +180,7 @@ func attachMetaData(cache *Cache, examples Examples) {
 }
 
 func AttachMetaData(cache *Cache, examples Examples) {
-	batchSize := 1000
+	batchSize := 100
 	examplesList := make([]Examples, 0)
 	n := len(examples)
 
