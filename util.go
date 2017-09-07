@@ -169,6 +169,7 @@ func attachMetaData(cache *Cache, examples Examples) {
 				e.Body = article.Body
 				e.StatusCode = article.StatusCode
 				e.Fv = removeDuplicate(ExtractFeatures(*e))
+				e.Description = ""
 				cache.Add(*e)
 			}
 			<-sem
