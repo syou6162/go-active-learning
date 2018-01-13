@@ -45,11 +45,9 @@ func doAnnotate(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
 	}
 
-	cacheFilename := CacheFilename
-
-	cache, err := LoadCache(cacheFilename)
+	cache, err := NewRedisCache()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		return err
 	}
 
 	examples, err := ReadExamples(inputFilename)
@@ -107,7 +105,6 @@ annotationLoop:
 	}
 
 	WriteExamples(examples, outputFilename)
-	cache.Save(cacheFilename)
 
 	return nil
 }

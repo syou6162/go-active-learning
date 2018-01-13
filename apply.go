@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"encoding/json"
@@ -25,11 +24,9 @@ func doApply(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cacheFilename := CacheFilename
-
-	cache, err := LoadCache(cacheFilename)
+	cache, err := NewRedisCache()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		return err
 	}
 
 	examples, err := ReadExamples(inputFilename)
@@ -70,7 +67,6 @@ func doApply(c *cli.Context) error {
 		}
 	}
 
-	cache.Save(cacheFilename)
 	return nil
 }
 

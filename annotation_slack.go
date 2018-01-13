@@ -34,10 +34,9 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
-	cacheFilename := CacheFilename
-	cache, err := LoadCache(cacheFilename)
+	cache, err := NewRedisCache()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		return err
 	}
 
 	examples, err := ReadExamples(inputFilename)
@@ -116,7 +115,6 @@ annotationLoop:
 		}
 	}
 	WriteExamples(examples, outputFilename)
-	cache.Save(cacheFilename)
 	return nil
 }
 

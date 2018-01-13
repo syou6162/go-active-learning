@@ -131,7 +131,7 @@ func removeDuplicate(args []string) []string {
 	return results
 }
 
-func attachMetaData(cache *Cache, examples Examples) {
+func attachMetaData(cache *RedisCache, examples Examples) {
 	oldStdout := os.Stdout
 	readFile, writeFile, _ := os.Pipe()
 	os.Stdout = writeFile
@@ -179,7 +179,7 @@ func attachMetaData(cache *Cache, examples Examples) {
 	wg.Wait()
 }
 
-func AttachMetaData(cache *Cache, examples Examples) {
+func AttachMetaData(cache *RedisCache, examples Examples) {
 	batchSize := 100
 	examplesList := make([]Examples, 0)
 	n := len(examples)
@@ -190,7 +190,6 @@ func AttachMetaData(cache *Cache, examples Examples) {
 	}
 	for _, l := range examplesList {
 		attachMetaData(cache, l)
-		cache.Save(CacheFilename)
 	}
 }
 
