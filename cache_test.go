@@ -7,7 +7,7 @@ import (
 
 func TestCacheGet(t *testing.T) {
 	c := NewRedisCache()
-	example := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	example := NewExample("http://a.hatena.ne.jp", POSITIVE)
 	e, ok := c.Get(*example)
 	if ok {
 		t.Error(fmt.Printf("Cache must not contain %s", example.Url))
