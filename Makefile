@@ -5,6 +5,7 @@ all: build
 .PHONY: deps
 deps:
 	go get github.com/mattn/goveralls
+	go get github.com/haya14busa/goverage
 
 .PHONY: build
 build:
@@ -27,4 +28,4 @@ test-all: vet test
 
 .PHONY: cover
 cover:
-	go test -v -cover -race -coverprofile=${COVERAGE}
+	goverage -v -coverprofile=coverage.out ./...
