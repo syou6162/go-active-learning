@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/codegangsta/cli"
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 type ActionType int
@@ -32,7 +33,7 @@ func rune2ActionType(r rune) ActionType {
 	}
 }
 
-func NextExampleToBeAnnotated(model BinaryClassifier, examples Examples) *Example {
+func NextExampleToBeAnnotated(model BinaryClassifier, examples example.Examples) *example.Example {
 	unlabeledExamples := model.SortByScore(examples)
 	if len(unlabeledExamples) == 0 {
 		return nil

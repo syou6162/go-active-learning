@@ -1,6 +1,11 @@
-package main
+package example
 
-import "math"
+import (
+	"math"
+
+	"github.com/syou6162/go-active-learning/lib/feature"
+)
+
 
 type LabelType int
 
@@ -12,7 +17,7 @@ const (
 
 type Example struct {
 	Label       LabelType `json:"Label"`
-	Fv          FeatureVector
+	Fv          feature.FeatureVector
 	Url         string `json:"Url"`
 	FinalUrl    string `json:"FinalUrl"`
 	Title       string `json:"Title"`
@@ -66,4 +71,15 @@ func GetStat(examples Examples) map[string]int {
 		}
 	}
 	return stat
+}
+
+func ExtractFeatures(e Example) feature.FeatureVector {
+	var fv feature.FeatureVector
+	fv = append(fv, "BIAS")
+	fv = append(fv, feature.ExtractHostFeature(e.FinalUrl))
+	fv = append(fv, feature.ExtractJpnNounFeatures(feature.ExtractPath(e.FinalUrl), "URL")...)
+	fv = append(fv, feature.ExtractNounFeatures(e.Title, "TITLE")...)
+	fv = append(fv, feature.ExtractNounFeatures(e.Description, "DESCRIPTION")...)
+	fv = append(fv, feature.ExtractNounFeatures(e.Body, "BODY")...)
+	return fv
 }

@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"testing"
+
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/cache"
 )
 
 func TestParseLine(t *testing.T) {
@@ -12,7 +15,7 @@ func TestParseLine(t *testing.T) {
 	if err != nil {
 		t.Error("cannot parse line1")
 	}
-	if e.Label != POSITIVE {
+	if e.Label != example.POSITIVE {
 		t.Error("Label must be POSITIVE")
 	}
 
@@ -22,7 +25,7 @@ func TestParseLine(t *testing.T) {
 	if err != nil {
 		t.Error("cannot parse line2")
 	}
-	if e.Label != NEGATIVE {
+	if e.Label != example.NEGATIVE {
 		t.Error("Label must be NEGATIVE")
 	}
 
@@ -32,7 +35,7 @@ func TestParseLine(t *testing.T) {
 	if err != nil {
 		t.Error("cannot parse line3")
 	}
-	if e.Label != UNLABELED {
+	if e.Label != example.UNLABELED {
 		t.Error("Label must be UNLABELED")
 	}
 
@@ -58,10 +61,10 @@ func TestReadExamples(t *testing.T) {
 
 func TestWriteExamples(t *testing.T) {
 	filename := ".write_test.txt"
-	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
-	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
 
-	err := WriteExamples(Examples{e1, e2}, filename)
+	err := WriteExamples(example.Examples{e1, e2}, filename)
 	if err != nil {
 		t.Error(fmt.Printf("Cannot write examples to %s", filename))
 	}
@@ -76,37 +79,37 @@ func TestWriteExamples(t *testing.T) {
 }
 
 func TestFilterLabeledExamples(t *testing.T) {
-	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
-	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e3 := NewExample("http://google.com", UNLABELED)
+	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e3 := example.NewExample("http://google.com", example.UNLABELED)
 
-	examples := FilterLabeledExamples(Examples{e1, e2, e3})
+	examples := FilterLabeledExamples(example.Examples{e1, e2, e3})
 	if len(examples) != 2 {
 		t.Error("Number of labeled examples should be 2")
 	}
 }
 
 func TestFilterUnlabeledExamples(t *testing.T) {
-	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
-	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e3 := NewExample("http://google.com", UNLABELED)
+	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e3 := example.NewExample("http://google.com", example.UNLABELED)
 	e3.Title = "Google"
 
-	examples := FilterUnlabeledExamples(Examples{e1, e2, e3})
+	examples := FilterUnlabeledExamples(example.Examples{e1, e2, e3})
 	if len(examples) != 1 {
 		t.Error("Number of unlabeled examples should be 1")
 	}
 }
 
 func TestFilterStatusCodeOkExamples(t *testing.T) {
-	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
 	e1.StatusCode = 200
-	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
 	e2.StatusCode = 404
-	e3 := NewExample("http://google.com", UNLABELED)
+	e3 := example.NewExample("http://google.com", example.UNLABELED)
 	e3.StatusCode = 304
 
-	examples := FilterStatusCodeOkExamples(Examples{e1, e2, e3})
+	examples := FilterStatusCodeOkExamples(example.Examples{e1, e2, e3})
 	if len(examples) != 1 {
 		t.Error("Number of examples (status code = 200) should be 1")
 	}
@@ -122,18 +125,18 @@ func TestRemoveDuplicate(t *testing.T) {
 }
 
 func TestSplitTrainAndDev(t *testing.T) {
-	e1 := NewExample("http://a.hatena.ne.jp", POSITIVE)
-	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e3 := NewExample("http://google.com", UNLABELED)
-	e4 := NewExample("http://a.hatena.ne.jp", POSITIVE)
-	e5 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e6 := NewExample("http://a.hatena.ne.jp", POSITIVE)
-	e7 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e8 := NewExample("http://google.com", UNLABELED)
-	e9 := NewExample("http://a.hatena.ne.jp", POSITIVE)
-	e10 := NewExample("http://www.yasuhisay.info", NEGATIVE)
+	e1 := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
+	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e3 := example.NewExample("http://google.com", example.UNLABELED)
+	e4 := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
+	e5 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e6 := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
+	e7 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e8 := example.NewExample("http://google.com", example.UNLABELED)
+	e9 := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
+	e10 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
 
-	train, dev := splitTrainAndDev(Examples{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
+	train, dev := splitTrainAndDev(example.Examples{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
 	if len(train) != 8 {
 		t.Error("Number of training examples should be 8")
 	}
@@ -143,11 +146,11 @@ func TestSplitTrainAndDev(t *testing.T) {
 }
 
 func TestAttachMetaData(t *testing.T) {
-	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
-	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e3 := NewExample("https://github.com", UNLABELED)
-	examples := Examples{e1, e2, e3}
-	cache, err := NewCache()
+	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e3 := example.NewExample("https://github.com", example.UNLABELED)
+	examples := example.Examples{e1, e2, e3}
+	cache, err := cache.NewCache()
 	if err != nil {
 		t.Error("Cannot connect to redis")
 	}

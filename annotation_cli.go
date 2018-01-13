@@ -10,6 +10,8 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/cache"
 )
 
 func input2ActionType() (ActionType, error) {
@@ -45,7 +47,7 @@ func doAnnotate(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
 	}
 
-	cache, err := NewCache()
+	cache, err := cache.NewCache()
 	if err != nil {
 		return err
 	}
@@ -55,7 +57,7 @@ func doAnnotate(c *cli.Context) error {
 		return err
 	}
 
-	stat := GetStat(examples)
+	stat := example.GetStat(examples)
 	fmt.Fprintln(os.Stderr, fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]))
 
 	AttachMetaData(cache, examples)
@@ -83,10 +85,10 @@ annotationLoop:
 		switch act {
 		case LABEL_AS_POSITIVE:
 			fmt.Println("Labeled as positive")
-			e.Annotate(POSITIVE)
+			e.Annotate(example.POSITIVE)
 		case LABEL_AS_NEGATIVE:
 			fmt.Println("Labeled as negative")
-			e.Annotate(NEGATIVE)
+			e.Annotate(example.NEGATIVE)
 		case SKIP:
 			fmt.Println("Skiped this example")
 			continue
@@ -116,7 +118,7 @@ type FeatureWeightPair struct {
 
 type FeatureWeightPairs []FeatureWeightPair
 
-func SortedActiveFeatures(model BinaryClassifier, example Example, n int) FeatureWeightPairs {
+func SortedActiveFeatures(model BinaryClassifier, example example.Example, n int) FeatureWeightPairs {
 	pairs := FeatureWeightPairs{}
 	for _, f := range example.Fv {
 		pairs = append(pairs, FeatureWeightPair{f, model.GetWeight(f)})
@@ -137,7 +139,7 @@ func SortedActiveFeatures(model BinaryClassifier, example Example, n int) Featur
 	return result
 }
 
-func ShowActiveFeatures(model BinaryClassifier, example Example, n int) {
+func ShowActiveFeatures(model BinaryClassifier, example example.Example, n int) {
 	for _, pair := range SortedActiveFeatures(model, example, n) {
 		fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
 	}

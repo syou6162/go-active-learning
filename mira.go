@@ -6,6 +6,9 @@ import (
 	"runtime"
 	"sort"
 	"sync"
+
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/feature"
 )
 
 type MIRAClassifier struct {
@@ -17,7 +20,7 @@ func newMIRAClassifier(c float64) *MIRAClassifier {
 	return &MIRAClassifier{make(map[string]float64), c}
 }
 
-func NewMIRAClassifier(examples Examples, c float64) *MIRAClassifier {
+func NewMIRAClassifier(examples example.Examples, c float64) *MIRAClassifier {
 	train := FilterLabeledExamples(examples)
 	model := newMIRAClassifier(c)
 	for iter := 0; iter < 30; iter++ {
@@ -40,7 +43,7 @@ func (l MIRAResultList) Len() int           { return len(l) }
 func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
-func NewMIRAClassifierByCrossValidation(examples Examples) *MIRAClassifier {
+func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifier {
 	train, dev := splitTrainAndDev(FilterLabeledExamples(examples))
 
 	params := []float64{100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01}
@@ -63,7 +66,7 @@ func NewMIRAClassifierByCrossValidation(examples Examples) *MIRAClassifier {
 
 	for _, model := range models {
 		c := model.c
-		devPredicts := make([]LabelType, len(dev))
+		devPredicts := make([]example.LabelType, len(dev))
 		for i, example := range dev {
 			devPredicts[i] = model.Predict(example.Fv)
 		}
@@ -79,7 +82,7 @@ func NewMIRAClassifierByCrossValidation(examples Examples) *MIRAClassifier {
 	return &miraResults[0].mira
 }
 
-func (model *MIRAClassifier) learn(example Example) {
+func (model *MIRAClassifier) learn(example example.Example) {
 	tmp := float64(example.Label) * model.PredictScore(example.Fv) // y w^T x
 	loss := 0.0
 	if tmp < 1.0 {
@@ -98,7 +101,7 @@ func (model *MIRAClassifier) learn(example Example) {
 	}
 }
 
-func (model MIRAClassifier) PredictScore(features FeatureVector) float64 {
+func (model MIRAClassifier) PredictScore(features feature.FeatureVector) float64 {
 	result := 0.0
 	for _, f := range features {
 		w, ok := model.weight[f]
@@ -109,14 +112,14 @@ func (model MIRAClassifier) PredictScore(features FeatureVector) float64 {
 	return result
 }
 
-func (model MIRAClassifier) Predict(features FeatureVector) LabelType {
+func (model MIRAClassifier) Predict(features feature.FeatureVector) example.LabelType {
 	if model.PredictScore(features) > 0 {
-		return POSITIVE
+		return example.POSITIVE
 	}
-	return NEGATIVE
+	return example.NEGATIVE
 }
 
-func (model MIRAClassifier) SortByScore(examples Examples) Examples {
+func (model MIRAClassifier) SortByScore(examples example.Examples) example.Examples {
 	return SortByScore(model, examples)
 }
 

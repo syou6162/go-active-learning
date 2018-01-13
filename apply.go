@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 
 	"github.com/codegangsta/cli"
+	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 func doApply(c *cli.Context) error {
@@ -24,7 +26,7 @@ func doApply(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cache, err := NewCache()
+	cache, err := cache.NewCache()
 	if err != nil {
 		return err
 	}
@@ -40,7 +42,7 @@ func doApply(c *cli.Context) error {
 	}
 	model := NewBinaryClassifier(examples)
 
-	result := Examples{}
+	result := example.Examples{}
 	for _, e := range FilterUnlabeledExamples(examples) {
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)

@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/feature"
 )
 
 type PerceptronClassifier struct {
@@ -15,7 +18,7 @@ func newPerceptronClassifier() *PerceptronClassifier {
 	return &PerceptronClassifier{make(map[string]float64), make(map[string]float64), 1}
 }
 
-func NewPerceptronClassifier(examples Examples) *PerceptronClassifier {
+func NewPerceptronClassifier(examples example.Examples) *PerceptronClassifier {
 	train, dev := splitTrainAndDev(FilterLabeledExamples(examples))
 	model := newPerceptronClassifier()
 	for iter := 0; iter < 30; iter++ {
@@ -24,7 +27,7 @@ func NewPerceptronClassifier(examples Examples) *PerceptronClassifier {
 			model.learn(*example)
 		}
 
-		devPredicts := make([]LabelType, len(dev))
+		devPredicts := make([]example.LabelType, len(dev))
 		for i, example := range dev {
 			devPredicts[i] = model.Predict(example.Fv)
 		}
@@ -37,7 +40,7 @@ func NewPerceptronClassifier(examples Examples) *PerceptronClassifier {
 	return model
 }
 
-func (model *PerceptronClassifier) learn(example Example) {
+func (model *PerceptronClassifier) learn(example example.Example) {
 	predict := model.predictForTraining(example.Fv)
 	if example.Label != predict {
 		for _, f := range example.Fv {
@@ -50,7 +53,7 @@ func (model *PerceptronClassifier) learn(example Example) {
 	}
 }
 
-func (model *PerceptronClassifier) predictForTraining(features FeatureVector) LabelType {
+func (model *PerceptronClassifier) predictForTraining(features feature.FeatureVector) example.LabelType {
 	result := 0.0
 	for _, f := range features {
 		w, ok := model.weight[f]
@@ -59,12 +62,12 @@ func (model *PerceptronClassifier) predictForTraining(features FeatureVector) La
 		}
 	}
 	if result > 0 {
-		return POSITIVE
+		return example.POSITIVE
 	}
-	return NEGATIVE
+	return example.NEGATIVE
 }
 
-func (model PerceptronClassifier) PredictScore(features FeatureVector) float64 {
+func (model PerceptronClassifier) PredictScore(features feature.FeatureVector) float64 {
 	result := 0.0
 	for _, f := range features {
 		w, ok := model.weight[f]
@@ -81,22 +84,22 @@ func (model PerceptronClassifier) PredictScore(features FeatureVector) float64 {
 	return result
 }
 
-func (model PerceptronClassifier) Predict(features FeatureVector) LabelType {
+func (model PerceptronClassifier) Predict(features feature.FeatureVector) example.LabelType {
 	if model.PredictScore(features) > 0 {
-		return POSITIVE
+		return example.POSITIVE
 	}
-	return NEGATIVE
+	return example.NEGATIVE
 }
 
-func ExtractGoldLabels(examples Examples) []LabelType {
-	golds := make([]LabelType, 0, 0)
+func ExtractGoldLabels(examples example.Examples) []example.LabelType {
+	golds := make([]example.LabelType, 0, 0)
 	for _, e := range examples {
 		golds = append(golds, e.Label)
 	}
 	return golds
 }
 
-func (model PerceptronClassifier) SortByScore(examples Examples) Examples {
+func (model PerceptronClassifier) SortByScore(examples example.Examples) example.Examples {
 	return SortByScore(model, examples)
 }
 

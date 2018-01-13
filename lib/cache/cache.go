@@ -1,8 +1,9 @@
-package main
+package cache
 
 import (
 	"encoding/json"
 	"github.com/go-redis/redis"
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 type Cache struct {
@@ -26,10 +27,10 @@ func NewCache() (*Cache, error) {
 }
 
 // ToDo: return (Example, error)
-func (c *Cache) Get(example Example) (Example, bool) {
-	key := redisPrefix + ":" + example.Url
+func (c *Cache) Get(exa example.Example) (example.Example, bool) {
+	key := redisPrefix + ":" + exa.Url
 	exampleStr, err := c.Client.Get(key).Result()
-	e := Example{}
+	e := example.Example{}
 	if err != nil {
 		return e, false
 	}
@@ -40,7 +41,7 @@ func (c *Cache) Get(example Example) (Example, bool) {
 }
 
 // ToDo: return error...
-func (c *Cache) Add(example Example) {
+func (c *Cache) Add(example example.Example) {
 	key := redisPrefix + ":" + example.Url
 	json, _ := json.Marshal(example)
 	c.Client.Set(key, json, 0).Err()

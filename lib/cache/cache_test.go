@@ -1,8 +1,9 @@
-package main
+package cache
 
 import (
 	"fmt"
 	"testing"
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 func TestCacheGet(t *testing.T) {
@@ -11,7 +12,7 @@ func TestCacheGet(t *testing.T) {
 		t.Error("Cannot connect to redis")
 	}
 
-	example := NewExample("http://a.hatena.ne.jp", POSITIVE)
+	example := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
 	c.Client.Del("url:http://a.hatena.ne.jp")
 	e, ok := c.Get(*example)
 	if ok {

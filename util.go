@@ -11,20 +11,23 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/cache"
 )
 
-func ParseLine(line string) (*Example, error) {
+func ParseLine(line string) (*example.Example, error) {
 	tokens := strings.Split(line, "\t")
 	var url string
 	if len(tokens) == 1 {
 		url = tokens[0]
-		return NewExample(url, UNLABELED), nil
+		return example.NewExample(url, example.UNLABELED), nil
 	} else if len(tokens) == 2 {
 		url = tokens[0]
 		label, _ := strconv.ParseInt(tokens[1], 10, 0)
-		switch LabelType(label) {
-		case POSITIVE, NEGATIVE, UNLABELED:
-			return NewExample(url, LabelType(label)), nil
+		switch example.LabelType(label) {
+		case example.POSITIVE, example.NEGATIVE, example.UNLABELED:
+			return example.NewExample(url, example.LabelType(label)), nil
 		default:
 			return nil, errors.New(fmt.Sprintf("Invalid Label type %d in %s", label, line))
 		}
@@ -33,7 +36,7 @@ func ParseLine(line string) (*Example, error) {
 	}
 }
 
-func ReadExamples(filename string) ([]*Example, error) {
+func ReadExamples(filename string) ([]*example.Example, error) {
 	fp, err := os.Open(filename)
 	defer fp.Close()
 	if err != nil {
@@ -41,7 +44,7 @@ func ReadExamples(filename string) ([]*Example, error) {
 	}
 
 	scanner := bufio.NewScanner(fp)
-	var examples Examples
+	var examples example.Examples
 	for scanner.Scan() {
 		line := scanner.Text()
 		e, err := ParseLine(line)
@@ -56,7 +59,7 @@ func ReadExamples(filename string) ([]*Example, error) {
 	return examples, nil
 }
 
-func WriteExamples(examples Examples, filename string) error {
+func WriteExamples(examples example.Examples, filename string) error {
 	fp, err := os.Create(filename)
 	defer fp.Close()
 	if err != nil {
@@ -81,8 +84,8 @@ func WriteExamples(examples Examples, filename string) error {
 	return nil
 }
 
-func FilterLabeledExamples(examples Examples) Examples {
-	var result Examples
+func FilterLabeledExamples(examples example.Examples) example.Examples {
+	var result example.Examples
 	for _, e := range examples {
 		if e.IsLabeled() {
 			result = append(result, e)
@@ -91,8 +94,8 @@ func FilterLabeledExamples(examples Examples) Examples {
 	return result
 }
 
-func FilterUnlabeledExamples(examples Examples) Examples {
-	result := Examples{}
+func FilterUnlabeledExamples(examples example.Examples) example.Examples {
+	result := example.Examples{}
 
 	alreadyLabeledByURL := make(map[string]bool)
 	alreadyLabeledByTitle := make(map[string]bool)
@@ -131,7 +134,7 @@ func removeDuplicate(args []string) []string {
 	return results
 }
 
-func attachMetaData(cache *Cache, examples Examples) {
+func attachMetaData(cache *cache.Cache, examples example.Examples) {
 	oldStdout := os.Stdout
 	readFile, writeFile, _ := os.Pipe()
 	os.Stdout = writeFile
@@ -151,15 +154,15 @@ func attachMetaData(cache *Cache, examples Examples) {
 	for idx, e := range examples {
 		wg.Add(1)
 		sem <- struct{}{}
-		go func(e *Example, idx int) {
+		go func(e *example.Example, idx int) {
 			defer wg.Done()
-			if example, ok := cache.Get(*e); ok {
-				e.Title = example.Title
-				e.FinalUrl = example.FinalUrl
-				e.Description = example.Description
-				e.Body = example.Body
-				e.StatusCode = example.StatusCode
-				e.Fv = example.Fv
+			if tmp, ok := cache.Get(*e); ok {
+				e.Title = tmp.Title
+				e.FinalUrl = tmp.FinalUrl
+				e.Description = tmp.Description
+				e.Body = tmp.Body
+				e.StatusCode = tmp.StatusCode
+				e.Fv = tmp.Fv
 			} else {
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				article := GetArticle(e.Url)
@@ -168,7 +171,7 @@ func attachMetaData(cache *Cache, examples Examples) {
 				e.Description = article.Description
 				e.Body = article.Body
 				e.StatusCode = article.StatusCode
-				e.Fv = removeDuplicate(ExtractFeatures(*e))
+				e.Fv = removeDuplicate(example.ExtractFeatures(*e))
 				e.Description = ""
 				e.Body = ""
 				cache.Add(*e)
@@ -179,9 +182,9 @@ func attachMetaData(cache *Cache, examples Examples) {
 	wg.Wait()
 }
 
-func AttachMetaData(cache *Cache, examples Examples) {
+func AttachMetaData(cache *cache.Cache, examples example.Examples) {
 	batchSize := 100
-	examplesList := make([]Examples, 0)
+	examplesList := make([]example.Examples, 0)
 	n := len(examples)
 
 	for i := 0; i < n; i += batchSize {
@@ -193,8 +196,8 @@ func AttachMetaData(cache *Cache, examples Examples) {
 	}
 }
 
-func FilterStatusCodeOkExamples(examples Examples) Examples {
-	result := Examples{}
+func FilterStatusCodeOkExamples(examples example.Examples) example.Examples {
+	result := example.Examples{}
 
 	for _, e := range examples {
 		if e.StatusCode == 200 {
@@ -210,7 +213,7 @@ func NewOutputFilename() string {
 	return fmt.Sprintf("%d-%02d-%02d-%02d-%02d.txt", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
 }
 
-func splitTrainAndDev(examples Examples) (train Examples, dev Examples) {
+func splitTrainAndDev(examples example.Examples) (train example.Examples, dev example.Examples) {
 	shuffle(examples)
 	n := int(0.8 * float64(len(examples)))
 	return examples[0:n], examples[n:]

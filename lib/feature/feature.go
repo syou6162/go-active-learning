@@ -1,4 +1,4 @@
-package main
+package feature
 
 import (
 	"net/url"
@@ -46,7 +46,7 @@ func extractEngNounFeatures(s string, prefix string) FeatureVector {
 	return fv
 }
 
-func extractJpnNounFeatures(s string, prefix string) FeatureVector {
+func ExtractJpnNounFeatures(s string, prefix string) FeatureVector {
 	var fv FeatureVector
 	if s == "" {
 		return fv
@@ -67,7 +67,7 @@ func extractJpnNounFeatures(s string, prefix string) FeatureVector {
 
 func ExtractNounFeatures(s string, prefix string) FeatureVector {
 	if isJapanese(s) {
-		return extractJpnNounFeatures(s, prefix)
+		return ExtractJpnNounFeatures(s, prefix)
 	} else {
 		return extractEngNounFeatures(s, prefix)
 	}
@@ -82,22 +82,11 @@ func ExtractHostFeature(urlString string) string {
 	return prefix + ":" + u.Host
 }
 
-func extractPath(urlString string) string {
+func ExtractPath(urlString string) string {
 	path := ""
 	u, err := url.Parse(urlString)
 	if err != nil {
 		return path
 	}
 	return u.Path
-}
-
-func ExtractFeatures(e Example) FeatureVector {
-	var fv FeatureVector
-	fv = append(fv, "BIAS")
-	fv = append(fv, ExtractHostFeature(e.FinalUrl))
-	fv = append(fv, extractJpnNounFeatures(extractPath(e.FinalUrl), "URL")...)
-	fv = append(fv, ExtractNounFeatures(e.Title, "TITLE")...)
-	fv = append(fv, ExtractNounFeatures(e.Description, "DESCRIPTION")...)
-	fv = append(fv, ExtractNounFeatures(e.Body, "BODY")...)
-	return fv
 }
