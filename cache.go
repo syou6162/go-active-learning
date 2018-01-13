@@ -2,68 +2,46 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
-	"sync"
+	"github.com/go-redis/redis"
 )
 
 type Cache struct {
-	Cache map[string]Example `json:"Cache"`
-	sync.RWMutex
+	Client *redis.Client
 }
 
-var CacheFilename = "cache.bin"
+var redisPrefix = "url"
 
-func NewCache() *Cache {
-	return &Cache{Cache: make(map[string]Example)}
+func NewCache() (*Cache, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	_, err := client.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+	return &Cache{Client: client}, nil
 }
 
+// ToDo: return (Example, error)
 func (c *Cache) Get(example Example) (Example, bool) {
-	c.RLock()
-	defer c.RUnlock()
-
-	e, ok := c.Cache[example.Url]
-	return e, ok
+	key := redisPrefix + ":" + example.Url
+	exampleStr, err := c.Client.Get(key).Result()
+	e := Example{}
+	if err != nil {
+		return e, false
+	}
+	if err := json.Unmarshal([]byte(exampleStr), &e); err != nil {
+		return e, false
+	}
+	return e, true
 }
 
+// ToDo: return error...
 func (c *Cache) Add(example Example) {
-	c.Lock()
-	defer c.Unlock()
-
-	c.Cache[example.Url] = example
-}
-
-func (c *Cache) Save(filename string) error {
-	fmt.Fprintln(os.Stderr, "Saving cache...")
-	file, err := os.Create(filename)
-	defer file.Close()
-	if err != nil {
-		return err
-	}
-	json, err := json.Marshal(c.Cache)
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(filename, json, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func LoadCache(filename string) (*Cache, error) {
-	fmt.Fprintln(os.Stderr, "Loading cache...")
-	cache := NewCache()
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return cache, err
-	}
-
-	c := make(map[string]Example)
-	if err := json.Unmarshal(bytes, &c); err != nil {
-		return cache, err
-	}
-	cache.Cache = c
-	return cache, nil
+	key := redisPrefix + ":" + example.Url
+	json, _ := json.Marshal(example)
+	c.Client.Set(key, json, 0).Err()
 }

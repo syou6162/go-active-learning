@@ -190,7 +190,6 @@ func AttachMetaData(cache *Cache, examples Examples) {
 	}
 	for _, l := range examplesList {
 		attachMetaData(cache, l)
-		cache.Save(CacheFilename)
 	}
 }
 

@@ -7,6 +7,7 @@ dependencies:
     - make deps
     - go get -t -d -v ./...
     - make build
+    - sudo service redis-server start
 
 test:
   override:
