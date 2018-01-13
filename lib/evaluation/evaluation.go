@@ -1,4 +1,4 @@
-package main
+package evaluation
 
 import (
 	"github.com/syou6162/go-active-learning/lib/example"

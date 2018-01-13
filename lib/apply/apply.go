@@ -1,4 +1,4 @@
-package main
+package apply
 
 import (
 	"fmt"
@@ -8,7 +8,10 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/submodular"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 func doApply(c *cli.Context) error {
@@ -31,19 +34,19 @@ func doApply(c *cli.Context) error {
 		return err
 	}
 
-	examples, err := ReadExamples(inputFilename)
+	examples, err := util.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}
 
-	AttachMetaData(cache, examples)
+	util.AttachMetaData(cache, examples)
 	if filterStatusCodeOk {
-		examples = FilterStatusCodeOkExamples(examples)
+		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	model := NewBinaryClassifier(examples)
+	model := classifier.NewBinaryClassifier(examples)
 
 	result := example.Examples{}
-	for _, e := range FilterUnlabeledExamples(examples) {
+	for _, e := range util.FilterUnlabeledExamples(examples) {
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if e.Score > scoreThreshold {
@@ -52,7 +55,7 @@ func doApply(c *cli.Context) error {
 	}
 
 	if subsetSelection {
-		result = SelectSubExamplesBySubModular(result, sizeConstraint, alpha, r)
+		result = submodular.SelectSubExamplesBySubModular(result, sizeConstraint, alpha, r)
 	}
 
 	for _, e := range result {
@@ -72,7 +75,7 @@ func doApply(c *cli.Context) error {
 	return nil
 }
 
-var commandApply = cli.Command{
+var CommandApply = cli.Command{
 	Name:  "apply",
 	Usage: "Apply classifier to unlabeled examples",
 	Description: `

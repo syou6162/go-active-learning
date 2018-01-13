@@ -1,7 +1,8 @@
-package main
+package annotation
 
 import (
 	"github.com/codegangsta/cli"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
 )
 
@@ -33,7 +34,7 @@ func rune2ActionType(r rune) ActionType {
 	}
 }
 
-func NextExampleToBeAnnotated(model BinaryClassifier, examples example.Examples) *example.Example {
+func NextExampleToBeAnnotated(model classifier.BinaryClassifier, examples example.Examples) *example.Example {
 	unlabeledExamples := model.SortByScore(examples)
 	if len(unlabeledExamples) == 0 {
 		return nil
@@ -53,7 +54,7 @@ h: Show this help.
 e: Exit.
 `
 
-var commandAnnotate = cli.Command{
+var CommandAnnotate = cli.Command{
 	Name:  "annotate",
 	Usage: "Annotate URLs",
 	Description: `

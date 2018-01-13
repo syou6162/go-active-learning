@@ -1,4 +1,4 @@
-package main
+package annotation
 
 import (
 	"fmt"
@@ -11,7 +11,9 @@ import (
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 func input2ActionType() (ActionType, error) {
@@ -43,7 +45,7 @@ func doAnnotate(c *cli.Context) error {
 	}
 
 	if outputFilename == "" {
-		outputFilename = NewOutputFilename()
+		outputFilename = util.NewOutputFilename()
 		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
 	}
 
@@ -52,7 +54,7 @@ func doAnnotate(c *cli.Context) error {
 		return err
 	}
 
-	examples, err := ReadExamples(inputFilename)
+	examples, err := util.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}
@@ -60,11 +62,11 @@ func doAnnotate(c *cli.Context) error {
 	stat := example.GetStat(examples)
 	fmt.Fprintln(os.Stderr, fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]))
 
-	AttachMetaData(cache, examples)
+	util.AttachMetaData(cache, examples)
 	if filterStatusCodeOk {
-		examples = FilterStatusCodeOkExamples(examples)
+		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	model := NewBinaryClassifier(examples)
+	model := classifier.NewBinaryClassifier(examples)
 
 annotationLoop:
 	for {
@@ -94,7 +96,7 @@ annotationLoop:
 			continue
 		case SAVE:
 			fmt.Println("Saved labeld examples")
-			WriteExamples(examples, outputFilename)
+			util.WriteExamples(examples, outputFilename)
 		case HELP:
 			fmt.Println(ActionHelpDoc)
 		case EXIT:
@@ -103,10 +105,10 @@ annotationLoop:
 		default:
 			break annotationLoop
 		}
-		model = NewBinaryClassifier(examples)
+		model = classifier.NewBinaryClassifier(examples)
 	}
 
-	WriteExamples(examples, outputFilename)
+	util.WriteExamples(examples, outputFilename)
 
 	return nil
 }
@@ -118,7 +120,7 @@ type FeatureWeightPair struct {
 
 type FeatureWeightPairs []FeatureWeightPair
 
-func SortedActiveFeatures(model BinaryClassifier, example example.Example, n int) FeatureWeightPairs {
+func SortedActiveFeatures(model classifier.BinaryClassifier, example example.Example, n int) FeatureWeightPairs {
 	pairs := FeatureWeightPairs{}
 	for _, f := range example.Fv {
 		pairs = append(pairs, FeatureWeightPair{f, model.GetWeight(f)})
@@ -139,7 +141,7 @@ func SortedActiveFeatures(model BinaryClassifier, example example.Example, n int
 	return result
 }
 
-func ShowActiveFeatures(model BinaryClassifier, example example.Example, n int) {
+func ShowActiveFeatures(model classifier.BinaryClassifier, example example.Example, n int) {
 	for _, pair := range SortedActiveFeatures(model, example, n) {
 		fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
 	}

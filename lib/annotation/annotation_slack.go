@@ -1,4 +1,4 @@
-package main
+package annotation
 
 import (
 	"fmt"
@@ -8,7 +8,9 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 func doAnnotateWithSlack(c *cli.Context) error {
@@ -23,7 +25,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	}
 
 	if outputFilename == "" {
-		outputFilename = NewOutputFilename()
+		outputFilename = util.NewOutputFilename()
 		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
 	}
 
@@ -41,7 +43,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 		return err
 	}
 
-	examples, err := ReadExamples(inputFilename)
+	examples, err := util.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}
@@ -50,11 +52,11 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	msg := rtm.NewOutgoingMessage(fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]), channelID)
 	rtm.SendMessage(msg)
 
-	AttachMetaData(cache, examples)
+	util.AttachMetaData(cache, examples)
 	if filterStatusCodeOk {
-		examples = FilterStatusCodeOkExamples(examples)
+		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	model := NewBinaryClassifier(examples)
+	model := classifier.NewBinaryClassifier(examples)
 	e := NextExampleToBeAnnotated(model, examples)
 	if e == nil {
 		return errors.New("No e to annotate")
@@ -85,18 +87,18 @@ annotationLoop:
 				switch act {
 				case LABEL_AS_POSITIVE:
 					e.Annotate(example.POSITIVE)
-					model = NewBinaryClassifier(examples)
+					model = classifier.NewBinaryClassifier(examples)
 					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
 					e.Annotate(example.NEGATIVE)
-					model = NewBinaryClassifier(examples)
+					model = classifier.NewBinaryClassifier(examples)
 					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case SKIP:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Skiped this e", channelID))
 					break
 				case SAVE:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Saved labeld examples", channelID))
-					WriteExamples(examples, outputFilename)
+					util.WriteExamples(examples, outputFilename)
 				case HELP:
 					rtm.SendMessage(rtm.NewOutgoingMessage(ActionHelpDoc, channelID))
 				case EXIT:
@@ -116,11 +118,11 @@ annotationLoop:
 			}
 		}
 	}
-	WriteExamples(examples, outputFilename)
+	util.WriteExamples(examples, outputFilename)
 	return nil
 }
 
-func showExample(rtm *slack.RTM, model BinaryClassifier, example *example.Example, channelID string) {
+func showExample(rtm *slack.RTM, model classifier.BinaryClassifier, example *example.Example, channelID string) {
 	activeFeaturesStr := "Active Features: "
 	for _, pair := range SortedActiveFeatures(model, *example, 5) {
 		activeFeaturesStr += fmt.Sprintf("%s(%+0.1f) ", pair.Feature, pair.Weight)

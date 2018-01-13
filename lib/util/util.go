@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"bufio"
@@ -14,6 +14,7 @@ import (
 
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/fetcher"
 )
 
 func ParseLine(line string) (*example.Example, error) {
@@ -145,7 +146,7 @@ func attachMetaData(cache *cache.Cache, examples example.Examples) {
 		os.Stdout = oldStdout
 	}()
 
-	shuffle(examples)
+	Shuffle(examples)
 
 	wg := &sync.WaitGroup{}
 	cpus := runtime.NumCPU()
@@ -165,7 +166,7 @@ func attachMetaData(cache *cache.Cache, examples example.Examples) {
 				e.Fv = tmp.Fv
 			} else {
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
-				article := GetArticle(e.Url)
+				article := fetcher.GetArticle(e.Url)
 				e.Title = article.Title
 				e.FinalUrl = article.Url
 				e.Description = article.Description
@@ -213,8 +214,8 @@ func NewOutputFilename() string {
 	return fmt.Sprintf("%d-%02d-%02d-%02d-%02d.txt", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
 }
 
-func splitTrainAndDev(examples example.Examples) (train example.Examples, dev example.Examples) {
-	shuffle(examples)
+func SplitTrainAndDev(examples example.Examples) (train example.Examples, dev example.Examples) {
+	Shuffle(examples)
 	n := int(0.8 * float64(len(examples)))
 	return examples[0:n], examples[n:]
 }

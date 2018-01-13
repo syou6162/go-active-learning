@@ -1,4 +1,4 @@
-package main
+package classifier
 
 import (
 	"fmt"
@@ -7,8 +7,10 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/syou6162/go-active-learning/lib/evaluation"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/feature"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 type MIRAClassifier struct {
@@ -21,10 +23,10 @@ func newMIRAClassifier(c float64) *MIRAClassifier {
 }
 
 func NewMIRAClassifier(examples example.Examples, c float64) *MIRAClassifier {
-	train := FilterLabeledExamples(examples)
+	train := util.FilterLabeledExamples(examples)
 	model := newMIRAClassifier(c)
 	for iter := 0; iter < 30; iter++ {
-		shuffle(train)
+		util.Shuffle(train)
 		for _, example := range train {
 			model.learn(*example)
 		}
@@ -44,7 +46,7 @@ func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifier {
-	train, dev := splitTrainAndDev(FilterLabeledExamples(examples))
+	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
 
 	params := []float64{100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01}
 	miraResults := MIRAResultList{}
@@ -70,9 +72,9 @@ func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifi
 		for i, example := range dev {
 			devPredicts[i] = model.Predict(example.Fv)
 		}
-		accuracy := GetAccuracy(ExtractGoldLabels(dev), devPredicts)
-		precision := GetPrecision(ExtractGoldLabels(dev), devPredicts)
-		recall := GetRecall(ExtractGoldLabels(dev), devPredicts)
+		accuracy := evaluation.GetAccuracy(ExtractGoldLabels(dev), devPredicts)
+		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
+		recall := evaluation.GetRecall(ExtractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
 		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", c, accuracy, precision, recall, f))
 		miraResults = append(miraResults, MIRAResult{*model, f})

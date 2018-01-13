@@ -1,11 +1,13 @@
-package main
+package classifier
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/syou6162/go-active-learning/lib/evaluation"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/feature"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 type PerceptronClassifier struct {
@@ -19,10 +21,10 @@ func newPerceptronClassifier() *PerceptronClassifier {
 }
 
 func NewPerceptronClassifier(examples example.Examples) *PerceptronClassifier {
-	train, dev := splitTrainAndDev(FilterLabeledExamples(examples))
+	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
 	model := newPerceptronClassifier()
 	for iter := 0; iter < 30; iter++ {
-		shuffle(train)
+		util.Shuffle(train)
 		for _, example := range train {
 			model.learn(*example)
 		}
@@ -31,9 +33,9 @@ func NewPerceptronClassifier(examples example.Examples) *PerceptronClassifier {
 		for i, example := range dev {
 			devPredicts[i] = model.Predict(example.Fv)
 		}
-		accuracy := GetAccuracy(ExtractGoldLabels(dev), devPredicts)
-		precision := GetPrecision(ExtractGoldLabels(dev), devPredicts)
-		recall := GetRecall(ExtractGoldLabels(dev), devPredicts)
+		accuracy := evaluation.GetAccuracy(ExtractGoldLabels(dev), devPredicts)
+		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
+		recall := evaluation.GetRecall(ExtractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
 		fmt.Fprintln(os.Stderr, fmt.Sprintf("Iter:%d\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", iter, accuracy, precision, recall, f))
 	}

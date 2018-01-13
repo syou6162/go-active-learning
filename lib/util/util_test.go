@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ func TestParseLine(t *testing.T) {
 }
 
 func TestReadExamples(t *testing.T) {
-	filename := "tech_input_example.txt"
+	filename := "../../tech_input_example.txt"
 	examples, err := ReadExamples(filename)
 
 	if err != nil {
@@ -136,7 +136,7 @@ func TestSplitTrainAndDev(t *testing.T) {
 	e9 := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
 	e10 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
 
-	train, dev := splitTrainAndDev(example.Examples{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
+	train, dev := SplitTrainAndDev(example.Examples{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
 	if len(train) != 8 {
 		t.Error("Number of training examples should be 8")
 	}
