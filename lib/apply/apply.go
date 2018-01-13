@@ -8,10 +8,10 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
-	"github.com/syou6162/go-active-learning/lib/example"
-	"github.com/syou6162/go-active-learning/lib/util"
 	"github.com/syou6162/go-active-learning/lib/classifier"
+	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/submodular"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 func doApply(c *cli.Context) error {

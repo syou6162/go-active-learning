@@ -1,8 +1,8 @@
 package fetcher
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestGetArticle(t *testing.T) {

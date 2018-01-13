@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/syou6162/go-active-learning/lib/evaluation"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/util"
-	"github.com/syou6162/go-active-learning/lib/evaluation"
 )
 
 type PerceptronClassifier struct {
