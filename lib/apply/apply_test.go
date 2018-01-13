@@ -1,18 +1,19 @@
-package main
+package apply_test
 
 import (
 	"testing"
 
 	"github.com/codegangsta/cli"
+	"github.com/syou6162/go-active-learning/lib/command"
 )
 
 func TestDoApply(t *testing.T) {
 	app := cli.NewApp()
-	app.Commands = Commands
+	app.Commands = command.Commands
 	args := []string{
 		"go-active-learning",
 		"apply",
-		"--input-filename=tech_input_example.txt",
+		"--input-filename=../../tech_input_example.txt",
 		"--filter-status-code-ok",
 		"--json-output",
 		"--subset-selection",

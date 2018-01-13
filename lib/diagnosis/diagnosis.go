@@ -1,4 +1,4 @@
-package main
+package diagnosis
 
 import (
 	"fmt"
@@ -11,9 +11,11 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 )
 
-var commandDiagnose = cli.Command{
+var CommandDiagnose = cli.Command{
 	Name:  "diagnose",
 	Usage: "Diagnose training data or learned model",
 	Description: `
@@ -61,15 +63,15 @@ func doDiagnose(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	examples, _ := ReadExamples(inputFilename)
-	AttachMetaData(cache, examples)
-	training := FilterLabeledExamples(examples)
+	examples, _ := util.ReadExamples(inputFilename)
+	util.AttachMetaData(cache, examples)
+	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
-		training = FilterStatusCodeOkExamples(training)
+		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	model := NewBinaryClassifier(training)
+	model := classifier.NewBinaryClassifier(training)
 
 	wrongExamples := example.Examples{}
 	correctExamples := example.Examples{}
@@ -90,7 +92,7 @@ func doDiagnose(c *cli.Context) error {
 	return nil
 }
 
-func printResult(model BinaryClassifier, correctExamples example.Examples, wrongExamples example.Examples) error {
+func printResult(model classifier.BinaryClassifier, correctExamples example.Examples, wrongExamples example.Examples) error {
 	fmt.Println("Index\tLabel\tScore\tURL\tTitle")
 	result := append(wrongExamples, correctExamples...)
 
@@ -142,15 +144,15 @@ func doListFeatureWeight(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	examples, _ := ReadExamples(inputFilename)
-	AttachMetaData(cache, examples)
-	training := FilterLabeledExamples(examples)
+	examples, _ := util.ReadExamples(inputFilename)
+	util.AttachMetaData(cache, examples)
+	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
-		training = FilterStatusCodeOkExamples(training)
+		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	model := NewBinaryClassifier(training)
+	model := classifier.NewBinaryClassifier(training)
 
 	tmp := make(FeatureList, 0)
 	for _, k := range model.GetActiveFeatures() {

@@ -1,10 +1,11 @@
-package main
+package expand_url
 
 import (
 	"fmt"
 
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/util"
 	"os"
 )
 
@@ -21,12 +22,12 @@ func doExpandURL(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	examples, err := ReadExamples(inputFilename)
+	examples, err := util.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}
 
-	AttachMetaData(cache, examples)
+	util.AttachMetaData(cache, examples)
 
 	for _, e := range examples {
 		url := e.Url
@@ -39,7 +40,7 @@ func doExpandURL(c *cli.Context) error {
 	return nil
 }
 
-var commandExpandURL = cli.Command{
+var CommandExpandURL = cli.Command{
 	Name:  "expand-url",
 	Usage: "Expand shortened url",
 	Description: `
