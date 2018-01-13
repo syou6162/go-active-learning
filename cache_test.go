@@ -12,6 +12,7 @@ func TestCacheGet(t *testing.T) {
 	}
 
 	example := NewExample("http://a.hatena.ne.jp", POSITIVE)
+	c.Client.Del("url:http://a.hatenan.ne.jp")
 	e, ok := c.Get(*example)
 	if ok {
 		t.Error(fmt.Printf("Cache must not contain %s", example.Url))
