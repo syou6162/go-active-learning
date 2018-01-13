@@ -1,8 +1,8 @@
 package main
 
 import (
-	"math/rand"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"math/rand"
 )
 
 func shuffle(examples example.Examples) {

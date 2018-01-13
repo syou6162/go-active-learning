@@ -10,8 +10,8 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
-	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 func input2ActionType() (ActionType, error) {

@@ -9,8 +9,8 @@ import (
 	"encoding/csv"
 
 	"github.com/codegangsta/cli"
-	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 var commandDiagnose = cli.Command{

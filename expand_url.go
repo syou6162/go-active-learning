@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/codegangsta/cli"
-	"os"
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"os"
 )
 
 func doExpandURL(c *cli.Context) error {

@@ -2,8 +2,8 @@ package cache
 
 import (
 	"fmt"
-	"testing"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"testing"
 )
 
 func TestCacheGet(t *testing.T) {

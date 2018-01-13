@@ -6,7 +6,6 @@ import (
 	"github.com/syou6162/go-active-learning/lib/feature"
 )
 
-
 type LabelType int
 
 const (
