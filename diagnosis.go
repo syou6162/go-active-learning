@@ -9,6 +9,8 @@ import (
 	"encoding/csv"
 
 	"github.com/codegangsta/cli"
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/cache"
 )
 
 var commandDiagnose = cli.Command{
@@ -55,7 +57,7 @@ func doDiagnose(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cache, err := NewCache()
+	cache, err := cache.NewCache()
 	if err != nil {
 		return err
 	}
@@ -69,8 +71,8 @@ func doDiagnose(c *cli.Context) error {
 
 	model := NewBinaryClassifier(training)
 
-	wrongExamples := Examples{}
-	correctExamples := Examples{}
+	wrongExamples := example.Examples{}
+	correctExamples := example.Examples{}
 
 	for _, e := range training {
 		e.Score = model.PredictScore(e.Fv)
@@ -88,7 +90,7 @@ func doDiagnose(c *cli.Context) error {
 	return nil
 }
 
-func printResult(model BinaryClassifier, correctExamples Examples, wrongExamples Examples) error {
+func printResult(model BinaryClassifier, correctExamples example.Examples, wrongExamples example.Examples) error {
 	fmt.Println("Index\tLabel\tScore\tURL\tTitle")
 	result := append(wrongExamples, correctExamples...)
 
@@ -136,7 +138,7 @@ func doListFeatureWeight(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cache, err := NewCache()
+	cache, err := cache.NewCache()
 	if err != nil {
 		return err
 	}

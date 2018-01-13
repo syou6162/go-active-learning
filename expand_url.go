@@ -5,6 +5,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"os"
+	"github.com/syou6162/go-active-learning/lib/cache"
 )
 
 func doExpandURL(c *cli.Context) error {
@@ -15,7 +16,7 @@ func doExpandURL(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cache, err := NewCache()
+	cache, err := cache.NewCache()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}

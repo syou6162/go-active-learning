@@ -2,10 +2,13 @@ package main
 
 import (
 	"math"
+
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/feature"
 )
 
-func SelectSubExamplesBySubModular(whole Examples, sizeConstraint int, alpha float64, r float64) Examples {
-	selected := Examples{}
+func SelectSubExamplesBySubModular(whole example.Examples, sizeConstraint int, alpha float64, r float64) example.Examples {
+	selected := example.Examples{}
 	remainings := whole
 	simMat := GetSimilarityMatrixByTFIDF(whole)
 	for {
@@ -21,18 +24,18 @@ func SelectSubExamplesBySubModular(whole Examples, sizeConstraint int, alpha flo
 	return selected
 }
 
-func SelectBestExample(mat SimilarityMatrix, remainings Examples, selected Examples, whole Examples, alpha float64, r float64) int {
+func SelectBestExample(mat SimilarityMatrix, remainings example.Examples, selected example.Examples, whole example.Examples, alpha float64, r float64) int {
 	maxScore := math.Inf(-1)
 	argmax := 0
-	for idx, example := range remainings {
-		subset := Examples{}
+	for idx, remaining := range remainings {
+		subset := example.Examples{}
 		for _, e := range selected {
 			subset = append(subset, e)
 		}
-		subset = append(subset, example)
+		subset = append(subset, remaining)
 		c1 := CoverageFunction(mat, subset, whole, alpha)
 		c2 := CoverageFunction(mat, selected, whole, alpha)
-		score := (c1 - c2) / math.Pow(float64(len(example.Fv)), r)
+		score := (c1 - c2) / math.Pow(float64(len(remaining.Fv)), r)
 		if score >= maxScore {
 			argmax = idx
 			maxScore = score
@@ -41,7 +44,7 @@ func SelectBestExample(mat SimilarityMatrix, remainings Examples, selected Examp
 	return argmax
 }
 
-func CoverageFunction(mat SimilarityMatrix, subset Examples, whole Examples, alpha float64) float64 {
+func CoverageFunction(mat SimilarityMatrix, subset example.Examples, whole example.Examples, alpha float64) float64 {
 	sum := 0.0
 	for _, e := range whole {
 		sum += math.Min(
@@ -52,7 +55,7 @@ func CoverageFunction(mat SimilarityMatrix, subset Examples, whole Examples, alp
 	return sum
 }
 
-func coverageFunction(mat SimilarityMatrix, example *Example, examples Examples) float64 {
+func coverageFunction(mat SimilarityMatrix, example *example.Example, examples example.Examples) float64 {
 	sum := 0.0
 	for _, e := range examples {
 		sum += GetCosineSimilarity(mat, e, example)
@@ -62,7 +65,7 @@ func coverageFunction(mat SimilarityMatrix, example *Example, examples Examples)
 
 type SimilarityMatrix map[string]float64
 
-func GetSimilarityMatrixByTFIDF(examples Examples) SimilarityMatrix {
+func GetSimilarityMatrixByTFIDF(examples example.Examples) SimilarityMatrix {
 	idf := GetIDF(examples)
 
 	dfByURL := make(map[string]map[string]float64)
@@ -97,14 +100,14 @@ func GetSimilarityMatrixByTFIDF(examples Examples) SimilarityMatrix {
 	return mat
 }
 
-func GetCosineSimilarity(mat SimilarityMatrix, e1 *Example, e2 *Example) float64 {
+func GetCosineSimilarity(mat SimilarityMatrix, e1 *example.Example, e2 *example.Example) float64 {
 	return mat[e1.Url+"+"+e2.Url]
 }
 
-func GetDF(example Example) map[string]float64 {
+func GetDF(example example.Example) map[string]float64 {
 	df := make(map[string]float64)
 	n := 0.0
-	fv := ExtractNounFeatures(example.Body, "BODY")
+	fv := feature.ExtractNounFeatures(example.Body, "BODY")
 
 	for _, f := range fv {
 		df[f]++
@@ -117,13 +120,13 @@ func GetDF(example Example) map[string]float64 {
 	return df
 }
 
-func GetIDF(examples Examples) map[string]float64 {
+func GetIDF(examples example.Examples) map[string]float64 {
 	idf := make(map[string]float64)
 	cnt := make(map[string]float64)
 	n := float64(len(examples))
 
 	for _, e := range examples {
-		fv := ExtractNounFeatures(e.Body, "BODY")
+		fv := feature.ExtractNounFeatures(e.Body, "BODY")
 		for _, f := range fv {
 			cnt[f]++
 		}

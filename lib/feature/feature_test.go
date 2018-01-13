@@ -1,4 +1,4 @@
-package main
+package feature
 
 import (
 	"fmt"
@@ -27,7 +27,7 @@ func TestEngNounFeatures(t *testing.T) {
 func TestExtractPath(t *testing.T) {
 	url := "http://b.hatena.ne.jp/search/text?safe=on&q=nlp&users=50"
 	path := "/search/text"
-	if extractPath(url) != path {
+	if ExtractPath(url) != path {
 		t.Error(fmt.Printf("path should be %s", path))
 	}
 }
