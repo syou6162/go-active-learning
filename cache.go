@@ -5,13 +5,13 @@ import (
 	"github.com/go-redis/redis"
 )
 
-type RedisCache struct {
+type Cache struct {
 	Client *redis.Client
 }
 
 var redisPrefix = "url"
 
-func NewCache() (*RedisCache, error) {
+func NewCache() (*Cache, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
@@ -22,11 +22,11 @@ func NewCache() (*RedisCache, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &RedisCache{Client: client}, nil
+	return &Cache{Client: client}, nil
 }
 
 // ToDo: return (Example, error)
-func (c *RedisCache) Get(example Example) (Example, bool) {
+func (c *Cache) Get(example Example) (Example, bool) {
 	key := redisPrefix + ":" + example.Url
 	exampleStr, err := c.Client.Get(key).Result()
 	e := Example{}
@@ -40,7 +40,7 @@ func (c *RedisCache) Get(example Example) (Example, bool) {
 }
 
 // ToDo: return error...
-func (c *RedisCache) Add(example Example) {
+func (c *Cache) Add(example Example) {
 	key := redisPrefix + ":" + example.Url
 	json, _ := json.Marshal(example)
 	c.Client.Set(key, json, 0).Err()
