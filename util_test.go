@@ -122,15 +122,15 @@ func TestRemoveDuplicate(t *testing.T) {
 }
 
 func TestSplitTrainAndDev(t *testing.T) {
-	e1 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e1 := NewExample("http://a.hatena.ne.jp", POSITIVE)
 	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
 	e3 := NewExample("http://google.com", UNLABELED)
-	e4 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e4 := NewExample("http://a.hatena.ne.jp", POSITIVE)
 	e5 := NewExample("http://www.yasuhisay.info", NEGATIVE)
-	e6 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e6 := NewExample("http://a.hatena.ne.jp", POSITIVE)
 	e7 := NewExample("http://www.yasuhisay.info", NEGATIVE)
 	e8 := NewExample("http://google.com", UNLABELED)
-	e9 := NewExample("http://b.hatena.ne.jp", POSITIVE)
+	e9 := NewExample("http://a.hatena.ne.jp", POSITIVE)
 	e10 := NewExample("http://www.yasuhisay.info", NEGATIVE)
 
 	train, dev := splitTrainAndDev(Examples{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
@@ -147,7 +147,11 @@ func TestAttachMetaData(t *testing.T) {
 	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
 	e3 := NewExample("https://github.com", UNLABELED)
 	examples := Examples{e1, e2, e3}
-	AttachMetaData(NewCache(), examples)
+	cache, err := NewCache()
+	if err != nil {
+		t.Error("Cannot connect to redis")
+	}
+	AttachMetaData(cache, examples)
 
 	if examples[0].Title == "" {
 		t.Errorf("Title must not be empty for %s", examples[0].Url)

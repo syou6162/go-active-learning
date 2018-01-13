@@ -55,7 +55,10 @@ func doDiagnose(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cache, _ := LoadCache(CacheFilename)
+	cache, err := NewCache()
+	if err != nil {
+		return err
+	}
 	examples, _ := ReadExamples(inputFilename)
 	AttachMetaData(cache, examples)
 	training := FilterLabeledExamples(examples)
@@ -82,7 +85,6 @@ func doDiagnose(c *cli.Context) error {
 	sort.Sort(correctExamples)
 	printResult(model, correctExamples, wrongExamples)
 
-	cache.Save(CacheFilename)
 	return nil
 }
 
@@ -134,7 +136,10 @@ func doListFeatureWeight(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cache, _ := LoadCache(CacheFilename)
+	cache, err := NewCache()
+	if err != nil {
+		return err
+	}
 	examples, _ := ReadExamples(inputFilename)
 	AttachMetaData(cache, examples)
 	training := FilterLabeledExamples(examples)
@@ -155,6 +160,5 @@ func doListFeatureWeight(c *cli.Context) error {
 		fmt.Println(fmt.Sprintf("%+0.2f\t%s", p.Weight, p.Key))
 	}
 
-	cache.Save(CacheFilename)
 	return nil
 }

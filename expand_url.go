@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/codegangsta/cli"
+	"os"
 )
 
 func doExpandURL(c *cli.Context) error {
@@ -15,9 +15,7 @@ func doExpandURL(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cacheFilename := CacheFilename
-
-	cache, err := LoadCache(cacheFilename)
+	cache, err := NewCache()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
@@ -37,7 +35,6 @@ func doExpandURL(c *cli.Context) error {
 		fmt.Println(fmt.Sprintf("%s\t%d", url, e.Label))
 	}
 
-	cache.Save(cacheFilename)
 	return nil
 }
 
