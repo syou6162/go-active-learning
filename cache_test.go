@@ -6,7 +6,11 @@ import (
 )
 
 func TestCacheGet(t *testing.T) {
-	c := NewRedisCache()
+	c, err := NewRedisCache()
+	if err != nil {
+		t.Error("Cannot connect to redis")
+	}
+
 	example := NewExample("http://a.hatena.ne.jp", POSITIVE)
 	e, ok := c.Get(*example)
 	if ok {

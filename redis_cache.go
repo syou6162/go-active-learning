@@ -11,13 +11,18 @@ type RedisCache struct {
 
 var redisPrefix = "url"
 
-func NewRedisCache() *RedisCache {
+func NewRedisCache() (*RedisCache, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	return &RedisCache{Client: client}
+
+	_, err := client.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+	return &RedisCache{Client: client}, nil
 }
 
 // ToDo: return (Example, error)
