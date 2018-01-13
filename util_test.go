@@ -147,7 +147,7 @@ func TestAttachMetaData(t *testing.T) {
 	e2 := NewExample("http://www.yasuhisay.info", NEGATIVE)
 	e3 := NewExample("https://github.com", UNLABELED)
 	examples := Examples{e1, e2, e3}
-	cache, err := NewRedisCache()
+	cache, err := NewCache()
 	if err != nil {
 		t.Error("Cannot connect to redis")
 	}

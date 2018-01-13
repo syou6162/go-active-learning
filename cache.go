@@ -2,68 +2,46 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
-	"sync"
+	"github.com/go-redis/redis"
 )
 
-type Cache struct {
-	Cache map[string]Example `json:"Cache"`
-	sync.RWMutex
+type RedisCache struct {
+	Client *redis.Client
 }
 
-var CacheFilename = "cache.bin"
+var redisPrefix = "url"
 
-func NewCache() *Cache {
-	return &Cache{Cache: make(map[string]Example)}
-}
+func NewCache() (*RedisCache, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
-func (c *Cache) Get(example Example) (Example, bool) {
-	c.RLock()
-	defer c.RUnlock()
-
-	e, ok := c.Cache[example.Url]
-	return e, ok
-}
-
-func (c *Cache) Add(example Example) {
-	c.Lock()
-	defer c.Unlock()
-
-	c.Cache[example.Url] = example
-}
-
-func (c *Cache) Save(filename string) error {
-	fmt.Fprintln(os.Stderr, "Saving cache...")
-	file, err := os.Create(filename)
-	defer file.Close()
+	_, err := client.Ping().Result()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	json, err := json.Marshal(c.Cache)
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(filename, json, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return &RedisCache{Client: client}, nil
 }
 
-func LoadCache(filename string) (*Cache, error) {
-	fmt.Fprintln(os.Stderr, "Loading cache...")
-	cache := NewCache()
-	bytes, err := ioutil.ReadFile(filename)
+// ToDo: return (Example, error)
+func (c *RedisCache) Get(example Example) (Example, bool) {
+	key := redisPrefix + ":" + example.Url
+	exampleStr, err := c.Client.Get(key).Result()
+	e := Example{}
 	if err != nil {
-		return cache, err
+		return e, false
 	}
+	if err := json.Unmarshal([]byte(exampleStr), &e); err != nil {
+		return e, false
+	}
+	return e, true
+}
 
-	c := make(map[string]Example)
-	if err := json.Unmarshal(bytes, &c); err != nil {
-		return cache, err
-	}
-	cache.Cache = c
-	return cache, nil
+// ToDo: return error...
+func (c *RedisCache) Add(example Example) {
+	key := redisPrefix + ":" + example.Url
+	json, _ := json.Marshal(example)
+	c.Client.Set(key, json, 0).Err()
 }

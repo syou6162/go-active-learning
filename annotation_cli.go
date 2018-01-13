@@ -45,7 +45,7 @@ func doAnnotate(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
 	}
 
-	cache, err := NewRedisCache()
+	cache, err := NewCache()
 	if err != nil {
 		return err
 	}

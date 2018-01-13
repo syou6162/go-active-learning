@@ -15,7 +15,7 @@ func doExpandURL(c *cli.Context) error {
 		return cli.NewExitError("`input-filename` is a required field.", 1)
 	}
 
-	cache, err := NewRedisCache()
+	cache, err := NewCache()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}

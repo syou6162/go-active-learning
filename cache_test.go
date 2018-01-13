@@ -6,13 +6,13 @@ import (
 )
 
 func TestCacheGet(t *testing.T) {
-	c, err := NewRedisCache()
+	c, err := NewCache()
 	if err != nil {
 		t.Error("Cannot connect to redis")
 	}
 
 	example := NewExample("http://a.hatena.ne.jp", POSITIVE)
-	c.Client.Del("url:http://a.hatenan.ne.jp")
+	c.Client.Del("url:http://a.hatena.ne.jp")
 	e, ok := c.Get(*example)
 	if ok {
 		t.Error(fmt.Printf("Cache must not contain %s", example.Url))
