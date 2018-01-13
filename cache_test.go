@@ -6,7 +6,7 @@ import (
 )
 
 func TestCacheGet(t *testing.T) {
-	c := NewCache()
+	c := NewRedisCache()
 	example := NewExample("http://b.hatena.ne.jp", POSITIVE)
 	e, ok := c.Get(*example)
 	if ok {
