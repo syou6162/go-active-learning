@@ -1,17 +1,23 @@
 machine:
   timezone:
     Asia/Tokyo
+  environment:
+    PROJECT_GOPATH: "${HOME}/.go_workspace"
+    PROJECT_PARENT_PATH: "${PROJECT_GOPATH}/src/github.com/${CIRCLE_PROJECT_USERNAME}"
+    PROJECT_PATH: "${PROJECT_PARENT_PATH}/${CIRCLE_PROJECT_REPONAME}"
 
 dependencies:
   pre:
+    - mkdir -p "${PROJECT_PARENT_PATH}"
+    - rsync -avC "${HOME}/${CIRCLE_PROJECT_REPONAME}/" "${PROJECT_PATH}"
     - make deps
-    - go get -t -d -v ./...
+    - cd "${PROJECT_PATH}" && go get -t -d -v ./...
     - make build
     - sudo service redis-server start
 
 test:
   override:
     - test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
-    - make cover COVERAGE='/home/ubuntu/coverage.out'
+    - cd "${PROJECT_PATH}" && make cover COVERAGE='/home/ubuntu/coverage.out'
   post:
     - /home/ubuntu/.go_workspace/bin/goveralls -coverprofile=/home/ubuntu/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
