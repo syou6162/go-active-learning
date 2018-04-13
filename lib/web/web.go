@@ -36,7 +36,9 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 		buf, _ := ioutil.ReadAll(r.Body)
 		scanner := bufio.NewScanner(strings.NewReader(string(buf)))
 
-		conn, _ := sql.Open("postgres", "user=nobody password=nobody dbname=go-active-learning sslmode=disable")
+		dbUser := os.Getenv("DB_USER")
+		dbPassword := os.Getenv("DB_PASSWORD")
+		conn, _ := sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=go-active-learning sslmode=disable", dbUser, dbPassword))
 		_, err := db.CreateEntryTable(conn)
 		if err != nil {
 			fmt.Fprintln(w, err.Error())
