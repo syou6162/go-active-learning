@@ -11,6 +11,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/util"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func checkAuth(r *http.Request) bool {
 	if ok == false {
 		return false
 	}
-	return username == "user" && password == "pass"
+	return username == os.Getenv("BASIC_AUTH_USERNAME") && password == os.Getenv("BASIC_AUTH_PASSWORD")
 }
 
 func registerTrainingData(w http.ResponseWriter, r *http.Request) {
