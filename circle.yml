@@ -15,6 +15,10 @@ dependencies:
     - make build
     - sudo service redis-server start
 
+database:
+  post:
+    - psql -U postgres -f $HOME/$CIRCLE_PROJECT_REPONAME/script/create_database.sql
+
 test:
   override:
     - test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0

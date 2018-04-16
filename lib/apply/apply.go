@@ -9,6 +9,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
+	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/submodular"
 	"github.com/syou6162/go-active-learning/lib/util"
@@ -34,7 +35,17 @@ func doApply(c *cli.Context) error {
 		return err
 	}
 
-	examples, err := util.ReadExamples(inputFilename)
+	conn, err := db.CreateDBConnection()
+	if err != nil {
+		return err
+	}
+
+	_, err = db.CreateExampleTable(conn)
+	if err != nil {
+		return err
+	}
+
+	examples, err := db.ReadExamples(conn)
 	if err != nil {
 		return err
 	}
@@ -45,8 +56,14 @@ func doApply(c *cli.Context) error {
 	}
 	model := classifier.NewBinaryClassifier(examples)
 
+	examplesFromFile, err := util.ReadExamples(inputFilename)
+	if err != nil {
+		return err
+	}
+	util.AttachMetaData(cache, examplesFromFile)
+
 	result := example.Examples{}
-	for _, e := range util.FilterUnlabeledExamples(examples) {
+	for _, e := range util.FilterUnlabeledExamples(examplesFromFile) {
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if e.Score > scoreThreshold {
