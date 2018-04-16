@@ -39,6 +39,12 @@ func doApply(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	_, err = db.CreateExampleTable(conn)
+	if err != nil {
+		return err
+	}
+
 	examples, err := db.ReadExamples(conn)
 	if err != nil {
 		return err

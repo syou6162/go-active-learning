@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS example (
   "created_at" timestamp NOT NULL,
   "updated_at" timestamp NOT NULL
 );
-CREATE UNIQUE INDEX "url_idx_entry" ON entry ("url");
+CREATE UNIQUE INDEX IF NOT EXISTS "url_idx_example" ON example ("url");
 `
 	return db.Exec(schema)
 }
