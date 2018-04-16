@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"bufio"
-	"database/sql"
 	"github.com/codegangsta/cli"
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/db"
