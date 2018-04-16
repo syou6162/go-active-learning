@@ -8,7 +8,6 @@ import (
 	"github.com/codegangsta/cli"
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/db"
-	"github.com/syou6162/go-active-learning/lib/util"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -46,12 +45,7 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for scanner.Scan() {
-			line := scanner.Text()
-			e, err := util.ParseLine(line)
-			if err != nil {
-				fmt.Fprintln(w, err.Error())
-			}
-			_, err = db.InsertEntry(conn, e)
+			_, err := db.InsertEntryFromScanner(conn, scanner)
 			if err != nil {
 				fmt.Fprintln(w, err.Error())
 			}

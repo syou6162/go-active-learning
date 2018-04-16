@@ -7,6 +7,8 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 	"os"
 	"time"
+	"bufio"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 func CreateDBConnection() (*sql.DB, error) {
@@ -34,4 +36,17 @@ func InsertEntry(db *sql.DB, e *example.Example) (sql.Result, error) {
 	return db.Exec(`
 INSERT INTO entry (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)
 `, e.Url, e.Label, now, now)
+}
+
+func InsertEntryFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Example, error){
+	line := scanner.Text()
+	e, err := util.ParseLine(line)
+	if err != nil {
+		return nil, err
+	}
+	_, err = InsertEntry(db, e)
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
 }
