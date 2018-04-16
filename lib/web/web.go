@@ -36,8 +36,12 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 		buf, _ := ioutil.ReadAll(r.Body)
 		scanner := bufio.NewScanner(strings.NewReader(string(buf)))
 
-		conn, _ := db.CreateDBConnection()
-		_, err := db.CreateEntryTable(conn)
+		conn, err := db.CreateDBConnection()
+		if err != nil {
+			fmt.Fprintln(w, err.Error())
+		}
+
+		_, err = db.CreateEntryTable(conn)
 		if err != nil {
 			fmt.Fprintln(w, err.Error())
 		}
