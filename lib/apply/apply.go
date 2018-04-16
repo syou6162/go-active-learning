@@ -50,21 +50,20 @@ func doApply(c *cli.Context) error {
 		return err
 	}
 
-	examplesFromFile, err := util.ReadExamples(inputFilename)
-	if err != nil {
-		return err
-	}
-
-	examples = append(examples, examplesFromFile...)
-
 	util.AttachMetaData(cache, examples)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
 	model := classifier.NewBinaryClassifier(examples)
 
+	examplesFromFile, err := util.ReadExamples(inputFilename)
+	if err != nil {
+		return err
+	}
+	util.AttachMetaData(cache, examplesFromFile)
+
 	result := example.Examples{}
-	for _, e := range util.FilterUnlabeledExamples(examples) {
+	for _, e := range util.FilterUnlabeledExamples(examplesFromFile) {
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if e.Score > scoreThreshold {
