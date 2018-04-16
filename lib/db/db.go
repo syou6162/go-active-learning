@@ -2,10 +2,18 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"os"
 	"time"
 )
+
+func CreateDBConnection() (*sql.DB, error) {
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=go-active-learning sslmode=disable", dbUser, dbPassword))
+}
 
 func CreateEntryTable(db *sql.DB) (sql.Result, error) {
 	schema := `
