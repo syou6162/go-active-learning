@@ -81,7 +81,8 @@ func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifi
 	}
 
 	sort.Sort(sort.Reverse(miraResults))
-	return &miraResults[0].mira
+	bestModel := &miraResults[0].mira
+	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.c)
 }
 
 func (model *MIRAClassifier) learn(example example.Example) {
