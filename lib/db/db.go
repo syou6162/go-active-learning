@@ -50,3 +50,29 @@ func InsertEntryFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Exampl
 	}
 	return e, nil
 }
+
+func ReadExamples(db *sql.DB) ([]*example.Example, error) {
+	rows, err := db.Query(`SELECT url, label FROM entry`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var examples example.Examples
+
+	for rows.Next() {
+		var label example.LabelType
+		var url string
+		if err := rows.Scan(&url, &label); err != nil {
+			return nil, err
+		}
+		e := example.Example{Url: url, Label: label}
+		examples = append(examples, &e)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return examples, nil
+}
