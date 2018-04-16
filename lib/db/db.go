@@ -17,9 +17,9 @@ func CreateDBConnection() (*sql.DB, error) {
 	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=go-active-learning sslmode=disable", dbUser, dbPassword))
 }
 
-func CreateEntryTable(db *sql.DB) (sql.Result, error) {
+func CreateExampleTable(db *sql.DB) (sql.Result, error) {
 	schema := `
-CREATE TABLE IF NOT EXISTS entry (
+CREATE TABLE IF NOT EXISTS example (
   "id" SERIAL,
   "url" TEXT NOT NULL,
   "label" INT NOT NULL,
@@ -31,20 +31,20 @@ CREATE UNIQUE INDEX "url_idx_entry" ON entry ("url");
 	return db.Exec(schema)
 }
 
-func InsertEntry(db *sql.DB, e *example.Example) (sql.Result, error) {
+func InsertExample(db *sql.DB, e *example.Example) (sql.Result, error) {
 	now := time.Now()
 	return db.Exec(`
-INSERT INTO entry (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)
+INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)
 `, e.Url, e.Label, now, now)
 }
 
-func InsertEntryFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Example, error) {
+func InsertExampleFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Example, error) {
 	line := scanner.Text()
 	e, err := util.ParseLine(line)
 	if err != nil {
 		return nil, err
 	}
-	_, err = InsertEntry(db, e)
+	_, err = InsertExample(db, e)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func InsertEntryFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Exampl
 }
 
 func ReadExamples(db *sql.DB) ([]*example.Example, error) {
-	rows, err := db.Query(`SELECT url, label FROM entry`)
+	rows, err := db.Query(`SELECT url, label FROM example`)
 	if err != nil {
 		return nil, err
 	}
