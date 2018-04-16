@@ -11,9 +11,17 @@ import (
 	"time"
 )
 
+func getEnv(key, fallback string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		value = fallback
+	}
+	return value
+}
+
 func CreateDBConnection() (*sql.DB, error) {
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
+	dbUser := getEnv("DB_USER", "nobody")
+	dbPassword := getEnv("DB_PASSWORD", "nobody")
 	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=go-active-learning sslmode=disable", dbUser, dbPassword))
 }
 
