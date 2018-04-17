@@ -22,7 +22,8 @@ func getEnv(key, fallback string) string {
 func CreateDBConnection() (*sql.DB, error) {
 	dbUser := getEnv("DB_USER", "nobody")
 	dbPassword := getEnv("DB_PASSWORD", "nobody")
-	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=go-active-learning sslmode=disable", dbUser, dbPassword))
+	dbName := getEnv("DB_NAME", "go-active-learning-test")
+	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbUser, dbPassword, dbName))
 }
 
 func InsertExample(db *sql.DB, e *example.Example) (sql.Result, error) {
