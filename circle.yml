@@ -18,6 +18,7 @@ dependencies:
 database:
   post:
     - psql -U postgres -f $HOME/$CIRCLE_PROJECT_REPONAME/script/create_database.sql
+    - psql -U postgres -d go-active-learning-test -f $HOME/$CIRCLE_PROJECT_REPONAME/script/create_table.sql
 
 test:
   override:

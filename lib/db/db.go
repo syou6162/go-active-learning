@@ -22,21 +22,8 @@ func getEnv(key, fallback string) string {
 func CreateDBConnection() (*sql.DB, error) {
 	dbUser := getEnv("DB_USER", "nobody")
 	dbPassword := getEnv("DB_PASSWORD", "nobody")
-	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=go-active-learning sslmode=disable", dbUser, dbPassword))
-}
-
-func CreateExampleTable(db *sql.DB) (sql.Result, error) {
-	schema := `
-CREATE TABLE IF NOT EXISTS example (
-  "id" SERIAL,
-  "url" TEXT NOT NULL,
-  "label" INT NOT NULL,
-  "created_at" timestamp NOT NULL,
-  "updated_at" timestamp NOT NULL
-);
-CREATE UNIQUE INDEX IF NOT EXISTS "url_idx_example" ON example ("url");
-`
-	return db.Exec(schema)
+	dbName := getEnv("DB_NAME", "go-active-learning")
+	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbUser, dbPassword, dbName))
 }
 
 func InsertExample(db *sql.DB, e *example.Example) (sql.Result, error) {
@@ -83,4 +70,8 @@ func ReadExamples(db *sql.DB) ([]*example.Example, error) {
 	}
 
 	return examples, nil
+}
+
+func DeleteAllExamples(db *sql.DB) (sql.Result, error) {
+	return db.Exec(`DELETE FROM example`)
 }

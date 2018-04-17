@@ -34,6 +34,32 @@ func NewMIRAClassifier(examples example.Examples, c float64) *MIRAClassifier {
 	return model
 }
 
+func OverSamplingPositiveExamples(examples example.Examples) example.Examples {
+	overSampled := example.Examples{}
+	posExamples := example.Examples{}
+	negExamples := example.Examples{}
+
+	numNeg := 0
+
+	for _, e := range examples {
+		if e.Label == example.NEGATIVE {
+			numNeg += 1
+			negExamples = append(negExamples, e)
+		} else if e.Label == example.POSITIVE {
+			posExamples = append(posExamples, e)
+		}
+	}
+
+	for len(overSampled) <= numNeg {
+		util.Shuffle(posExamples)
+		overSampled = append(overSampled, posExamples[0])
+	}
+	overSampled = append(overSampled, negExamples...)
+	util.Shuffle(overSampled)
+
+	return overSampled
+}
+
 type MIRAResult struct {
 	mira   MIRAClassifier
 	FValue float64
@@ -47,6 +73,7 @@ func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifier {
 	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
+	train = OverSamplingPositiveExamples(train)
 
 	params := []float64{100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01}
 	miraResults := MIRAResultList{}
