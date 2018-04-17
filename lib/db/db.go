@@ -71,3 +71,7 @@ func ReadExamples(db *sql.DB) ([]*example.Example, error) {
 
 	return examples, nil
 }
+
+func DeleteAllExamples(db *sql.DB) (sql.Result, error) {
+	return db.Exec(`DELETE FROM example`)
+}
