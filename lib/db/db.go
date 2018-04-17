@@ -25,20 +25,6 @@ func CreateDBConnection() (*sql.DB, error) {
 	return sql.Open("postgres", fmt.Sprintf("user=%s password=%s dbname=go-active-learning sslmode=disable", dbUser, dbPassword))
 }
 
-func CreateExampleTable(db *sql.DB) (sql.Result, error) {
-	schema := `
-CREATE TABLE IF NOT EXISTS example (
-  "id" SERIAL,
-  "url" TEXT NOT NULL,
-  "label" INT NOT NULL,
-  "created_at" timestamp NOT NULL,
-  "updated_at" timestamp NOT NULL
-);
-CREATE UNIQUE INDEX IF NOT EXISTS "url_idx_example" ON example ("url");
-`
-	return db.Exec(schema)
-}
-
 func InsertExample(db *sql.DB, e *example.Example) (sql.Result, error) {
 	now := time.Now()
 	return db.Exec(`
