@@ -20,7 +20,7 @@ func getEnv(key, fallback string) string {
 }
 
 func CreateDBConnection() (*sql.DB, error) {
-	host := getEnv("HOST", "host")
+	host := getEnv("HOST", "localhost")
 	dbUser := getEnv("DB_USER", "nobody")
 	dbPassword := getEnv("DB_PASSWORD", "nobody")
 	dbName := getEnv("DB_NAME", "go-active-learning")
