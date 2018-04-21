@@ -38,6 +38,7 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Fprintln(w, err.Error())
 		}
+		defer conn.Close()
 
 		for scanner.Scan() {
 			_, err := db.InsertExampleFromScanner(conn, scanner)
