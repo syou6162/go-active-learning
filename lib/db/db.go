@@ -20,11 +20,19 @@ func CreateDBConnection() (*sql.DB, error) {
 	return sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
 }
 
-func InsertExample(db *sql.DB, e *example.Example) (sql.Result, error) {
+func InsertOrUpdateExample(db *sql.DB, e *example.Example) (sql.Result, error) {
+	var url string
 	now := time.Now()
-	return db.Exec(`
-INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)
-`, e.Url, e.Label, now, now)
+
+	err := db.QueryRow(`SELECT url FROM example WHERE url = $1`, e.Url).Scan(&url)
+	switch {
+	case err == sql.ErrNoRows:
+		return db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, e.Url, e.Label, now, now)
+	case err != nil:
+		return nil, err
+	default:
+		return db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, e.Url, e.Label, now)
+	}
 }
 
 func InsertExampleFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Example, error) {
@@ -33,7 +41,7 @@ func InsertExampleFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Exam
 	if err != nil {
 		return nil, err
 	}
-	_, err = InsertExample(db, e)
+	_, err = InsertOrUpdateExample(db, e)
 	if err != nil {
 		return nil, err
 	}

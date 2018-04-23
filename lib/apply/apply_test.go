@@ -30,7 +30,7 @@ func TestDoApply(t *testing.T) {
 	}
 
 	for _, example := range train {
-		_, err = db.InsertExample(conn, example)
+		_, err = db.InsertOrUpdateExample(conn, example)
 		if err != nil {
 			t.Error(err)
 		}
