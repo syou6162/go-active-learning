@@ -2,8 +2,11 @@ package cache
 
 import (
 	"encoding/json"
+	"fmt"
+
 	"github.com/go-redis/redis"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"os"
 )
 
 type Cache struct {
@@ -12,9 +15,18 @@ type Cache struct {
 
 var redisPrefix = "url"
 
+func GetEnv(key, fallback string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		value = fallback
+	}
+	return value
+}
+
 func NewCache() (*Cache, error) {
+	host := GetEnv("REDIS_HOST", "localhost")
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     fmt.Sprintf("%s:6379", host),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
