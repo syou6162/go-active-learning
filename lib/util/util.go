@@ -2,16 +2,10 @@ package util
 
 import (
 	"fmt"
-	"math"
 	"os"
-	"runtime"
-	"strconv"
-	"sync"
 	"time"
 
-	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/example"
-	"github.com/syou6162/go-active-learning/lib/fetcher"
 )
 
 func FilterLabeledExamples(examples example.Examples) example.Examples {
@@ -52,7 +46,7 @@ func FilterUnlabeledExamples(examples example.Examples) example.Examples {
 	return result
 }
 
-func removeDuplicate(args []string) []string {
+func RemoveDuplicate(args []string) []string {
 	results := make([]string, 0)
 	encountered := map[string]bool{}
 	for i := 0; i < len(args); i++ {
@@ -62,68 +56,6 @@ func removeDuplicate(args []string) []string {
 		}
 	}
 	return results
-}
-
-func attachMetaData(cache *cache.Cache, examples example.Examples) {
-	oldStdout := os.Stdout
-	readFile, writeFile, _ := os.Pipe()
-	os.Stdout = writeFile
-
-	defer func() {
-		writeFile.Close()
-		readFile.Close()
-		os.Stdout = oldStdout
-	}()
-
-	Shuffle(examples)
-
-	wg := &sync.WaitGroup{}
-	cpus := runtime.NumCPU()
-	runtime.GOMAXPROCS(cpus)
-	sem := make(chan struct{}, 4)
-	for idx, e := range examples {
-		wg.Add(1)
-		sem <- struct{}{}
-		go func(e *example.Example, idx int) {
-			defer wg.Done()
-			if tmp, ok := cache.Get(*e); ok {
-				e.Title = tmp.Title
-				e.FinalUrl = tmp.FinalUrl
-				e.Description = tmp.Description
-				e.Body = tmp.Body
-				e.StatusCode = tmp.StatusCode
-				e.Fv = tmp.Fv
-			} else {
-				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
-				article := fetcher.GetArticle(e.Url)
-				e.Title = article.Title
-				e.FinalUrl = article.Url
-				e.Description = article.Description
-				e.Body = article.Body
-				e.StatusCode = article.StatusCode
-				e.Fv = removeDuplicate(example.ExtractFeatures(*e))
-				e.Description = ""
-				e.Body = ""
-				cache.Add(*e)
-			}
-			<-sem
-		}(e, idx)
-	}
-	wg.Wait()
-}
-
-func AttachMetaData(cache *cache.Cache, examples example.Examples) {
-	batchSize := 100
-	examplesList := make([]example.Examples, 0)
-	n := len(examples)
-
-	for i := 0; i < n; i += batchSize {
-		max := int(math.Min(float64(i+batchSize), float64(n)))
-		examplesList = append(examplesList, examples[i:max])
-	}
-	for _, l := range examplesList {
-		attachMetaData(cache, l)
-	}
 }
 
 func FilterStatusCodeOkExamples(examples example.Examples) example.Examples {
@@ -147,4 +79,12 @@ func SplitTrainAndDev(examples example.Examples) (train example.Examples, dev ex
 	Shuffle(examples)
 	n := int(0.8 * float64(len(examples)))
 	return examples[0:n], examples[n:]
+}
+
+func GetEnv(key, fallback string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		value = fallback
+	}
+	return value
 }

@@ -7,7 +7,6 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
-	"github.com/syou6162/go-active-learning/lib/util"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
@@ -29,7 +28,7 @@ func doExpandURL(c *cli.Context) error {
 		return err
 	}
 
-	util.AttachMetaData(cache, examples)
+	cache.AttachMetaData(examples)
 
 	for _, e := range examples {
 		url := e.Url

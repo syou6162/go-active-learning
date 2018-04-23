@@ -6,26 +6,17 @@ import (
 	"fmt"
 	"time"
 
-	"os"
-
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/util"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
-func GetEnv(key, fallback string) string {
-	value, ok := os.LookupEnv(key)
-	if !ok {
-		value = fallback
-	}
-	return value
-}
-
 func CreateDBConnection() (*sql.DB, error) {
-	host := GetEnv("POSTGRES_HOST", "localhost")
-	dbUser := GetEnv("DB_USER", "nobody")
-	dbPassword := GetEnv("DB_PASSWORD", "nobody")
-	dbName := GetEnv("DB_NAME", "go-active-learning")
+	host := util.GetEnv("POSTGRES_HOST", "localhost")
+	dbUser := util.GetEnv("DB_USER", "nobody")
+	dbPassword := util.GetEnv("DB_PASSWORD", "nobody")
+	dbName := util.GetEnv("DB_NAME", "go-active-learning")
 	return sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
 }
 

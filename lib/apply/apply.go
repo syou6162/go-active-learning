@@ -46,7 +46,7 @@ func doApply(c *cli.Context) error {
 		return err
 	}
 
-	util.AttachMetaData(cache, examples)
+	cache.AttachMetaData(examples)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
@@ -56,7 +56,7 @@ func doApply(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	util.AttachMetaData(cache, examplesFromFile)
+	cache.AttachMetaData(examplesFromFile)
 
 	result := example.Examples{}
 	for _, e := range util.FilterUnlabeledExamples(examplesFromFile) {

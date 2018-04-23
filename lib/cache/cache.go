@@ -4,10 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"math"
 	"os"
+	"runtime"
+	"strconv"
+	"sync"
 
 	"github.com/go-redis/redis"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/fetcher"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 type Cache struct {
@@ -16,16 +22,8 @@ type Cache struct {
 
 var redisPrefix = "url"
 
-func GetEnv(key, fallback string) string {
-	value, ok := os.LookupEnv(key)
-	if !ok {
-		value = fallback
-	}
-	return value
-}
-
 func NewCache() (*Cache, error) {
-	host := GetEnv("REDIS_HOST", "localhost")
+	host := util.GetEnv("REDIS_HOST", "localhost")
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:6379", host),
 		Password: "", // no password set
@@ -58,4 +56,66 @@ func (c *Cache) Add(example example.Example) {
 	key := redisPrefix + ":" + example.Url
 	json, _ := json.Marshal(example)
 	c.Client.Set(key, json, 0).Err()
+}
+
+func (cache *Cache) attachMetaData(examples example.Examples) {
+	oldStdout := os.Stdout
+	readFile, writeFile, _ := os.Pipe()
+	os.Stdout = writeFile
+
+	defer func() {
+		writeFile.Close()
+		readFile.Close()
+		os.Stdout = oldStdout
+	}()
+
+	util.Shuffle(examples)
+
+	wg := &sync.WaitGroup{}
+	cpus := runtime.NumCPU()
+	runtime.GOMAXPROCS(cpus)
+	sem := make(chan struct{}, 4)
+	for idx, e := range examples {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(e *example.Example, idx int) {
+			defer wg.Done()
+			if tmp, ok := cache.Get(*e); ok {
+				e.Title = tmp.Title
+				e.FinalUrl = tmp.FinalUrl
+				e.Description = tmp.Description
+				e.Body = tmp.Body
+				e.StatusCode = tmp.StatusCode
+				e.Fv = tmp.Fv
+			} else {
+				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
+				article := fetcher.GetArticle(e.Url)
+				e.Title = article.Title
+				e.FinalUrl = article.Url
+				e.Description = article.Description
+				e.Body = article.Body
+				e.StatusCode = article.StatusCode
+				e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
+				e.Description = ""
+				e.Body = ""
+				cache.Add(*e)
+			}
+			<-sem
+		}(e, idx)
+	}
+	wg.Wait()
+}
+
+func (cache *Cache) AttachMetaData(examples example.Examples) {
+	batchSize := 100
+	examplesList := make([]example.Examples, 0)
+	n := len(examples)
+
+	for i := 0; i < n; i += batchSize {
+		max := int(math.Min(float64(i+batchSize), float64(n)))
+		examplesList = append(examplesList, examples[i:max])
+	}
+	for _, l := range examplesList {
+		cache.attachMetaData(l)
+	}
 }

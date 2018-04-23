@@ -65,7 +65,7 @@ func doDiagnose(c *cli.Context) error {
 		return err
 	}
 	examples, _ := file.ReadExamples(inputFilename)
-	util.AttachMetaData(cache, examples)
+	cache.AttachMetaData(examples)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
@@ -146,7 +146,7 @@ func doListFeatureWeight(c *cli.Context) error {
 		return err
 	}
 	examples, _ := file.ReadExamples(inputFilename)
-	util.AttachMetaData(cache, examples)
+	cache.AttachMetaData(examples)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
