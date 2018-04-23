@@ -64,6 +64,8 @@ func doDiagnose(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	defer cache.Close()
+
 	examples, _ := file.ReadExamples(inputFilename)
 	cache.AttachMetaData(examples)
 	training := util.FilterLabeledExamples(examples)

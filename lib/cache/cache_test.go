@@ -12,6 +12,7 @@ func TestCacheGet(t *testing.T) {
 	if err != nil {
 		t.Error("Cannot connect to redis")
 	}
+	defer c.Close()
 
 	example := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
 	c.Client.Del("url:http://a.hatena.ne.jp")
@@ -39,6 +40,7 @@ func TestAttachMetaData(t *testing.T) {
 	if err != nil {
 		t.Error("Cannot connect to redis")
 	}
+	defer cache.Close()
 	cache.AttachMetaData(examples)
 
 	if examples[0].Title == "" {

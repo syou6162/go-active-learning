@@ -35,6 +35,7 @@ func doApply(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	defer cache.Close()
 
 	conn, err := db.CreateDBConnection()
 	if err != nil {

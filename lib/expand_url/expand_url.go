@@ -22,6 +22,7 @@ func doExpandURL(c *cli.Context) error {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
+	defer cache.Close()
 
 	examples, err := file.ReadExamples(inputFilename)
 	if err != nil {

@@ -43,6 +43,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	defer cache.Close()
 
 	examples, err := file.ReadExamples(inputFilename)
 	if err != nil {

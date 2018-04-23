@@ -37,6 +37,10 @@ func NewCache() (*Cache, error) {
 	return &Cache{Client: client}, nil
 }
 
+func (c *Cache) Close() error {
+	return c.Client.Close()
+}
+
 // ToDo: return (Example, error)
 func (c *Cache) Get(exa example.Example) (example.Example, bool) {
 	key := redisPrefix + ":" + exa.Url
@@ -48,6 +52,7 @@ func (c *Cache) Get(exa example.Example) (example.Example, bool) {
 	if err := json.Unmarshal([]byte(exampleStr), &e); err != nil {
 		return e, false
 	}
+
 	return e, true
 }
 
