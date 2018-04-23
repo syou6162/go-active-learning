@@ -1,8 +1,9 @@
 package classifier
 
 import (
-	"github.com/syou6162/go-active-learning/lib/example"
 	"testing"
+
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 func TestPerceptronClassifierPredictScore(t *testing.T) {

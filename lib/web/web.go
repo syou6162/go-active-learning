@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"bufio"
-	"github.com/codegangsta/cli"
-	_ "github.com/lib/pq"
-	"github.com/syou6162/go-active-learning/lib/db"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/codegangsta/cli"
+	_ "github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/db"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {

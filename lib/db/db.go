@@ -4,14 +4,16 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
+	"time"
+
+	"os"
+
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
-	"os"
-	"time"
 )
 
-func getEnv(key, fallback string) string {
+func GetEnv(key, fallback string) string {
 	value, ok := os.LookupEnv(key)
 	if !ok {
 		value = fallback
@@ -20,10 +22,10 @@ func getEnv(key, fallback string) string {
 }
 
 func CreateDBConnection() (*sql.DB, error) {
-	host := getEnv("HOST", "localhost")
-	dbUser := getEnv("DB_USER", "nobody")
-	dbPassword := getEnv("DB_PASSWORD", "nobody")
-	dbName := getEnv("DB_NAME", "go-active-learning")
+	host := GetEnv("POSTGRES_HOST", "localhost")
+	dbUser := GetEnv("DB_USER", "nobody")
+	dbPassword := GetEnv("DB_PASSWORD", "nobody")
+	dbName := GetEnv("DB_NAME", "go-active-learning")
 	return sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
 }
 

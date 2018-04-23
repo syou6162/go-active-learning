@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"os"
+
 	"github.com/go-redis/redis"
 	"github.com/syou6162/go-active-learning/lib/example"
-	"os"
 )
 
 type Cache struct {
