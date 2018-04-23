@@ -41,6 +41,7 @@ func doApply(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 
 	examples, err := db.ReadExamples(conn)
 	if err != nil {

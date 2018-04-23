@@ -22,6 +22,7 @@ func TestDoApply(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	defer conn.Close()
 
 	_, err = db.DeleteAllExamples(conn)
 	if err != nil {
