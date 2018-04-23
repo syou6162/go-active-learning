@@ -8,6 +8,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 func doExpandURL(c *cli.Context) error {
@@ -23,7 +24,7 @@ func doExpandURL(c *cli.Context) error {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 
-	examples, err := util.ReadExamples(inputFilename)
+	examples, err := file.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 var CommandDiagnose = cli.Command{
@@ -63,7 +64,7 @@ func doDiagnose(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	examples, _ := util.ReadExamples(inputFilename)
+	examples, _ := file.ReadExamples(inputFilename)
 	util.AttachMetaData(cache, examples)
 	training := util.FilterLabeledExamples(examples)
 
@@ -144,7 +145,7 @@ func doListFeatureWeight(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	examples, _ := util.ReadExamples(inputFilename)
+	examples, _ := file.ReadExamples(inputFilename)
 	util.AttachMetaData(cache, examples)
 	training := util.FilterLabeledExamples(examples)
 

@@ -11,6 +11,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 func doAnnotateWithSlack(c *cli.Context) error {
@@ -43,7 +44,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 		return err
 	}
 
-	examples, err := util.ReadExamples(inputFilename)
+	examples, err := file.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}
@@ -98,7 +99,7 @@ annotationLoop:
 					break
 				case SAVE:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Saved labeld examples", channelID))
-					util.WriteExamples(examples, outputFilename)
+					file.WriteExamples(examples, outputFilename)
 				case HELP:
 					rtm.SendMessage(rtm.NewOutgoingMessage(ActionHelpDoc, channelID))
 				case EXIT:
@@ -118,7 +119,7 @@ annotationLoop:
 			}
 		}
 	}
-	util.WriteExamples(examples, outputFilename)
+	file.WriteExamples(examples, outputFilename)
 	return nil
 }
 

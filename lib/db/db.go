@@ -10,7 +10,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/example"
-	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 func GetEnv(key, fallback string) string {
@@ -38,7 +38,7 @@ INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)
 
 func InsertExampleFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Example, error) {
 	line := scanner.Text()
-	e, err := util.ParseLine(line)
+	e, err := file.ParseLine(line)
 	if err != nil {
 		return nil, err
 	}

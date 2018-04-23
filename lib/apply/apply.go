@@ -13,6 +13,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/submodular"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 func doApply(c *cli.Context) error {
@@ -51,7 +52,7 @@ func doApply(c *cli.Context) error {
 	}
 	model := classifier.NewBinaryClassifier(examples)
 
-	examplesFromFile, err := util.ReadExamples(inputFilename)
+	examplesFromFile, err := file.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}

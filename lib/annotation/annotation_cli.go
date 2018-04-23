@@ -14,6 +14,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 func input2ActionType() (ActionType, error) {
@@ -54,7 +55,7 @@ func doAnnotate(c *cli.Context) error {
 		return err
 	}
 
-	examples, err := util.ReadExamples(inputFilename)
+	examples, err := file.ReadExamples(inputFilename)
 	if err != nil {
 		return err
 	}
@@ -96,7 +97,7 @@ annotationLoop:
 			continue
 		case SAVE:
 			fmt.Println("Saved labeld examples")
-			util.WriteExamples(examples, outputFilename)
+			file.WriteExamples(examples, outputFilename)
 		case HELP:
 			fmt.Println(ActionHelpDoc)
 		case EXIT:
@@ -108,7 +109,7 @@ annotationLoop:
 		model = classifier.NewBinaryClassifier(examples)
 	}
 
-	util.WriteExamples(examples, outputFilename)
+	file.WriteExamples(examples, outputFilename)
 
 	return nil
 }
