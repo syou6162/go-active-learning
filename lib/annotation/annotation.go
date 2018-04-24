@@ -81,8 +81,6 @@ Annotate URLs using active learning using slack.
 `,
 			Action: doAnnotateWithSlack,
 			Flags: []cli.Flag{
-				cli.StringFlag{Name: "input-filename"},
-				cli.StringFlag{Name: "output-filename"},
 				cli.StringFlag{Name: "channel"},
 				cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
 			},

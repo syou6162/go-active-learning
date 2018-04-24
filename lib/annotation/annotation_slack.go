@@ -12,23 +12,12 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
 	"github.com/syou6162/go-active-learning/lib/util/file"
+	"github.com/syou6162/go-active-learning/lib/db"
 )
 
 func doAnnotateWithSlack(c *cli.Context) error {
-	inputFilename := c.String("input-filename")
-	outputFilename := c.String("output-filename")
 	channelID := c.String("channel")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
-
-	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "slack")
-		return cli.NewExitError("`input-filename` is a required field.", 1)
-	}
-
-	if outputFilename == "" {
-		outputFilename = util.NewOutputFilename()
-		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
-	}
 
 	if channelID == "" {
 		_ = cli.ShowCommandHelp(c, "slack")
@@ -45,7 +34,13 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	examples, err := file.ReadExamples(inputFilename)
+	conn, err := db.CreateDBConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	examples, err := db.ReadExamples(conn)
 	if err != nil {
 		return err
 	}
@@ -97,10 +92,8 @@ annotationLoop:
 					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case SKIP:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Skiped this e", channelID))
+					examples = util.RemoveExample(examples, *e)
 					break
-				case SAVE:
-					rtm.SendMessage(rtm.NewOutgoingMessage("Saved labeld examples", channelID))
-					file.WriteExamples(examples, outputFilename)
 				case HELP:
 					rtm.SendMessage(rtm.NewOutgoingMessage(ActionHelpDoc, channelID))
 				case EXIT:
@@ -120,7 +113,6 @@ annotationLoop:
 			}
 		}
 	}
-	file.WriteExamples(examples, outputFilename)
 	return nil
 }
 
