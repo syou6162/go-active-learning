@@ -12,9 +12,9 @@ import (
 	"github.com/pkg/browser"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
+	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
-	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 func input2ActionType() (ActionType, error) {
@@ -34,21 +34,9 @@ func input2ActionType() (ActionType, error) {
 }
 
 func doAnnotate(c *cli.Context) error {
-	inputFilename := c.String("input-filename")
-	outputFilename := c.String("output-filename")
 	openUrl := c.Bool("open-url")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 	showActiveFeatures := c.Bool("show-active-features")
-
-	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "cli")
-		return cli.NewExitError("`input-filename` is a required field.", 1)
-	}
-
-	if outputFilename == "" {
-		outputFilename = util.NewOutputFilename()
-		fmt.Fprintln(os.Stderr, "'output-filename' is not specified. "+outputFilename+" is used as output-filename instead.")
-	}
 
 	cache, err := cache.NewCache()
 	if err != nil {
@@ -56,7 +44,13 @@ func doAnnotate(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	examples, err := file.ReadExamples(inputFilename)
+	conn, err := db.CreateDBConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	examples, err := db.ReadExamples(conn)
 	if err != nil {
 		return err
 	}
@@ -90,15 +84,14 @@ annotationLoop:
 		case LABEL_AS_POSITIVE:
 			fmt.Println("Labeled as positive")
 			e.Annotate(example.POSITIVE)
+			db.InsertOrUpdateExample(conn, e)
 		case LABEL_AS_NEGATIVE:
 			fmt.Println("Labeled as negative")
 			e.Annotate(example.NEGATIVE)
+			db.InsertOrUpdateExample(conn, e)
 		case SKIP:
 			fmt.Println("Skiped this example")
 			continue
-		case SAVE:
-			fmt.Println("Saved labeld examples")
-			file.WriteExamples(examples, outputFilename)
 		case HELP:
 			fmt.Println(ActionHelpDoc)
 		case EXIT:
@@ -109,8 +102,6 @@ annotationLoop:
 		}
 		model = classifier.NewBinaryClassifier(examples)
 	}
-
-	file.WriteExamples(examples, outputFilename)
 
 	return nil
 }
