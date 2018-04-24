@@ -29,21 +29,18 @@ To see the detail options, type `./go-active-learning annotate --help`.
 To see the detail options, type `./go-active-learning annotate cli --help`.
 
 ```console
-% ./go-active-learning annotate cli --input-filename tech_input_example.txt --output-filename additionaly_annotated_examples.txt --open-url
+% ./go-active-learning annotate cli --open-url
 Loading cache...
 Label this example (Score: 0.600): http://srdk.rakuten.jp/ (それどこ)
 
 p: Label this example as positive.
 n: Label this example as negative.
-s: Save additionally annotated examples in 'output-filename'.
+s: Skip this example.
 h: Show this help.
 e: Exit.
 
 Label this example (Score: 1.000): http://srdk.rakuten.jp/ (それどこ)
 Labeled as negative
-Saving cache...
-% cat additionaly_annotated_examples.txt
-http://srdk.rakuten.jp/ -1
 ```
 
 ## Annotate new examples from slack
@@ -51,7 +48,7 @@ To see the detail options, type `./go-active-learning annotate cli --help`. To a
 
 ```console
 % export SLACK_TOKEN=xoxb-SLACK-TOKEN
-% ./go-active-learning annotate slack --input-filename tech_input_example.txt --output-filename additional_20170520_1641.txt --filter-status-code-ok --channel CHANNEL_ID
+% ./go-active-learning annotate slack --filter-status-code-ok --channel CHANNEL_ID
 ```
 
 ## Diagnosis model
