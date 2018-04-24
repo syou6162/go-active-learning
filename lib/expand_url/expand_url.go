@@ -27,7 +27,7 @@ func doExpandURL(c *cli.Context) error {
 
 	cache, err := cache.NewCache()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		return err
 	}
 	defer cache.Close()
 
