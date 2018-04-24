@@ -68,3 +68,37 @@ func TestInsertExampleFromScanner(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 2", len(examples))
 	}
 }
+
+func TestReadLabeledExamples(t *testing.T) {
+	conn, err := db.CreateDBConnection()
+	if err != nil {
+		t.Error(err)
+	}
+	defer conn.Close()
+
+	_, err = db.DeleteAllExamples(conn)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := db.ReadLabeledExamples(conn)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 2 {
+		t.Errorf("len(examples) == %d, want 2", len(examples))
+	}
+}
