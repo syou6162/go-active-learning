@@ -33,7 +33,10 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 	} else {
 		buf, _ := ioutil.ReadAll(r.Body)
 		err := db.InsertExamplesFromReader(strings.NewReader(string(buf)))
-		fmt.Fprintln(w, err.Error())
+		if err != nil {
+			w.WriteHeader(http.StatusBadGateway)
+			fmt.Fprintln(w, err.Error())
+		}
 	}
 }
 
