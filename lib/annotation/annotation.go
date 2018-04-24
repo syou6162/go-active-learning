@@ -11,7 +11,6 @@ type ActionType int
 const (
 	LABEL_AS_POSITIVE ActionType = iota
 	LABEL_AS_NEGATIVE
-	SAVE
 	HELP
 	SKIP
 	EXIT
@@ -24,7 +23,7 @@ func rune2ActionType(r rune) ActionType {
 	case 'n':
 		return LABEL_AS_NEGATIVE
 	case 's':
-		return SAVE
+		return SKIP
 	case 'h':
 		return HELP
 	case 'e':
@@ -49,7 +48,7 @@ func NextExampleToBeAnnotated(model classifier.BinaryClassifier, examples exampl
 var ActionHelpDoc = `
 p: Label this example as positive.
 n: Label this example as negative.
-s: Save additionally annotated examples in 'output-filename'.
+s: Skip this example.
 h: Show this help.
 e: Exit.
 `

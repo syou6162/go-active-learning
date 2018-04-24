@@ -70,6 +70,18 @@ func FilterStatusCodeOkExamples(examples example.Examples) example.Examples {
 	return result
 }
 
+func RemoveExample(examples example.Examples, toBeRemoved example.Example) example.Examples {
+	result := example.Examples{}
+
+	for _, e := range examples {
+		if e.Url != toBeRemoved.Url {
+			result = append(result, e)
+		}
+	}
+
+	return result
+}
+
 func NewOutputFilename() string {
 	t := time.Now()
 	return fmt.Sprintf("%d-%02d-%02d-%02d-%02d.txt", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())

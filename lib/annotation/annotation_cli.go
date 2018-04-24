@@ -91,6 +91,7 @@ annotationLoop:
 			db.InsertOrUpdateExample(conn, e)
 		case SKIP:
 			fmt.Println("Skiped this example")
+			examples = util.RemoveExample(examples, *e)
 			continue
 		case HELP:
 			fmt.Println(ActionHelpDoc)
