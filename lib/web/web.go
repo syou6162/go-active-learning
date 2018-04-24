@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"bufio"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -33,23 +32,8 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		buf, _ := ioutil.ReadAll(r.Body)
-		scanner := bufio.NewScanner(strings.NewReader(string(buf)))
-
-		conn, err := db.CreateDBConnection()
-		if err != nil {
-			fmt.Fprintln(w, err.Error())
-		}
-		defer conn.Close()
-
-		for scanner.Scan() {
-			_, err := db.InsertExampleFromScanner(conn, scanner)
-			if err != nil {
-				fmt.Fprintln(w, err.Error())
-			}
-		}
-		if err := scanner.Err(); err != nil {
-			fmt.Fprintln(w, err.Error())
-		}
+		err := db.InsertExamplesFromReader(strings.NewReader(string(buf)))
+		fmt.Fprintln(w, err.Error())
 	}
 }
 

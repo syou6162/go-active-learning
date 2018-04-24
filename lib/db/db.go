@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"io"
+
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
@@ -46,6 +48,27 @@ func InsertExampleFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Exam
 		return nil, err
 	}
 	return e, nil
+}
+
+func InsertExamplesFromReader(r io.Reader) error {
+	scanner := bufio.NewScanner(r)
+
+	conn, err := CreateDBConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	for scanner.Scan() {
+		_, err := InsertExampleFromScanner(conn, scanner)
+		if err != nil {
+			return err
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func ReadExamples(db *sql.DB) ([]*example.Example, error) {
