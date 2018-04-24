@@ -11,9 +11,9 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
+	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
-	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 var CommandDiagnose = cli.Command{
@@ -32,7 +32,6 @@ Diagnose label conflicts in training data. 'conflict' means that an annotated la
 `,
 			Action: doDiagnose,
 			Flags: []cli.Flag{
-				cli.StringFlag{Name: "input-filename"},
 				cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
 			},
 		},
@@ -44,7 +43,6 @@ List feature weight.
 `,
 			Action: doListFeatureWeight,
 			Flags: []cli.Flag{
-				cli.StringFlag{Name: "input-filename"},
 				cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
 			},
 		},
@@ -52,13 +50,7 @@ List feature weight.
 }
 
 func doDiagnose(c *cli.Context) error {
-	inputFilename := c.String("input-filename")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
-
-	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "label-conflict")
-		return cli.NewExitError("`input-filename` is a required field.", 1)
-	}
 
 	cache, err := cache.NewCache()
 	if err != nil {
@@ -66,7 +58,16 @@ func doDiagnose(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	examples, _ := file.ReadExamples(inputFilename)
+	conn, err := db.CreateDBConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	examples, err := db.ReadExamples(conn)
+	if err != nil {
+		return err
+	}
 	cache.AttachMetaData(examples)
 	training := util.FilterLabeledExamples(examples)
 
@@ -135,19 +136,24 @@ func (p FeatureList) Less(i, j int) bool { return p[i].Weight < p[j].Weight }
 func (p FeatureList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func doListFeatureWeight(c *cli.Context) error {
-	inputFilename := c.String("input-filename")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
-
-	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "feature-weight")
-		return cli.NewExitError("`input-filename` is a required field.", 1)
-	}
 
 	cache, err := cache.NewCache()
 	if err != nil {
 		return err
 	}
-	examples, _ := file.ReadExamples(inputFilename)
+	defer cache.Close()
+
+	conn, err := db.CreateDBConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	examples, err := db.ReadExamples(conn)
+	if err != nil {
+		return err
+	}
 	cache.AttachMetaData(examples)
 	training := util.FilterLabeledExamples(examples)
 

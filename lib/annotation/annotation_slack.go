@@ -9,10 +9,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
+	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
-	"github.com/syou6162/go-active-learning/lib/util/file"
-	"github.com/syou6162/go-active-learning/lib/db"
 )
 
 func doAnnotateWithSlack(c *cli.Context) error {

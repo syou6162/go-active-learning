@@ -58,7 +58,7 @@ To see the detail options, type `./go-active-learning diagnose --help`.
 This subcommand diagnoses label conflicts in training data. 'conflict' means that an annotated label is '-1/1', but a predicted label by model is '1/-1'. In the above example, `http://www3.nhk.or.jp/news/` is a conflict case ('Label' is -1, but 'Score' is positive). You may need to collect such news articles to train a good classifier.
 
 ```console
-% ./go-active-learning diagnose label-conflict --input-filename tech_input_example.txt
+% ./go-active-learning diagnose label-conflict
 Loading cache...
 Index   Label   Score   URL     Title
 0       -1      0.491   http://www3.nhk.or.jp/news/
@@ -77,7 +77,7 @@ Saving cache...
 This subcommand list pairs of feature weight and its name.
 
 ```console
-% ./go-active-learning diagnose feature-weight --input-filename tech_input_example.txt --filter-status-code-ok | head -n 10
+% ./go-active-learning diagnose feature-weight --filter-status-code-ok | head -n 10
 +0.80   BODY:/
 +0.80   BODY:ほか
 +0.80   BODY:郁
