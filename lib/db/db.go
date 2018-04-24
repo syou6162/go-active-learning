@@ -23,7 +23,7 @@ func CreateDBConnection() (*sql.DB, error) {
 }
 
 func InsertOrUpdateExample(db *sql.DB, e *example.Example) (sql.Result, error) {
-	var id int
+	var label example.LabelType
 	now := time.Now()
 
 	url := e.FinalUrl
@@ -31,14 +31,17 @@ func InsertOrUpdateExample(db *sql.DB, e *example.Example) (sql.Result, error) {
 		url = e.Url
 	}
 
-	err := db.QueryRow(`SELECT id FROM example WHERE url = $1`, url).Scan(&id)
+	err := db.QueryRow(`SELECT id FROM example WHERE url = $1`, url).Scan(&label)
 	switch {
 	case err == sql.ErrNoRows:
 		return db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, now, now)
 	case err != nil:
 		return nil, err
 	default:
-		return db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, now)
+		if label != e.Label {
+			return db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, now)
+		}
+		return nil, nil
 	}
 }
 
