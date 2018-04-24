@@ -3,8 +3,6 @@ package expand_url
 import (
 	"fmt"
 
-	"os"
-
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/db"
