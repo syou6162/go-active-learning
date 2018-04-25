@@ -74,8 +74,6 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 		os.Stdout = oldStdout
 	}()
 
-	util.Shuffle(examples)
-
 	wg := &sync.WaitGroup{}
 	cpus := runtime.NumCPU()
 	runtime.GOMAXPROCS(cpus)
