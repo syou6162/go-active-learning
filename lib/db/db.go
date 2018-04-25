@@ -8,6 +8,7 @@ import (
 
 	"io"
 
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/util"
@@ -113,6 +114,17 @@ func ReadExamples(db *sql.DB) ([]*example.Example, error) {
 func ReadLabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
 	query := `SELECT url, label FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return readExamples(db, query, limit)
+}
+
+func ReadUnabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
+	query := `SELECT url, label FROM example WHERE label == 0 ORDER BY updated_at DESC LIMIT $1;`
+	return readExamples(db, query, limit)
+}
+
+func SearchExamplesByUlrs(db *sql.DB, urls []string) (example.Examples, error) {
+	// ref: https://godoc.org/github.com/lib/pq#Array
+	query := `SELECT url, label FROM example WHERE url = ANY($1);`
+	return readExamples(db, query, pq.Array(urls))
 }
 
 func DeleteAllExamples(db *sql.DB) (sql.Result, error) {
