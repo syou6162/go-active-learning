@@ -117,7 +117,7 @@ func ReadLabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
 }
 
 func ReadUnabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
-	query := `SELECT url, label FROM example WHERE label == 0 ORDER BY updated_at DESC LIMIT $1;`
+	query := `SELECT url, label FROM example WHERE label = 0 ORDER BY updated_at DESC LIMIT $1;`
 	return readExamples(db, query, limit)
 }
 
