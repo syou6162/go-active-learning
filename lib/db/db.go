@@ -111,6 +111,11 @@ func ReadExamples(db *sql.DB) ([]*example.Example, error) {
 	return readExamples(db, query)
 }
 
+func ReadRecentExamples(db *sql.DB, from time.Time) ([]*example.Example, error) {
+	query := `SELECT url, label FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
+	return readExamples(db, query, from)
+}
+
 func ReadLabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
 	query := `SELECT url, label FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return readExamples(db, query, limit)
