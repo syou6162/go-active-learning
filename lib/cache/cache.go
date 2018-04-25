@@ -63,6 +63,30 @@ func (c *Cache) AddExample(example example.Example) {
 	c.Client.Set(key, json, 0).Err()
 }
 
+func (c *Cache) AddExamplesToList(listName string, examples example.Examples) error {
+	result := make([]redis.Z, 0)
+	for _, e := range examples {
+		url := e.Url
+		if e.FinalUrl != "" {
+			url = e.FinalUrl
+		}
+		result = append(result, redis.Z{Score: e.Score, Member: url})
+	}
+	err := c.Client.ZAdd(listName, result...).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Cache) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
+	sliceCmd := c.Client.ZRevRange(listName, from, to)
+	if sliceCmd.Err() != nil {
+		return nil, sliceCmd.Err()
+	}
+	return sliceCmd.Val(), nil
+}
+
 func (cache *Cache) attachMetaData(examples example.Examples) {
 	oldStdout := os.Stdout
 	readFile, writeFile, _ := os.Pipe()
