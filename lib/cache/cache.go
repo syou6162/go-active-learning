@@ -57,7 +57,7 @@ func (c *Cache) Get(exa example.Example) (example.Example, bool) {
 }
 
 // ToDo: return error...
-func (c *Cache) Add(example example.Example) {
+func (c *Cache) AddExample(example example.Example) {
 	key := redisPrefix + ":" + example.Url
 	json, _ := json.Marshal(example)
 	c.Client.Set(key, json, 0).Err()
@@ -101,7 +101,7 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 				e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
 				e.Description = ""
 				e.Body = ""
-				cache.Add(*e)
+				cache.AddExample(*e)
 			}
 			<-sem
 		}(e, idx)
