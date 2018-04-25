@@ -64,6 +64,10 @@ func (c *Cache) AddExample(example example.Example) {
 }
 
 func (c *Cache) AddExamplesToList(listName string, examples example.Examples) error {
+	if err := c.Client.Del(listName).Err(); err != nil {
+		return err
+	}
+
 	result := make([]redis.Z, 0)
 	for _, e := range examples {
 		url := e.Url
