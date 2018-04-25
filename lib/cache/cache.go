@@ -42,7 +42,7 @@ func (c *Cache) Close() error {
 }
 
 // ToDo: return (Example, error)
-func (c *Cache) Get(exa example.Example) (example.Example, bool) {
+func (c *Cache) GetExample(exa example.Example) (example.Example, bool) {
 	key := redisPrefix + ":" + exa.Url
 	exampleStr, err := c.Client.Get(key).Result()
 	e := example.Example{}
@@ -83,7 +83,7 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 		sem <- struct{}{}
 		go func(e *example.Example, idx int) {
 			defer wg.Done()
-			if tmp, ok := cache.Get(*e); ok {
+			if tmp, ok := cache.GetExample(*e); ok {
 				e.Title = tmp.Title
 				e.FinalUrl = tmp.FinalUrl
 				e.Description = tmp.Description

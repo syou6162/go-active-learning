@@ -16,13 +16,13 @@ func TestCacheGet(t *testing.T) {
 
 	example := example.NewExample("http://a.hatena.ne.jp", example.POSITIVE)
 	c.Client.Del("url:http://a.hatena.ne.jp")
-	e, ok := c.Get(*example)
+	e, ok := c.GetExample(*example)
 	if ok {
 		t.Error(fmt.Printf("Cache must not contain %s", example.Url))
 	}
 
 	c.AddExample(*example)
-	e, ok = c.Get(*example)
+	e, ok = c.GetExample(*example)
 	if !ok {
 		t.Error(fmt.Printf("Cache must return %s", example.Url))
 	}
