@@ -79,8 +79,8 @@ func InsertExamplesFromReader(r io.Reader) error {
 	return nil
 }
 
-func readExamples(db *sql.DB, query string) ([]*example.Example, error) {
-	rows, err := db.Query(query)
+func readExamples(db *sql.DB, query string, args ...interface{}) ([]*example.Example, error) {
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,9 +110,9 @@ func ReadExamples(db *sql.DB) ([]*example.Example, error) {
 	return readExamples(db, query)
 }
 
-func ReadLabeledExamples(db *sql.DB) ([]*example.Example, error) {
-	query := `SELECT url, label FROM example WHERE label != 0;`
-	return readExamples(db, query)
+func ReadLabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
+	query := `SELECT url, label FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
+	return readExamples(db, query, limit)
 }
 
 func DeleteAllExamples(db *sql.DB) (sql.Result, error) {

@@ -94,7 +94,7 @@ func TestReadLabeledExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadLabeledExamples(conn)
+	examples, err := db.ReadLabeledExamples(conn, 10)
 	if err != nil {
 		t.Error(err)
 	}
