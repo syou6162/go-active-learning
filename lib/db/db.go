@@ -31,7 +31,7 @@ func InsertOrUpdateExample(db *sql.DB, e *example.Example) (sql.Result, error) {
 		url = e.Url
 	}
 
-	err := db.QueryRow(`SELECT id FROM example WHERE url = $1`, url).Scan(&label)
+	err := db.QueryRow(`SELECT label FROM example WHERE url = $1`, url).Scan(&label)
 	switch {
 	case err == sql.ErrNoRows:
 		return db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, now, now)
