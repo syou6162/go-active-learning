@@ -8,10 +8,31 @@ import (
 	"os"
 	"strings"
 
+	"html/template"
+
 	"github.com/codegangsta/cli"
 	_ "github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/db"
 )
+
+const templateRecentAddedExamplesContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Examples recently annotated</title>
+</head>
+<style>
+li {list-style-type: none;}
+</style>
+<body>
+<ul>{{range .}}
+  <li><a href="{{.Url}}">{{or .Title .Url}}</a><dd>Label: {{.Label}}</dd></li>{{end}}
+</ul>
+</body>
+</html>
+`
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, World")
@@ -40,9 +61,38 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func showRecentAddedExamples(w http.ResponseWriter, r *http.Request) {
+	var t *template.Template
+
+	cache, err := cache.NewCache()
+	if err != nil {
+		fmt.Fprintln(w, err.Error())
+	}
+	defer cache.Close()
+
+	conn, err := db.CreateDBConnection()
+	if err != nil {
+		fmt.Fprintln(w, err.Error())
+	}
+	defer conn.Close()
+
+	examples, err := db.ReadLabeledExamples(conn, 100)
+	if err != nil {
+		fmt.Fprintln(w, err.Error())
+	}
+	cache.AttachMetaData(examples)
+
+	t = template.Must(template.New("body").Parse(templateRecentAddedExamplesContent))
+	err = t.Execute(w, examples)
+	if err != nil {
+		fmt.Fprintln(w, err.Error())
+	}
+}
+
 func doServe(c *cli.Context) error {
 	http.HandleFunc("/", handler) // ハンドラを登録してウェブページを表示させる
 	http.HandleFunc("/register_training_data", registerTrainingData)
+	http.HandleFunc("/show_recent_added_examples", showRecentAddedExamples)
 	return http.ListenAndServe(":7777", nil)
 }
 
