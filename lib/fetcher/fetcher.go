@@ -44,5 +44,11 @@ func GetArticle(url string) Article {
 	if err != nil {
 		return Article{StatusCode: resp.StatusCode}
 	}
-	return Article{resp.Request.URL.String(), article.Title, article.MetaDescription, article.CleanedText, resp.StatusCode}
+
+	finalUrl := article.CanonicalLink
+	if finalUrl == "" {
+		finalUrl = resp.Request.URL.String()
+	}
+
+	return Article{finalUrl, article.Title, article.MetaDescription, article.CleanedText, resp.StatusCode}
 }
