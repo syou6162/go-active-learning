@@ -144,6 +144,7 @@ func caluculate(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 }
 
@@ -154,25 +155,32 @@ func showRecentAddedExamples(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 	defer cache.Close()
 
 	conn, err := db.CreateDBConnection()
 	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 	defer conn.Close()
 
 	examples, err := db.ReadLabeledExamples(conn, 100)
 	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 	cache.AttachMetaData(examples)
 
 	t = template.Must(template.New("body").Parse(templateRecentAddedExamplesContent))
 	err = t.Execute(w, examples)
 	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 }
 
@@ -183,28 +191,34 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 	defer cache.Close()
 
 	conn, err := db.CreateDBConnection()
 	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 	defer conn.Close()
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 
 	urls, err := cache.GetUrlsFromList("general", 0, 100)
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 	examples, err := db.SearchExamplesByUlrs(conn, urls)
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 	cache.AttachMetaData(examples)
 
@@ -213,6 +227,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
+		return
 	}
 }
 
