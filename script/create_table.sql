@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS example (
-  "id" SERIAL,
+  "id" SERIAL NOT NULL PRIMARY KEY,
   "url" TEXT NOT NULL,
   "label" INT NOT NULL,
   "created_at" timestamp NOT NULL,
