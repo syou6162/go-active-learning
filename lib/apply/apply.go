@@ -56,7 +56,7 @@ func doApply(c *cli.Context) error {
 	cache.AttachMetaData(targetExamples)
 
 	result := example.Examples{}
-	for _, e := range util.FilterUnlabeledExamples(targetExamples) {
+	for _, e := range targetExamples {
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if e.Score > scoreThreshold {
