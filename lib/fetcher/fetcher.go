@@ -7,7 +7,7 @@ import (
 
 	"unicode/utf8"
 
-	"github.com/advancedlogic/GoOse"
+	"github.com/syou6162/GoOse"
 )
 
 type Article struct {
