@@ -63,8 +63,10 @@ func (c *Cache) AddExample(example example.Example) {
 	c.Client.Set(key, json, 0).Err()
 }
 
+var listPrefix = "list:"
+
 func (c *Cache) AddExamplesToList(listName string, examples example.Examples) error {
-	if err := c.Client.Del(listName).Err(); err != nil {
+	if err := c.Client.Del(listPrefix + listName).Err(); err != nil {
 		return err
 	}
 
@@ -76,7 +78,7 @@ func (c *Cache) AddExamplesToList(listName string, examples example.Examples) er
 		}
 		result = append(result, redis.Z{Score: e.Score, Member: url})
 	}
-	err := c.Client.ZAdd(listName, result...).Err()
+	err := c.Client.ZAdd(listPrefix+listName, result...).Err()
 	if err != nil {
 		return err
 	}
@@ -84,7 +86,7 @@ func (c *Cache) AddExamplesToList(listName string, examples example.Examples) er
 }
 
 func (c *Cache) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
-	sliceCmd := c.Client.ZRevRange(listName, from, to)
+	sliceCmd := c.Client.ZRevRange(listPrefix+listName, from, to)
 	if sliceCmd.Err() != nil {
 		return nil, sliceCmd.Err()
 	}
