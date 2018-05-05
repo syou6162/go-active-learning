@@ -14,6 +14,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/db"
+	"github.com/syou6162/go-active-learning/lib/example"
 )
 
 const templateIndexContent = `
@@ -24,7 +25,24 @@ const templateIndexContent = `
   <title>Recommended entries</title>
 </head>
 <body>
-<ul>{{range .}}
+<h2>General</h2>
+<ul>{{range .GeneralList}}
+  <li><a href="{{.Url}}">{{or .Title .Url}}</a></li>{{end}}
+</ul>
+<h2>Twitter</h2>
+<ul>{{range .TwitterList}}
+  <li><a href="{{.Url}}">{{or .Title .Url}}</a></li>{{end}}
+</ul>
+<h2>Github</h2>
+<ul>{{range .GithubList}}
+  <li><a href="{{.Url}}">{{or .Title .Url}}</a></li>{{end}}
+</ul>
+<h2>Arxiv</h2>
+<ul>{{range .ArxivList}}
+  <li><a href="{{.Url}}">{{or .Title .Url}}</a></li>{{end}}
+</ul>
+<h2>Slideshare</h2>
+<ul>{{range .SlideShareList}}
   <li><a href="{{.Url}}">{{or .Title .Url}}</a></li>{{end}}
 </ul>
 </body>
@@ -108,6 +126,14 @@ func showRecentAddedExamples(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type recommendation struct {
+	GeneralList    example.Examples
+	TwitterList    example.Examples
+	GithubList     example.Examples
+	SlideShareList example.Examples
+	ArxivList      example.Examples
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	var t *template.Template
 
@@ -132,22 +158,62 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urls, err := cache.GetUrlsFromList("general", 0, 100)
+	getUrlsFromList := func(listName string) (example.Examples, error) {
+		generalUrls, err := cache.GetUrlsFromList(listName, 0, 100)
+		if err != nil {
+			return nil, err
+		}
+		examples, err := db.SearchExamplesByUlrs(conn, generalUrls)
+		if err != nil {
+			return nil, err
+		}
+		cache.AttachMetaData(examples)
+		return examples, nil
+	}
+
+	generalExamples, err := getUrlsFromList("general")
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
 		return
 	}
-	examples, err := db.SearchExamplesByUlrs(conn, urls)
+
+	githubExamples, err := getUrlsFromList("github")
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
 		return
 	}
-	cache.AttachMetaData(examples)
+
+	slideshareExamples, err := getUrlsFromList("slideshare")
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprintln(w, err.Error())
+		return
+	}
+
+	twitterExamples, err := getUrlsFromList("twitter")
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprintln(w, err.Error())
+		return
+	}
+
+	arxivExamples, err := getUrlsFromList("arxiv")
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprintln(w, err.Error())
+		return
+	}
 
 	t = template.Must(template.New("index").Parse(templateIndexContent))
-	err = t.Execute(w, examples)
+	err = t.Execute(w, recommendation{
+		GeneralList:    generalExamples,
+		GithubList:     githubExamples,
+		SlideShareList: slideshareExamples,
+		TwitterList:    twitterExamples,
+		ArxivList:      arxivExamples,
+	})
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		fmt.Fprintln(w, err.Error())
