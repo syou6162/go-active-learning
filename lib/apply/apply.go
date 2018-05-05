@@ -71,6 +71,9 @@ func doApply(c *cli.Context) error {
 	}
 	targetExamples = util.RemoveNegativeExamples(targetExamples)
 	cache.AttachMetaData(targetExamples)
+	if filterStatusCodeOk {
+		targetExamples = util.FilterStatusCodeOkExamples(targetExamples)
+	}
 
 	result := example.Examples{}
 	for _, e := range targetExamples {
