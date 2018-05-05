@@ -6,6 +6,8 @@ import (
 
 	"encoding/json"
 
+	"time"
+
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
@@ -13,11 +15,9 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/submodular"
 	"github.com/syou6162/go-active-learning/lib/util"
-	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
 func doApply(c *cli.Context) error {
-	inputFilename := c.String("input-filename")
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 	jsonOutput := c.Bool("json-output")
 	subsetSelection := c.Bool("subset-selection")
@@ -25,11 +25,6 @@ func doApply(c *cli.Context) error {
 	alpha := c.Float64("alpha")
 	r := c.Float64("r")
 	scoreThreshold := c.Float64("score-threshold")
-
-	if inputFilename == "" {
-		_ = cli.ShowCommandHelp(c, "apply")
-		return cli.NewExitError("`input-filename` is a required field.", 1)
-	}
 
 	cache, err := cache.NewCache()
 	if err != nil {
@@ -43,7 +38,7 @@ func doApply(c *cli.Context) error {
 	}
 	defer conn.Close()
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadLabeledExamples(conn, 10000)
 	if err != nil {
 		return err
 	}
@@ -54,14 +49,14 @@ func doApply(c *cli.Context) error {
 	}
 	model := classifier.NewBinaryClassifier(examples)
 
-	examplesFromFile, err := file.ReadExamples(inputFilename)
+	targetExamples, err := db.ReadRecentExamples(conn, time.Now().Add(-time.Duration(24*2)*time.Hour))
 	if err != nil {
 		return err
 	}
-	cache.AttachMetaData(examplesFromFile)
+	cache.AttachMetaData(targetExamples)
 
 	result := example.Examples{}
-	for _, e := range util.FilterUnlabeledExamples(examplesFromFile) {
+	for _, e := range util.FilterUnlabeledExamples(targetExamples) {
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if e.Score > scoreThreshold {
@@ -73,9 +68,12 @@ func doApply(c *cli.Context) error {
 		result = submodular.SelectSubExamplesBySubModular(result, sizeConstraint, alpha, r)
 	}
 
+	err = cache.AddExamplesToList("general", result)
+	if err != nil {
+		return err
+	}
+
 	for _, e := range result {
-		e.Score = model.PredictScore(e.Fv)
-		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if jsonOutput {
 			b, err := json.Marshal(e)
 			if err != nil {
@@ -98,7 +96,6 @@ Apply classifier to unlabeled examples, and print a pair of score and url.
 `,
 	Action: doApply,
 	Flags: []cli.Flag{
-		cli.StringFlag{Name: "input-filename"},
 		cli.BoolFlag{Name: "filter-status-code-ok", Usage: "Use only examples with status code = 200"},
 		cli.BoolFlag{Name: "json-output", Usage: "Make output with json format or not (tsv format)."},
 		cli.BoolFlag{Name: "subset-selection", Usage: "Use subset selection algorithm (maximizing submodular function) to filter entries"},
