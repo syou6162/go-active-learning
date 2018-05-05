@@ -35,6 +35,7 @@ func doApply(c *cli.Context) error {
 	alpha := c.Float64("alpha")
 	r := c.Float64("r")
 	scoreThreshold := c.Float64("score-threshold")
+	durationDay := c.Int64("duration-day")
 	listName := c.String("listname")
 	rule, ok := listName2Rule[listName]
 	if ok == false {
@@ -64,7 +65,7 @@ func doApply(c *cli.Context) error {
 	}
 	model := classifier.NewBinaryClassifier(examples)
 
-	targetExamples, err := db.ReadRecentExamples(conn, time.Now().Add(-time.Duration(24*2)*time.Hour))
+	targetExamples, err := db.ReadRecentExamples(conn, time.Now().Add(-time.Duration(24*durationDay)*time.Hour))
 	if err != nil {
 		return err
 	}
@@ -121,6 +122,7 @@ Apply classifier to unlabeled examples, and print a pair of score and url.
 		cli.Float64Flag{Name: "alpha", Value: 1.0},
 		cli.Float64Flag{Name: "r", Value: 1.0, Usage: "Scaling factor for number of words"},
 		cli.Float64Flag{Name: "score-threshold", Value: 0.0},
-		cli.StringFlag{Name: "listname"},
+		cli.StringFlag{Name: "listname", Usage: "List name for cache"},
+		cli.Int64Flag{Name: "duration-day", Usage: "Time span for fetching prediction target", Value: 2},
 	},
 }
