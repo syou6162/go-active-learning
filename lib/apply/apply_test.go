@@ -3,8 +3,6 @@ package apply_test
 import (
 	"testing"
 
-	"fmt"
-
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/command"
 	"github.com/syou6162/go-active-learning/lib/db"
