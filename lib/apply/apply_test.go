@@ -45,6 +45,7 @@ func TestDoApply(t *testing.T) {
 		"-r=0.75",
 		"--size-constraint=20",
 		"--score-threshold=0.1",
+		"--listname=general",
 	}
 
 	if err := app.Run(args); err != nil {
