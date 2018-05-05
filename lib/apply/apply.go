@@ -8,6 +8,8 @@ import (
 
 	"time"
 
+	"regexp"
+
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
@@ -17,6 +19,14 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
+var listName2Rule = map[string]*regexp.Regexp{
+	"general":    regexp.MustCompile(`.+`),
+	"github":     regexp.MustCompile(`https://github.com/.+`),
+	"slideshare": regexp.MustCompile(`https://www.slideshare.net/.+`),
+	"twitter":    regexp.MustCompile(`https://twitter.com/.+`),
+	"arxiv":      regexp.MustCompile(`https://arxiv.org/abs/.+`),
+}
+
 func doApply(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 	jsonOutput := c.Bool("json-output")
@@ -25,6 +35,11 @@ func doApply(c *cli.Context) error {
 	alpha := c.Float64("alpha")
 	r := c.Float64("r")
 	scoreThreshold := c.Float64("score-threshold")
+	listName := c.String("listname")
+	rule, ok := listName2Rule[listName]
+	if ok == false {
+		return cli.NewExitError("No matched rule", 1)
+	}
 
 	cache, err := cache.NewCache()
 	if err != nil {
@@ -57,6 +72,9 @@ func doApply(c *cli.Context) error {
 
 	result := example.Examples{}
 	for _, e := range targetExamples {
+		if !rule.MatchString(e.FinalUrl) {
+			continue
+		}
 		e.Score = model.PredictScore(e.Fv)
 		e.Title = strings.Replace(e.Title, "\n", " ", -1)
 		if e.Score > scoreThreshold {
@@ -68,7 +86,7 @@ func doApply(c *cli.Context) error {
 		result = submodular.SelectSubExamplesBySubModular(result, sizeConstraint, alpha, r)
 	}
 
-	err = cache.AddExamplesToList("general", result)
+	err = cache.AddExamplesToList(listName, result)
 	if err != nil {
 		return err
 	}
@@ -103,5 +121,6 @@ Apply classifier to unlabeled examples, and print a pair of score and url.
 		cli.Float64Flag{Name: "alpha", Value: 1.0},
 		cli.Float64Flag{Name: "r", Value: 1.0, Usage: "Scaling factor for number of words"},
 		cli.Float64Flag{Name: "score-threshold", Value: 0.0},
+		cli.StringFlag{Name: "listname"},
 	},
 }
