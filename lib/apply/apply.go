@@ -69,6 +69,7 @@ func doApply(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	targetExamples = util.RemoveNegativeExamples(targetExamples)
 	cache.AttachMetaData(targetExamples)
 
 	result := example.Examples{}
