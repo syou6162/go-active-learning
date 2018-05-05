@@ -41,7 +41,6 @@ func TestDoApply(t *testing.T) {
 	args := []string{
 		"go-active-learning",
 		"apply",
-		fmt.Sprintf("--input-filename=%s", inputFilename),
 		"--filter-status-code-ok",
 		"--json-output",
 		"--subset-selection",
