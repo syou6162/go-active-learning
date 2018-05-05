@@ -55,10 +55,6 @@ li {list-style-type: none;}
 </html>
 `
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World")
-}
-
 func checkAuth(r *http.Request) bool {
 	username, password, ok := r.BasicAuth()
 	if ok == false {
@@ -79,72 +75,6 @@ func registerTrainingData(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadGateway)
 			fmt.Fprintln(w, err.Error())
 		}
-	}
-}
-
-func caluculate(w http.ResponseWriter, req *http.Request) {
-	filterStatusCodeOk := true
-	subsetSelection := true
-	sizeConstraint := 200
-	alpha := 1.0
-	r := 0.7
-	scoreThreshold := -0.2
-
-	cache, err := cache.NewCache()
-	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, err.Error())
-		return
-	}
-	defer cache.Close()
-
-	conn, err := db.CreateDBConnection()
-	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, err.Error())
-		return
-	}
-	defer conn.Close()
-
-	examples, err := db.ReadLabeledExamples(conn, 10000)
-	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, err.Error())
-		return
-	}
-
-	targetExamples, err := db.ReadRecentExamples(conn, time.Now().Add(-time.Duration(24*2)*time.Hour))
-	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, err.Error())
-		return
-	}
-	cache.AttachMetaData(examples)
-	if filterStatusCodeOk {
-		examples = util.FilterStatusCodeOkExamples(examples)
-	}
-	model := classifier.NewBinaryClassifier(examples)
-
-	cache.AttachMetaData(targetExamples)
-
-	result := example.Examples{}
-	for _, e := range targetExamples {
-		e.Score = model.PredictScore(e.Fv)
-		e.Title = strings.Replace(e.Title, "\n", " ", -1)
-		if e.Score > scoreThreshold {
-			result = append(result, e)
-		}
-	}
-
-	if subsetSelection {
-		result = submodular.SelectSubExamplesBySubModular(result, sizeConstraint, alpha, r)
-	}
-
-	err = cache.AddExamplesToList("general", result)
-	if err != nil {
-		w.WriteHeader(http.StatusBadGateway)
-		fmt.Fprintln(w, err.Error())
-		return
 	}
 }
 
@@ -235,7 +165,6 @@ func doServe(c *cli.Context) error {
 	http.HandleFunc("/", index) // ハンドラを登録してウェブページを表示させる
 	http.HandleFunc("/register_training_data", registerTrainingData)
 	http.HandleFunc("/show_recent_added_examples", showRecentAddedExamples)
-	http.HandleFunc("/calculate", caluculate)
 	return http.ListenAndServe(":7777", nil)
 }
 
