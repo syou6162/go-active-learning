@@ -40,7 +40,7 @@ func GetArticle(url string) Article {
 		return Article{Url: resp.Request.URL.String(), StatusCode: resp.StatusCode}
 	}
 
-	article, err := g.ExtractFromRawHTML(url, string(html))
+	article, err := g.ExtractFromRawHTML(resp.Request.URL.String(), string(html))
 	if err != nil {
 		return Article{StatusCode: resp.StatusCode}
 	}
