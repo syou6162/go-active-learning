@@ -20,11 +20,12 @@ import (
 )
 
 var listName2Rule = map[string]*regexp.Regexp{
-	"general":    regexp.MustCompile(`.+`),
-	"github":     regexp.MustCompile(`https://github.com/.+`),
-	"slideshare": regexp.MustCompile(`https://www.slideshare.net/.+`),
-	"twitter":    regexp.MustCompile(`https://twitter.com/.+`),
-	"arxiv":      regexp.MustCompile(`https://arxiv.org/abs/.+`),
+	"general":     regexp.MustCompile(`.+`),
+	"github":      regexp.MustCompile(`https://github.com/.+`),
+	"slideshare":  regexp.MustCompile(`https://www.slideshare.net/.+`),
+	"speakerdeck": regexp.MustCompile(`https://speakerdeck.com/.+`),
+	"twitter":     regexp.MustCompile(`https://twitter.com/.+`),
+	"arxiv":       regexp.MustCompile(`https://arxiv.org/abs/.+`),
 }
 
 func doApply(c *cli.Context) error {

@@ -45,6 +45,10 @@ const templateIndexContent = `
 <ul>{{range .SlideShareList}}
   <li><a href="{{.Url}}">{{or .Title .Url}}</a></li>{{end}}
 </ul>
+<h2>Speaker Deck</h2>
+<ul>{{range .SpeakerDeckList}}
+  <li><a href="{{.Url}}">{{or .Title .Url}}</a></li>{{end}}
+</ul>
 </body>
 </html>
 `
@@ -127,11 +131,12 @@ func showRecentAddedExamples(w http.ResponseWriter, r *http.Request) {
 }
 
 type recommendation struct {
-	GeneralList    example.Examples
-	TwitterList    example.Examples
-	GithubList     example.Examples
-	SlideShareList example.Examples
-	ArxivList      example.Examples
+	GeneralList     example.Examples
+	TwitterList     example.Examples
+	GithubList      example.Examples
+	SlideShareList  example.Examples
+	ArxivList       example.Examples
+	SpeakerDeckList example.Examples
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -205,14 +210,21 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, err.Error())
 		return
 	}
+	speakerdeckExamples, err := getUrlsFromList("speakerdeck")
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprintln(w, err.Error())
+		return
+	}
 
 	t = template.Must(template.New("index").Parse(templateIndexContent))
 	err = t.Execute(w, recommendation{
-		GeneralList:    generalExamples,
-		GithubList:     githubExamples,
-		SlideShareList: slideshareExamples,
-		TwitterList:    twitterExamples,
-		ArxivList:      arxivExamples,
+		GeneralList:     generalExamples,
+		GithubList:      githubExamples,
+		SlideShareList:  slideshareExamples,
+		TwitterList:     twitterExamples,
+		ArxivList:       arxivExamples,
+		SpeakerDeckList: speakerdeckExamples,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
