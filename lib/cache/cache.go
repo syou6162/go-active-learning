@@ -120,6 +120,7 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 				e.Body = tmp.Body
 				e.StatusCode = tmp.StatusCode
 				e.Fv = tmp.Fv
+				e.Score = tmp.Score
 			} else {
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				article := fetcher.GetArticle(e.Url)
