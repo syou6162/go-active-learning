@@ -130,7 +130,6 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 				e.Body = article.Body
 				e.StatusCode = article.StatusCode
 				e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
-				e.Description = ""
 				e.Body = ""
 				cache.AddExample(*e)
 			}
