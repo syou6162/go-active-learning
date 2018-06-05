@@ -15,16 +15,17 @@ const (
 )
 
 type Example struct {
-	Label       LabelType `json:"Label"`
-	Fv          feature.FeatureVector
-	Url         string `json:"Url"`
-	FinalUrl    string `json:"FinalUrl"`
-	Title       string `json:"Title"`
-	Description string `json:"Description"`
-	Body        string `json:"Body"`
-	Score       float64
-	IsNew       bool
-	StatusCode  int `json:"StatusCode"`
+	Label         LabelType `json:"Label"`
+	Fv            feature.FeatureVector
+	Url           string    `json:"Url"`
+	FinalUrl      string    `json:"FinalUrl"`
+	Title         string    `json:"Title"`
+	Description   string    `json:"Description"`
+	OgDescription string    `json:"OgDescription"`
+	Body          string    `json:"Body"`
+	Score         float64
+	IsNew         bool
+	StatusCode    int       `json:"StatusCode"`
 }
 
 type Examples []*Example
@@ -34,7 +35,7 @@ func NewExample(url string, label LabelType) *Example {
 	if label == UNLABELED {
 		IsNew = true
 	}
-	return &Example{label, []string{}, url, url, "", "", "", 0.0, IsNew, 0}
+	return &Example{label, []string{}, url, url, "", "", "", "", 0.0, IsNew, 0}
 }
 
 func (example *Example) Annotate(label LabelType) {

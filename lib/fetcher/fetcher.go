@@ -11,11 +11,12 @@ import (
 )
 
 type Article struct {
-	Url         string
-	Title       string
-	Description string
-	Body        string
-	StatusCode  int
+	Url           string
+	Title         string
+	Description   string
+	OgDescription string
+	Body          string
+	StatusCode    int
 }
 
 func GetArticle(url string) Article {
@@ -50,5 +51,5 @@ func GetArticle(url string) Article {
 		finalUrl = resp.Request.URL.String()
 	}
 
-	return Article{finalUrl, article.Title, article.MetaDescription, article.CleanedText, resp.StatusCode}
+	return Article{finalUrl, article.Title, article.MetaDescription, article.MetaOgDescription, article.CleanedText, resp.StatusCode}
 }

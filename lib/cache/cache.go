@@ -117,6 +117,7 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 				e.Title = tmp.Title
 				e.FinalUrl = tmp.FinalUrl
 				e.Description = tmp.Description
+				e.OgDescription = tmp.OgDescription
 				e.Body = tmp.Body
 				e.StatusCode = tmp.StatusCode
 				e.Fv = tmp.Fv
@@ -127,6 +128,7 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 				e.Title = article.Title
 				e.FinalUrl = article.Url
 				e.Description = article.Description
+				e.OgDescription = article.OgDescription
 				e.Body = article.Body
 				e.StatusCode = article.StatusCode
 				e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
