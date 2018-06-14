@@ -17,16 +17,16 @@ const (
 type Example struct {
 	Label         LabelType `json:"Label"`
 	Fv            feature.FeatureVector
-	Url           string    `json:"Url"`
-	FinalUrl      string    `json:"FinalUrl"`
-	Title         string    `json:"Title"`
-	Description   string    `json:"Description"`
-	OgDescription string    `json:"OgDescription"`
-	Body          string    `json:"Body"`
-	CleanedText   string    `json:"CleanedText"`
+	Url           string `json:"Url"`
+	FinalUrl      string `json:"FinalUrl"`
+	Title         string `json:"Title"`
+	Description   string `json:"Description"`
+	OgDescription string `json:"OgDescription"`
+	Body          string `json:"Body"`
+	CleanedText   string `json:"CleanedText"`
 	Score         float64
 	IsNew         bool
-	StatusCode    int       `json:"StatusCode"`
+	StatusCode    int `json:"StatusCode"`
 }
 
 type Examples []*Example
