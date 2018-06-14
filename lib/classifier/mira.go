@@ -6,7 +6,9 @@ import (
 	"runtime"
 	"sort"
 	"sync"
+	"time"
 
+	mkr "github.com/mackerelio/mackerel-client-go"
 	"github.com/syou6162/go-active-learning/lib/evaluation"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/feature"
@@ -104,12 +106,50 @@ func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifi
 		recall := evaluation.GetRecall(ExtractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
 		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", c, accuracy, precision, recall, f))
+		err := postEvaluatedMetricsToMackerel(accuracy, precision, recall, f)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 		miraResults = append(miraResults, MIRAResult{*model, f})
 	}
 
 	sort.Sort(sort.Reverse(miraResults))
 	bestModel := &miraResults[0].mira
 	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.c)
+}
+
+func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall float64, fvalue float64) error {
+	apiKey := os.Getenv("MACKEREL_API_KEY")
+	serviceName := os.Getenv("MACKEREL_SERVICE_NAME")
+	if apiKey == "" || serviceName == "" {
+		return nil
+	}
+
+	client := mkr.NewClient(apiKey)
+	now := time.Now().Unix()
+	err := client.PostServiceMetricValues(serviceName, []*mkr.MetricValue{
+		&mkr.MetricValue{
+			Name:  "evaluation.accuracy",
+			Time:  now,
+			Value: accuracy,
+		},
+		&mkr.MetricValue{
+			Name:  "evaluation.precision",
+			Time:  now,
+			Value: precision,
+		},
+		&mkr.MetricValue{
+			Name:  "evaluation.recall",
+			Time:  now,
+			Value: recall,
+		},
+		&mkr.MetricValue{
+			Name:  "evaluation.fvalue",
+			Time:  now,
+			Value: fvalue,
+		},
+	})
+	return err
 }
 
 func (model *MIRAClassifier) learn(example example.Example) {
