@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/syou6162/go-active-learning/lib/example"
@@ -56,11 +57,16 @@ func (c *Cache) GetExample(exa example.Example) (example.Example, bool) {
 	return e, true
 }
 
-// ToDo: return error...
-func (c *Cache) AddExample(example example.Example) {
+func (c *Cache) AddExample(example example.Example) error {
 	key := redisPrefix + ":" + example.Url
 	json, _ := json.Marshal(example)
-	c.Client.Set(key, json, 0).Err()
+	if err := c.Client.Set(key, json, 0).Err(); err != nil {
+		return err
+	}
+	if err := c.Client.Expire(key, time.Hour*240).Err(); err != nil {
+		return err
+	}
+	return nil
 }
 
 var listPrefix = "list:"
