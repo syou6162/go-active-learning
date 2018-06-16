@@ -21,7 +21,9 @@ func TestCacheGet(t *testing.T) {
 		t.Error(fmt.Printf("Cache must not contain %s", example.Url))
 	}
 
-	c.AddExample(*example)
+	if err := c.AddExample(*example); err != nil {
+		t.Error(fmt.Printf("Cannot set this url: %s", example.Url))
+	}
 	e, ok = c.GetExample(*example)
 	if !ok {
 		t.Error(fmt.Printf("Cache must return %s", example.Url))
