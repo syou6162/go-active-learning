@@ -67,6 +67,10 @@ func doAnnotate(c *cli.Context) error {
 annotationLoop:
 	for {
 		e := NextExampleToBeAnnotated(model, examples)
+		if e == nil {
+			fmt.Println("No example")
+			break annotationLoop
+		}
 		fmt.Println("Label this example (Score: " + fmt.Sprintf("%+0.03f", e.Score) + "): " + e.Url + " (" + e.Title + ")")
 
 		if openUrl {
