@@ -149,7 +149,7 @@ func (cache *Cache) attachMetaData(examples example.Examples, fetchNewExamples b
 	wg.Wait()
 }
 
-func (cache *Cache) AttachMetaData(examples example.Examples) {
+func (cache *Cache) AttachMetaData(examples example.Examples, fetchNewExamples bool) {
 	batchSize := 100
 	examplesList := make([]example.Examples, 0)
 	n := len(examples)
@@ -159,6 +159,6 @@ func (cache *Cache) AttachMetaData(examples example.Examples) {
 		examplesList = append(examplesList, examples[i:max])
 	}
 	for _, l := range examplesList {
-		cache.attachMetaData(l, true)
+		cache.attachMetaData(l, fetchNewExamples)
 	}
 }
