@@ -99,7 +99,7 @@ func (c *Cache) GetUrlsFromList(listName string, from int64, to int64) ([]string
 	return sliceCmd.Val(), nil
 }
 
-func (cache *Cache) attachMetaData(examples example.Examples) {
+func (cache *Cache) attachMetaData(examples example.Examples, fetchNewExamples bool) {
 	oldStdout := os.Stdout
 	readFile, writeFile, _ := os.Pipe()
 	os.Stdout = writeFile
@@ -119,7 +119,7 @@ func (cache *Cache) attachMetaData(examples example.Examples) {
 		sem <- struct{}{}
 		go func(e *example.Example, idx int) {
 			defer wg.Done()
-			if tmp, ok := cache.GetExample(*e); ok {
+			if tmp, ok := cache.GetExample(*e); ok || !fetchNewExamples {
 				e.Title = tmp.Title
 				e.FinalUrl = tmp.FinalUrl
 				e.Description = tmp.Description
@@ -159,6 +159,6 @@ func (cache *Cache) AttachMetaData(examples example.Examples) {
 		examplesList = append(examplesList, examples[i:max])
 	}
 	for _, l := range examplesList {
-		cache.attachMetaData(l)
+		cache.attachMetaData(l, true)
 	}
 }
