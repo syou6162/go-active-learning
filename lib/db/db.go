@@ -116,14 +116,26 @@ func ReadRecentExamples(db *sql.DB, from time.Time) ([]*example.Example, error) 
 	return readExamples(db, query, from)
 }
 
+func ReadExamplesByLabel(db *sql.DB, label example.LabelType, limit int) ([]*example.Example, error) {
+	query := `SELECT url, label FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
+	return readExamples(db, query, label, limit)
+}
+
 func ReadLabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
 	query := `SELECT url, label FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return readExamples(db, query, limit)
 }
 
-func ReadUnabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
-	query := `SELECT url, label FROM example WHERE label = 0 ORDER BY created_at DESC LIMIT $1;`
-	return readExamples(db, query, limit)
+func ReadPositiveExamples(db *sql.DB, limit int) ([]*example.Example, error) {
+	return ReadExamplesByLabel(db, example.POSITIVE, limit)
+}
+
+func ReadNegativeExamples(db *sql.DB, limit int) ([]*example.Example, error) {
+	return ReadExamplesByLabel(db, example.NEGATIVE, limit)
+}
+
+func ReadUnlabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
+	return ReadExamplesByLabel(db, example.UNLABELED, limit)
 }
 
 func SearchExamplesByUlrs(db *sql.DB, urls []string) (example.Examples, error) {
