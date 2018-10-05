@@ -3,11 +3,6 @@ jobs:
   build:
     working_directory: /home/circleci/go/src/github.com/syou6162/go-active-learning
     environment:
-      - CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
-      - CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
-      - PROJECT_GOPATH: "${HOME}/.go_workspace"
-      - PROJECT_PARENT_PATH: "${PROJECT_GOPATH}/src/github.com/${CIRCLE_PROJECT_USERNAME}"
-      - PROJECT_PATH: ~/.go_project/src/github.com/syou6162/go-active-learning
       - GOPATH: /home/circleci/go
     docker:
       - image: circleci/golang:1.9
@@ -20,7 +15,6 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install -y postgresql-client-9.6
-      - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       - run:
           name: Waiting for Postgres to be ready
           command: |
@@ -40,6 +34,5 @@ jobs:
       - run: psql -U postgres -d go-active-learning-test -f script/create_table.sql
       # Test
       - run: test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
-      - run: echo ${GOPATH}
       - run: make cover COVERAGE='/home/circleci/coverage.out'
       - run: goveralls -coverprofile=/home/circleci/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
