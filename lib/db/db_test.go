@@ -1,28 +1,27 @@
 package db_test
 
 import (
+	"log"
+	"os"
 	"testing"
 
 	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 )
 
-func TestCreateDBConnection(t *testing.T) {
+func TestMain(m *testing.M) {
 	err := db.Init()
 	if err != nil {
-		t.Error(err)
+		log.Fatal(err.Error())
 	}
 	defer db.Close()
+
+	ret := m.Run()
+	os.Exit(ret)
 }
 
 func TestInsertExampleFromScanner(t *testing.T) {
-	err := db.Init()
-	if err != nil {
-		t.Error(err)
-	}
-	defer db.Close()
-
-	_, err = db.DeleteAllExamples()
+	_, err := db.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -70,13 +69,7 @@ func TestInsertExampleFromScanner(t *testing.T) {
 }
 
 func TestReadLabeledExamples(t *testing.T) {
-	err := db.Init()
-	if err != nil {
-		t.Error(err)
-	}
-	defer db.Close()
-
-	_, err = db.DeleteAllExamples()
+	_, err := db.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
