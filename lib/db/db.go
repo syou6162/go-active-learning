@@ -3,8 +3,8 @@ package db
 import (
 	"bufio"
 	"database/sql"
-	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"io"
@@ -17,21 +17,24 @@ import (
 )
 
 var db *sql.DB
+var once sync.Once
 
 func Init() error {
-	if db != nil {
-		return errors.New("Init method is called more than twice")
-	}
-	host := util.GetEnv("POSTGRES_HOST", "localhost")
-	dbUser := util.GetEnv("DB_USER", "nobody")
-	dbPassword := util.GetEnv("DB_PASSWORD", "nobody")
-	dbName := util.GetEnv("DB_NAME", "go-active-learning")
 	var err error
-	db, err = sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
+	once.Do(func() {
+		host := util.GetEnv("POSTGRES_HOST", "localhost")
+		dbUser := util.GetEnv("DB_USER", "nobody")
+		dbPassword := util.GetEnv("DB_PASSWORD", "nobody")
+		dbName := util.GetEnv("DB_NAME", "go-active-learning")
+		db, err = sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
+		if err != nil {
+			return
+		}
+		db.SetMaxOpenConns(50)
+	})
 	if err != nil {
 		return err
 	}
-	db.SetMaxOpenConns(50)
 	return nil
 }
 
