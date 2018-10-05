@@ -58,13 +58,13 @@ func doDiagnose(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	conn, err := db.CreateDBConnection()
+	err = db.Init()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadExamples()
 	if err != nil {
 		return err
 	}
@@ -144,13 +144,13 @@ func doListFeatureWeight(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	conn, err := db.CreateDBConnection()
+	err = db.Init()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadExamples()
 	if err != nil {
 		return err
 	}

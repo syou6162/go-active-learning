@@ -8,31 +8,31 @@ import (
 )
 
 func TestCreateDBConnection(t *testing.T) {
-	conn, err := db.CreateDBConnection()
+	err := db.Init()
 	if err != nil {
 		t.Error(err)
 	}
-	defer conn.Close()
+	defer db.Close()
 }
 
 func TestInsertExampleFromScanner(t *testing.T) {
-	conn, err := db.CreateDBConnection()
+	err := db.Init()
 	if err != nil {
 		t.Error(err)
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	_, err = db.DeleteAllExamples(conn)
-	if err != nil {
-		t.Error(err)
-	}
-
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
+	_, err = db.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadExamples(conn)
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := db.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -41,12 +41,12 @@ func TestInsertExampleFromScanner(t *testing.T) {
 	}
 
 	// same url
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples(conn)
+	examples, err = db.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -55,12 +55,12 @@ func TestInsertExampleFromScanner(t *testing.T) {
 	}
 
 	// different url
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://another.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://another.com", Label: example.NEGATIVE})
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples(conn)
+	examples, err = db.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -70,31 +70,31 @@ func TestInsertExampleFromScanner(t *testing.T) {
 }
 
 func TestReadLabeledExamples(t *testing.T) {
-	conn, err := db.CreateDBConnection()
+	err := db.Init()
 	if err != nil {
 		t.Error(err)
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	_, err = db.DeleteAllExamples(conn)
-	if err != nil {
-		t.Error(err)
-	}
-
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
-	if err != nil {
-		t.Error(err)
-	}
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
-	if err != nil {
-		t.Error(err)
-	}
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	_, err = db.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadLabeledExamples(conn, 10)
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := db.ReadLabeledExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
