@@ -44,13 +44,13 @@ func doAnnotate(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	conn, err := db.CreateDBConnection()
+	err = db.Init()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadExamples()
 	if err != nil {
 		return err
 	}
@@ -88,11 +88,11 @@ annotationLoop:
 		case LABEL_AS_POSITIVE:
 			fmt.Println("Labeled as positive")
 			e.Annotate(example.POSITIVE)
-			db.InsertOrUpdateExample(conn, e)
+			db.InsertOrUpdateExample(e)
 		case LABEL_AS_NEGATIVE:
 			fmt.Println("Labeled as negative")
 			e.Annotate(example.NEGATIVE)
-			db.InsertOrUpdateExample(conn, e)
+			db.InsertOrUpdateExample(e)
 		case SKIP:
 			fmt.Println("Skiped this example")
 			examples = util.RemoveExample(examples, *e)

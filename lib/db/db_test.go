@@ -1,38 +1,37 @@
 package db_test
 
 import (
+	"log"
+	"os"
 	"testing"
 
 	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 )
 
-func TestCreateDBConnection(t *testing.T) {
-	conn, err := db.CreateDBConnection()
+func TestMain(m *testing.M) {
+	err := db.Init()
 	if err != nil {
-		t.Error(err)
+		log.Fatal(err.Error())
 	}
-	defer conn.Close()
+	defer db.Close()
+
+	ret := m.Run()
+	os.Exit(ret)
 }
 
 func TestInsertExampleFromScanner(t *testing.T) {
-	conn, err := db.CreateDBConnection()
-	if err != nil {
-		t.Error(err)
-	}
-	defer conn.Close()
-
-	_, err = db.DeleteAllExamples(conn)
+	_, err := db.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -41,12 +40,12 @@ func TestInsertExampleFromScanner(t *testing.T) {
 	}
 
 	// same url
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples(conn)
+	examples, err = db.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -55,12 +54,12 @@ func TestInsertExampleFromScanner(t *testing.T) {
 	}
 
 	// different url
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://another.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://another.com", Label: example.NEGATIVE})
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples(conn)
+	examples, err = db.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -70,31 +69,25 @@ func TestInsertExampleFromScanner(t *testing.T) {
 }
 
 func TestReadLabeledExamples(t *testing.T) {
-	conn, err := db.CreateDBConnection()
-	if err != nil {
-		t.Error(err)
-	}
-	defer conn.Close()
-
-	_, err = db.DeleteAllExamples(conn)
+	_, err := db.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(conn, &example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadLabeledExamples(conn, 10)
+	examples, err := db.ReadLabeledExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
