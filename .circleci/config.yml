@@ -1,0 +1,38 @@
+version: 2
+jobs:
+  build:
+    working_directory: /home/circleci/go/src/github.com/syou6162/go-active-learning
+    environment:
+      - GOPATH: /home/circleci/go
+    docker:
+      - image: circleci/golang:1.9
+        environment:
+          PGHOST: 127.0.0.1
+      - image: circleci/postgres:9.6-alpine
+      - image: redis
+    steps:
+      - run: echo 'export PATH=${GOPATH}/bin/:${PATH}' >> $BASH_ENV
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y postgresql-client-9.6
+      - run:
+          name: Waiting for Postgres to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgres && exit 1
+      - run: make deps
+      - run: go get -t -d -v ./...
+      - run: make build
+      - run: go get -t -d -v ./...
+      - run: go build -v
+      - run: psql -U postgres -f script/create_database.sql
+      - run: psql -U postgres -d go-active-learning-test -f script/create_table.sql
+      # Test
+      - run: test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
+      - run: make cover COVERAGE='/home/circleci/coverage.out'
+      - run: goveralls -coverprofile=/home/circleci/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
