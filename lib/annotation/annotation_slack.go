@@ -33,13 +33,13 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	conn, err := db.CreateDBConnection()
+	err = db.Init()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadExamples()
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	msg := rtm.NewOutgoingMessage(fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]), channelID)
 	rtm.SendMessage(msg)
 
-	cache.AttachMetaData(examples)
+	cache.AttachMetaData(examples, true)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}

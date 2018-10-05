@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"database/sql"
 	"fmt"
+	"sync"
 	"time"
 
 	"io"
@@ -15,15 +16,37 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
-func CreateDBConnection() (*sql.DB, error) {
-	host := util.GetEnv("POSTGRES_HOST", "localhost")
-	dbUser := util.GetEnv("DB_USER", "nobody")
-	dbPassword := util.GetEnv("DB_PASSWORD", "nobody")
-	dbName := util.GetEnv("DB_NAME", "go-active-learning")
-	return sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
+var db *sql.DB
+var once sync.Once
+
+func Init() error {
+	var err error
+	once.Do(func() {
+		host := util.GetEnv("POSTGRES_HOST", "localhost")
+		dbUser := util.GetEnv("DB_USER", "nobody")
+		dbPassword := util.GetEnv("DB_PASSWORD", "nobody")
+		dbName := util.GetEnv("DB_NAME", "go-active-learning")
+		db, err = sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
+		if err != nil {
+			return
+		}
+		db.SetMaxOpenConns(50)
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func InsertOrUpdateExample(db *sql.DB, e *example.Example) (sql.Result, error) {
+func Close() error {
+	if db != nil {
+		return db.Close()
+	} else {
+		return nil
+	}
+}
+
+func InsertOrUpdateExample(e *example.Example) (sql.Result, error) {
 	var label example.LabelType
 	now := time.Now()
 
@@ -46,13 +69,13 @@ func InsertOrUpdateExample(db *sql.DB, e *example.Example) (sql.Result, error) {
 	}
 }
 
-func InsertExampleFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Example, error) {
+func InsertExampleFromScanner(scanner *bufio.Scanner) (*example.Example, error) {
 	line := scanner.Text()
 	e, err := file.ParseLine(line)
 	if err != nil {
 		return nil, err
 	}
-	_, err = InsertOrUpdateExample(db, e)
+	_, err = InsertOrUpdateExample(e)
 	if err != nil {
 		return nil, err
 	}
@@ -62,14 +85,8 @@ func InsertExampleFromScanner(db *sql.DB, scanner *bufio.Scanner) (*example.Exam
 func InsertExamplesFromReader(r io.Reader) error {
 	scanner := bufio.NewScanner(r)
 
-	conn, err := CreateDBConnection()
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
 	for scanner.Scan() {
-		_, err := InsertExampleFromScanner(conn, scanner)
+		_, err := InsertExampleFromScanner(scanner)
 		if err != nil {
 			return err
 		}
@@ -80,7 +97,7 @@ func InsertExamplesFromReader(r io.Reader) error {
 	return nil
 }
 
-func readExamples(db *sql.DB, query string, args ...interface{}) ([]*example.Example, error) {
+func readExamples(query string, args ...interface{}) ([]*example.Example, error) {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
@@ -106,32 +123,44 @@ func readExamples(db *sql.DB, query string, args ...interface{}) ([]*example.Exa
 	return examples, nil
 }
 
-func ReadExamples(db *sql.DB) ([]*example.Example, error) {
+func ReadExamples() ([]*example.Example, error) {
 	query := `SELECT url, label FROM example;`
-	return readExamples(db, query)
+	return readExamples(query)
 }
 
-func ReadRecentExamples(db *sql.DB, from time.Time) ([]*example.Example, error) {
+func ReadRecentExamples(from time.Time) ([]*example.Example, error) {
 	query := `SELECT url, label FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
-	return readExamples(db, query, from)
+	return readExamples(query, from)
 }
 
-func ReadLabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
+func ReadExamplesByLabel(label example.LabelType, limit int) ([]*example.Example, error) {
+	query := `SELECT url, label FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
+	return readExamples(query, label, limit)
+}
+
+func ReadLabeledExamples(limit int) ([]*example.Example, error) {
 	query := `SELECT url, label FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
-	return readExamples(db, query, limit)
+	return readExamples(query, limit)
 }
 
-func ReadUnabeledExamples(db *sql.DB, limit int) ([]*example.Example, error) {
-	query := `SELECT url, label FROM example WHERE label = 0 ORDER BY updated_at DESC LIMIT $1;`
-	return readExamples(db, query, limit)
+func ReadPositiveExamples(limit int) ([]*example.Example, error) {
+	return ReadExamplesByLabel(example.POSITIVE, limit)
 }
 
-func SearchExamplesByUlrs(db *sql.DB, urls []string) (example.Examples, error) {
+func ReadNegativeExamples(limit int) ([]*example.Example, error) {
+	return ReadExamplesByLabel(example.NEGATIVE, limit)
+}
+
+func ReadUnlabeledExamples(limit int) ([]*example.Example, error) {
+	return ReadExamplesByLabel(example.UNLABELED, limit)
+}
+
+func SearchExamplesByUlrs(urls []string) (example.Examples, error) {
 	// ref: https://godoc.org/github.com/lib/pq#Array
 	query := `SELECT url, label FROM example WHERE url = ANY($1);`
-	return readExamples(db, query, pq.Array(urls))
+	return readExamples(query, pq.Array(urls))
 }
 
-func DeleteAllExamples(db *sql.DB) (sql.Result, error) {
+func DeleteAllExamples() (sql.Result, error) {
 	return db.Exec(`DELETE FROM example`)
 }

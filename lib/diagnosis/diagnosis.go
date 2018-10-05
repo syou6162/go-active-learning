@@ -58,17 +58,17 @@ func doDiagnose(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	conn, err := db.CreateDBConnection()
+	err = db.Init()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadExamples()
 	if err != nil {
 		return err
 	}
-	cache.AttachMetaData(examples)
+	cache.AttachMetaData(examples, true)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
@@ -144,17 +144,17 @@ func doListFeatureWeight(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	conn, err := db.CreateDBConnection()
+	err = db.Init()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	examples, err := db.ReadExamples(conn)
+	examples, err := db.ReadExamples()
 	if err != nil {
 		return err
 	}
-	cache.AttachMetaData(examples)
+	cache.AttachMetaData(examples, true)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
