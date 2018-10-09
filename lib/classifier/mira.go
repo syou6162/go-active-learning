@@ -128,22 +128,22 @@ func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall 
 	client := mkr.NewClient(apiKey)
 	now := time.Now().Unix()
 	err := client.PostServiceMetricValues(serviceName, []*mkr.MetricValue{
-		&mkr.MetricValue{
+		{
 			Name:  "evaluation.accuracy",
 			Time:  now,
 			Value: accuracy,
 		},
-		&mkr.MetricValue{
+		{
 			Name:  "evaluation.precision",
 			Time:  now,
 			Value: precision,
 		},
-		&mkr.MetricValue{
+		{
 			Name:  "evaluation.recall",
 			Time:  now,
 			Value: recall,
 		},
-		&mkr.MetricValue{
+		{
 			Name:  "evaluation.fvalue",
 			Time:  now,
 			Value: fvalue,
