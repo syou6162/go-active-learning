@@ -47,8 +47,23 @@ func TestAttachMetaData(t *testing.T) {
 		key := "url:" + e.Url
 		cache.Client.Del(key)
 	}
-	cache.AttachMetadata(examples, true)
 
+	if examples[0].Title != "" {
+		t.Errorf("Title must be empty for %s", examples[0].Url)
+	}
+	if len(examples[0].Fv) != 0 {
+		t.Errorf("Feature vector must be empty for %s", examples[0].Url)
+	}
+	cache.AttachMetadata(examples, false)
+
+	if examples[0].Title != "" {
+		t.Errorf("Title must be empty for %s", examples[0].Url)
+	}
+	if len(examples[0].Fv) != 0 {
+		t.Errorf("Feature vector must be empty for %s", examples[0].Url)
+	}
+
+	cache.AttachMetadata(examples, true)
 	if examples[0].Title == "" {
 		t.Errorf("Title must not be empty for %s", examples[0].Url)
 	}
