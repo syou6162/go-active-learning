@@ -26,9 +26,13 @@ var redisPrefix = "url"
 func NewCache() (*Cache, error) {
 	host := util.GetEnv("REDIS_HOST", "localhost")
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:6379", host),
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr:        fmt.Sprintf("%s:6379", host),
+		Password:    "", // no password set
+		DB:          0,  // use default DB
+		PoolSize:    100,
+		MaxRetries:  4,
+		PoolTimeout: time.Duration(10) * time.Second,
+		IdleTimeout: time.Duration(60) * time.Second,
 	})
 
 	_, err := client.Ping().Result()
