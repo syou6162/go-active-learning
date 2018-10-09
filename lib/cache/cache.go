@@ -46,21 +46,6 @@ func (c *Cache) Close() error {
 	return c.Client.Close()
 }
 
-// ToDo: return (Example, error)
-func (c *Cache) GetExample(exa example.Example) (example.Example, bool) {
-	key := redisPrefix + ":" + exa.Url
-	exampleStr, err := c.Client.Get(key).Result()
-	e := example.Example{}
-	if err != nil {
-		return e, false
-	}
-	if err := json.Unmarshal([]byte(exampleStr), &e); err != nil {
-		return e, false
-	}
-
-	return e, true
-}
-
 func (c *Cache) attachMetadata(examples example.Examples) error {
 	keys := make([]string, 0)
 	for _, e := range examples {
