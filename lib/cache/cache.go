@@ -78,10 +78,10 @@ func (c *Cache) attachMetadata(examples example.Examples) error {
 		label := e.Label // master data of label is maintained by database, not cache
 		s, ok := r.(string)
 		if ok {
-			 err := json.Unmarshal([]byte(s), e)
-			 if err != nil {
-				 e.Label = label
-			 }
+			err := json.Unmarshal([]byte(s), e)
+			if err != nil {
+				e.Label = label
+			}
 		}
 	}
 	return nil
@@ -167,10 +167,9 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 			sem <- struct{}{}
 			go func(e *example.Example, idx int) {
 				defer wg.Done()
-					fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
-					fetchMetaData(e)
-					cache.SetExample(*e)
-					fmt.Println("finished " + strconv.Itoa(idx) + " " + e.Url)
+				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
+				fetchMetaData(e)
+				cache.SetExample(*e)
 				<-sem
 			}(e, idx)
 		}
