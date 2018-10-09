@@ -16,18 +16,20 @@ type Article struct {
 	Description   string
 	OgDescription string
 	Body          string
-	CleanedText   string
 	StatusCode    int
+}
+
+var articleFetcher = http.Client{
+	Transport: &http.Transport{
+		MaxIdleConns:        0,
+		MaxIdleConnsPerHost: 100,
+	},
+	Timeout: time.Duration(5 * time.Second),
 }
 
 func GetArticle(url string) Article {
 	g := goose.New()
-	timeout := time.Duration(5 * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
-
-	resp, err := client.Get(url)
+	resp, err := articleFetcher.Get(url)
 	if err != nil {
 		return Article{}
 	}
@@ -52,5 +54,5 @@ func GetArticle(url string) Article {
 		finalUrl = resp.Request.URL.String()
 	}
 
-	return Article{finalUrl, article.Title, article.MetaDescription, article.MetaOgDescription, article.CleanedText, article.CleanedText, resp.StatusCode}
+	return Article{finalUrl, article.Title, article.MetaDescription, article.MetaOgDescription, article.CleanedText, resp.StatusCode}
 }

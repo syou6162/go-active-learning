@@ -68,7 +68,7 @@ func doDiagnose(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	cache.AttachMetaData(examples, true)
+	cache.AttachMetadata(examples, true)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
@@ -154,7 +154,7 @@ func doListFeatureWeight(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	cache.AttachMetaData(examples, true)
+	cache.AttachMetadata(examples, true)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
