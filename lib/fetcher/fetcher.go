@@ -19,14 +19,17 @@ type Article struct {
 	StatusCode    int
 }
 
+var articleFetcher = http.Client{
+	Transport: &http.Transport{
+		MaxIdleConns:        0,
+		MaxIdleConnsPerHost: 100,
+	},
+	Timeout: time.Duration(5 * time.Second),
+}
+
 func GetArticle(url string) Article {
 	g := goose.New()
-	timeout := time.Duration(5 * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
-
-	resp, err := client.Get(url)
+	resp, err := articleFetcher.Get(url)
 	if err != nil {
 		return Article{}
 	}
