@@ -95,37 +95,6 @@ func (c *Cache) SetExample(example example.Example) error {
 	return nil
 }
 
-var listPrefix = "list:"
-
-func (c *Cache) AddExamplesToList(listName string, examples example.Examples) error {
-	if err := c.Client.Del(listPrefix + listName).Err(); err != nil {
-		return err
-	}
-
-	result := make([]redis.Z, 0)
-	for _, e := range examples {
-		url := e.Url
-		if e.FinalUrl != "" {
-			url = e.FinalUrl
-		}
-		result = append(result, redis.Z{Score: e.Score, Member: url})
-	}
-	// ToDo: take care the case when result is empty
-	err := c.Client.ZAdd(listPrefix+listName, result...).Err()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c *Cache) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
-	sliceCmd := c.Client.ZRevRange(listPrefix+listName, from, to)
-	if sliceCmd.Err() != nil {
-		return nil, sliceCmd.Err()
-	}
-	return sliceCmd.Val(), nil
-}
-
 func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples bool) {
 	batchSize := 100
 	examplesList := make([]example.Examples, 0)
@@ -160,4 +129,35 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 		}
 		wg.Wait()
 	}
+}
+
+var listPrefix = "list:"
+
+func (c *Cache) AddExamplesToList(listName string, examples example.Examples) error {
+	if err := c.Client.Del(listPrefix + listName).Err(); err != nil {
+		return err
+	}
+
+	result := make([]redis.Z, 0)
+	for _, e := range examples {
+		url := e.Url
+		if e.FinalUrl != "" {
+			url = e.FinalUrl
+		}
+		result = append(result, redis.Z{Score: e.Score, Member: url})
+	}
+	// ToDo: take care the case when result is empty
+	err := c.Client.ZAdd(listPrefix+listName, result...).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Cache) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
+	sliceCmd := c.Client.ZRevRange(listPrefix+listName, from, to)
+	if sliceCmd.Err() != nil {
+		return nil, sliceCmd.Err()
+	}
+	return sliceCmd.Val(), nil
 }
