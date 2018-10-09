@@ -63,10 +63,8 @@ func (c *Cache) attachMetadata(examples example.Examples) error {
 		label := e.Label // master data of label is maintained by database, not cache
 		s, ok := r.(string)
 		if ok {
-			err := json.Unmarshal([]byte(s), e)
-			if err != nil {
-				e.Label = label
-			}
+			json.Unmarshal([]byte(s), e)
+			e.Label = label
 		}
 	}
 	return nil
