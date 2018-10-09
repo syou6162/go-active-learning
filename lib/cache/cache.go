@@ -61,7 +61,44 @@ func (c *Cache) GetExample(exa example.Example) (example.Example, bool) {
 	return e, true
 }
 
-func (c *Cache) AddExample(example example.Example) error {
+func (c *Cache) attachMetadata(examples example.Examples) error {
+	keys := make([]string, 0)
+	for _, e := range examples {
+		key := redisPrefix + ":" + e.Url
+		keys = append(keys, key)
+	}
+
+	redisResult, err := c.Client.MGet(keys...).Result()
+	if err != nil {
+		return err
+	}
+
+	for idx, r := range redisResult {
+		e := examples[idx]
+		label := e.Label // master data of label is maintained by database, not cache
+		s, ok := r.(string)
+		if ok {
+			 err := json.Unmarshal([]byte(s), e)
+			 if err != nil {
+				 e.Label = label
+			 }
+		}
+	}
+	return nil
+}
+
+func fetchMetaData(e *example.Example) {
+	article := fetcher.GetArticle(e.Url)
+	e.Title = article.Title
+	e.FinalUrl = article.Url
+	e.Description = article.Description
+	e.OgDescription = article.OgDescription
+	e.Body = article.Body
+	e.StatusCode = article.StatusCode
+	e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
+}
+
+func (c *Cache) SetExample(example example.Example) error {
 	key := redisPrefix + ":" + example.Url
 	json, _ := json.Marshal(example)
 	if err := c.Client.Set(key, json, 0).Err(); err != nil {
@@ -88,6 +125,7 @@ func (c *Cache) AddExamplesToList(listName string, examples example.Examples) er
 		}
 		result = append(result, redis.Z{Score: e.Score, Member: url})
 	}
+	// ToDo: take care the case when result is empty
 	err := c.Client.ZAdd(listPrefix+listName, result...).Err()
 	if err != nil {
 		return err
@@ -103,57 +141,7 @@ func (c *Cache) GetUrlsFromList(listName string, from int64, to int64) ([]string
 	return sliceCmd.Val(), nil
 }
 
-func (cache *Cache) attachMetaData(examples example.Examples, fetchNewExamples bool) {
-	oldStdout := os.Stdout
-	readFile, writeFile, _ := os.Pipe()
-	os.Stdout = writeFile
-
-	defer func() {
-		writeFile.Close()
-		readFile.Close()
-		os.Stdout = oldStdout
-	}()
-
-	wg := &sync.WaitGroup{}
-	cpus := runtime.NumCPU()
-	runtime.GOMAXPROCS(cpus)
-	sem := make(chan struct{}, 4)
-	for idx, e := range examples {
-		wg.Add(1)
-		sem <- struct{}{}
-		go func(e *example.Example, idx int) {
-			defer wg.Done()
-			if tmp, ok := cache.GetExample(*e); ok || !fetchNewExamples {
-				e.Title = tmp.Title
-				e.FinalUrl = tmp.FinalUrl
-				e.Description = tmp.Description
-				e.OgDescription = tmp.OgDescription
-				e.Body = tmp.Body
-				e.CleanedText = tmp.CleanedText
-				e.StatusCode = tmp.StatusCode
-				e.Fv = tmp.Fv
-				e.Score = tmp.Score
-			} else {
-				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
-				article := fetcher.GetArticle(e.Url)
-				e.Title = article.Title
-				e.FinalUrl = article.Url
-				e.Description = article.Description
-				e.OgDescription = article.OgDescription
-				e.Body = article.Body
-				e.CleanedText = article.CleanedText
-				e.StatusCode = article.StatusCode
-				e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
-				e.Body = ""
-				cache.AddExample(*e)
-			}
-			<-sem
-		}(e, idx)
-	}
-	wg.Wait()
-}
-
-func (cache *Cache) AttachMetaData(examples example.Examples, fetchNewExamples bool) {
+func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples bool) {
 	batchSize := 100
 	examplesList := make([]example.Examples, 0)
 	n := len(examples)
@@ -163,6 +151,29 @@ func (cache *Cache) AttachMetaData(examples example.Examples, fetchNewExamples b
 		examplesList = append(examplesList, examples[i:max])
 	}
 	for _, l := range examplesList {
-		cache.attachMetaData(l, fetchNewExamples)
+		cache.attachMetadata(l)
+		examplesWithEmptyMetaData := example.Examples{}
+		for _, e := range l {
+			if e.StatusCode != 200 && fetchNewExamples {
+				examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, e)
+			}
+		}
+		wg := &sync.WaitGroup{}
+		cpus := runtime.NumCPU()
+		runtime.GOMAXPROCS(cpus)
+		sem := make(chan struct{}, batchSize)
+		for idx, e := range examplesWithEmptyMetaData {
+			wg.Add(1)
+			sem <- struct{}{}
+			go func(e *example.Example, idx int) {
+				defer wg.Done()
+					fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
+					fetchMetaData(e)
+					cache.SetExample(*e)
+					fmt.Println("finished " + strconv.Itoa(idx) + " " + e.Url)
+				<-sem
+			}(e, idx)
+		}
+		wg.Wait()
 	}
 }

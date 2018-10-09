@@ -21,7 +21,7 @@ func TestCacheGet(t *testing.T) {
 		t.Error(fmt.Printf("Cache must not contain %s", example.Url))
 	}
 
-	if err := c.AddExample(*example); err != nil {
+	if err := c.SetExample(*example); err != nil {
 		t.Error(fmt.Printf("Cannot set this url: %s", example.Url))
 	}
 	e, ok = c.GetExample(*example)
@@ -43,7 +43,11 @@ func TestAttachMetaData(t *testing.T) {
 		t.Error("Cannot connect to redis")
 	}
 	defer cache.Close()
-	cache.AttachMetaData(examples, true)
+	for _, e := range examples {
+		key := "url:" + e.Url
+		cache.Client.Del(key)
+	}
+	cache.AttachMetadata(examples, true)
 
 	if examples[0].Title == "" {
 		t.Errorf("Title must not be empty for %s", examples[0].Url)
