@@ -113,8 +113,9 @@ func (c *Cache) attachLightMetadata(examples example.Examples) error {
 			"Title",         // 1
 			"Description",   // 2
 			"OgDescription", // 3
-			"Score",         // 4
-			"StatusCode",    // 5
+			"Body",          // 4
+			"Score",         // 5
+			"StatusCode",    // 6
 		).Result()
 		if err != nil {
 			return err
@@ -135,6 +136,10 @@ func (c *Cache) attachLightMetadata(examples example.Examples) error {
 		// OgDescription
 		if result, ok := vals[3].(string); ok {
 			e.OgDescription = result
+		}
+		// Body
+		if result, ok := vals[4].(string); ok {
+			e.Body = result
 		}
 		// Score
 		if result, ok := vals[4].(float64); ok {
