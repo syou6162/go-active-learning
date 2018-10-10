@@ -3,6 +3,7 @@ package cache
 import (
 	"fmt"
 
+	"log"
 	"math"
 	"os"
 	"runtime"
@@ -168,7 +169,9 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 				defer wg.Done()
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				fetchMetaData(e)
-				cache.SetExample(*e) // ToDo: error handling
+				if err := cache.SetExample(*e); err != nil {
+					log.Println(err.Error())
+				}
 				<-sem
 			}(e, idx)
 		}
