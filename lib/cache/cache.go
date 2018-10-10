@@ -184,7 +184,7 @@ func (c *Cache) SetExample(example example.Example) error {
 	return nil
 }
 
-func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples bool) {
+func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMetadata bool) {
 	batchSize := 100
 	examplesList := make([]example.Examples, 0)
 	n := len(examples)
@@ -194,8 +194,14 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 		examplesList = append(examplesList, examples[i:max])
 	}
 	for _, l := range examplesList {
-		if err := cache.attachMetadata(l); err != nil {
-			log.Println(err.Error())
+		if useLightMetadata {
+			if err := cache.attachLightMetadata(l); err != nil {
+				log.Println(err.Error())
+			}
+		} else {
+			if err := cache.attachMetadata(l); err != nil {
+				log.Println(err.Error())
+			}
 		}
 		if !fetchNewExamples {
 			continue

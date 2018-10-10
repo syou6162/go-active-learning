@@ -58,7 +58,7 @@ func doAnnotate(c *cli.Context) error {
 	stat := example.GetStat(examples)
 	fmt.Fprintln(os.Stderr, fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]))
 
-	cache.AttachMetadata(examples, true)
+	cache.AttachMetadata(examples, true, false)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
