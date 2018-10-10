@@ -66,8 +66,11 @@ func (c *Cache) attachMetadata(examples example.Examples) error {
 		}
 
 		// Fv
-		if result, ok := vals[0].(feature.FeatureVector); ok {
-			e.Fv = result
+		if result, ok := vals[0].(string); ok {
+			fv := feature.FeatureVector{}
+			if err := fv.UnmarshalBinary([]byte(result)); err == nil {
+				e.Fv = fv
+			}
 		}
 		// FinalUrl
 		if result, ok := vals[1].(string); ok {
