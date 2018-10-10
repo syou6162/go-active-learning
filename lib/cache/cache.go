@@ -90,16 +90,22 @@ func (c *Cache) attachMetadata(examples example.Examples) error {
 			e.Body = result
 		}
 		// Score
-		if result, ok := vals[6].(float64); ok {
-			e.Score = result
+		if result, ok := vals[6].(string); ok {
+			if score, err := strconv.ParseFloat(result, 64); err == nil {
+				e.Score = score
+			}
 		}
 		// IsNew
-		if result, ok := vals[7].(bool); ok {
-			e.IsNew = result
+		if result, ok := vals[7].(string); ok {
+			if isNew, err := strconv.ParseBool(result); err == nil {
+				e.IsNew = isNew
+			}
 		}
 		// StatusCode
-		if result, ok := vals[8].(int); ok {
-			e.StatusCode = result
+		if result, ok := vals[8].(string); ok {
+			if statusCode, err := strconv.Atoi(result); err == nil {
+				e.StatusCode = statusCode
+			}
 		}
 	}
 	return nil
@@ -142,12 +148,16 @@ func (c *Cache) attachLightMetadata(examples example.Examples) error {
 			e.Body = result
 		}
 		// Score
-		if result, ok := vals[4].(float64); ok {
-			e.Score = result
+		if result, ok := vals[5].(string); ok {
+			if score, err := strconv.ParseFloat(result, 64); err == nil {
+				e.Score = score
+			}
 		}
 		// StatusCode
-		if result, ok := vals[5].(int); ok {
-			e.StatusCode = result
+		if result, ok := vals[6].(string); ok {
+			if statusCode, err := strconv.Atoi(result); err == nil {
+				e.StatusCode = statusCode
+			}
 		}
 	}
 	return nil
