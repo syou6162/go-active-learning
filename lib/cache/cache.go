@@ -105,6 +105,49 @@ func (c *Cache) attachMetadata(examples example.Examples) error {
 	return nil
 }
 
+func (c *Cache) attachLightMetadata(examples example.Examples) error {
+	for _, e := range examples {
+		key := redisPrefix + ":" + e.Url
+		vals, err := c.Client.HMGet(key,
+			"FinalUrl",      // 0
+			"Title",         // 1
+			"Description",   // 2
+			"OgDescription", // 3
+			"Score",         // 4
+			"StatusCode",    // 5
+		).Result()
+		if err != nil {
+			return err
+		}
+
+		// FinalUrl
+		if result, ok := vals[0].(string); ok {
+			e.FinalUrl = result
+		}
+		// Title
+		if result, ok := vals[1].(string); ok {
+			e.Title = result
+		}
+		// Description
+		if result, ok := vals[2].(string); ok {
+			e.Description = result
+		}
+		// OgDescription
+		if result, ok := vals[3].(string); ok {
+			e.OgDescription = result
+		}
+		// Score
+		if result, ok := vals[4].(float64); ok {
+			e.Score = result
+		}
+		// StatusCode
+		if result, ok := vals[5].(int); ok {
+			e.StatusCode = result
+		}
+	}
+	return nil
+}
+
 func fetchMetaData(e *example.Example) {
 	article := fetcher.GetArticle(e.Url)
 	e.Title = article.Title
