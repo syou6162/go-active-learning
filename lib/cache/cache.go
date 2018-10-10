@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"math"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/fetcher"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
@@ -47,24 +47,58 @@ func (c *Cache) Close() error {
 }
 
 func (c *Cache) attachMetadata(examples example.Examples) error {
-	keys := make([]string, 0)
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
-		keys = append(keys, key)
-	}
+		vals, err := c.Client.HMGet(key,
+			"Fv",            // 0
+			"FinalUrl",      // 1
+			"Title",         // 2
+			"Description",   // 3
+			"OgDescription", // 4
+			"Body",          // 5
+			"Score",         // 6
+			"IsNew",         // 7
+			"StatusCode",    // 8
+		).Result()
+		if err != nil {
+			return err
+		}
 
-	redisResult, err := c.Client.MGet(keys...).Result()
-	if err != nil {
-		return err
-	}
-
-	for idx, r := range redisResult {
-		e := examples[idx]
-		label := e.Label // master data of label is maintained by database, not cache
-		s, ok := r.(string)
-		if ok {
-			json.Unmarshal([]byte(s), e)
-			e.Label = label
+		// Fv
+		if result, ok := vals[0].(feature.FeatureVector); ok {
+			e.Fv = result
+		}
+		// FinalUrl
+		if result, ok := vals[1].(string); ok {
+			e.FinalUrl = result
+		}
+		// Title
+		if result, ok := vals[2].(string); ok {
+			e.Title = result
+		}
+		// Description
+		if result, ok := vals[3].(string); ok {
+			e.Description = result
+		}
+		// OgDescription
+		if result, ok := vals[4].(string); ok {
+			e.OgDescription = result
+		}
+		// Body
+		if result, ok := vals[5].(string); ok {
+			e.Body = result
+		}
+		// Score
+		if result, ok := vals[6].(float64); ok {
+			e.Score = result
+		}
+		// IsNew
+		if result, ok := vals[7].(bool); ok {
+			e.IsNew = result
+		}
+		// StatusCode
+		if result, ok := vals[8].(int); ok {
+			e.StatusCode = result
 		}
 	}
 	return nil
@@ -83,8 +117,21 @@ func fetchMetaData(e *example.Example) {
 
 func (c *Cache) SetExample(example example.Example) error {
 	key := redisPrefix + ":" + example.Url
-	json, _ := json.Marshal(example)
-	if err := c.Client.Set(key, json, 0).Err(); err != nil {
+
+	vals := make(map[string]interface{})
+	vals["Label"] = &example.Label
+	vals["Fv"] = &example.Fv
+	vals["Url"] = example.Url
+	vals["FinalUrl"] = example.FinalUrl
+	vals["Title"] = example.Title
+	vals["Description"] = example.Description
+	vals["OgDescription"] = example.OgDescription
+	vals["Body"] = example.Body
+	vals["Score"] = example.Score
+	vals["IsNew"] = example.IsNew
+	vals["StatusCode"] = example.StatusCode
+
+	if err := c.Client.HMSet(key, vals).Err(); err != nil {
 		return err
 	}
 	if err := c.Client.Expire(key, time.Hour*240).Err(); err != nil {
@@ -121,7 +168,7 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 				defer wg.Done()
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				fetchMetaData(e)
-				cache.SetExample(*e)
+				cache.SetExample(*e) // ToDo: error handling
 				<-sem
 			}(e, idx)
 		}
