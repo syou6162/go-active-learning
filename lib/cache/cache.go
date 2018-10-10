@@ -154,9 +154,12 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 		if err := cache.attachMetadata(l); err != nil {
 			log.Println(err.Error())
 		}
+		if !fetchNewExamples {
+			continue
+		}
 		examplesWithEmptyMetaData := example.Examples{}
 		for _, e := range l {
-			if e.StatusCode != 200 && fetchNewExamples {
+			if e.StatusCode != 200 {
 				examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, e)
 			}
 		}
