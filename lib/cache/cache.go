@@ -35,7 +35,7 @@ func Init() error {
 			Addr:        fmt.Sprintf("%s:6379", host),
 			Password:    "", // no password set
 			DB:          0,  // use default DB
-			PoolSize:    100,
+			PoolSize:    10,
 			MaxRetries:  4,
 			PoolTimeout: time.Duration(10) * time.Second,
 			IdleTimeout: time.Duration(60) * time.Second,
