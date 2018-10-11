@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"encoding/json"
 	"fmt"
 
+	"log"
 	"math"
 	"os"
 	"runtime"
@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/fetcher"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
@@ -47,24 +48,119 @@ func (c *Cache) Close() error {
 }
 
 func (c *Cache) attachMetadata(examples example.Examples) error {
-	keys := make([]string, 0)
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
-		keys = append(keys, key)
-	}
+		vals, err := c.Client.HMGet(key,
+			"Fv",            // 0
+			"FinalUrl",      // 1
+			"Title",         // 2
+			"Description",   // 3
+			"OgDescription", // 4
+			"Body",          // 5
+			"Score",         // 6
+			"IsNew",         // 7
+			"StatusCode",    // 8
+		).Result()
+		if err != nil {
+			return err
+		}
 
-	redisResult, err := c.Client.MGet(keys...).Result()
-	if err != nil {
-		return err
+		// Fv
+		if result, ok := vals[0].(string); ok {
+			fv := feature.FeatureVector{}
+			if err := fv.UnmarshalBinary([]byte(result)); err == nil {
+				e.Fv = fv
+			}
+		}
+		// FinalUrl
+		if result, ok := vals[1].(string); ok {
+			e.FinalUrl = result
+		}
+		// Title
+		if result, ok := vals[2].(string); ok {
+			e.Title = result
+		}
+		// Description
+		if result, ok := vals[3].(string); ok {
+			e.Description = result
+		}
+		// OgDescription
+		if result, ok := vals[4].(string); ok {
+			e.OgDescription = result
+		}
+		// Body
+		if result, ok := vals[5].(string); ok {
+			e.Body = result
+		}
+		// Score
+		if result, ok := vals[6].(string); ok {
+			if score, err := strconv.ParseFloat(result, 64); err == nil {
+				e.Score = score
+			}
+		}
+		// IsNew
+		if result, ok := vals[7].(string); ok {
+			if isNew, err := strconv.ParseBool(result); err == nil {
+				e.IsNew = isNew
+			}
+		}
+		// StatusCode
+		if result, ok := vals[8].(string); ok {
+			if statusCode, err := strconv.Atoi(result); err == nil {
+				e.StatusCode = statusCode
+			}
+		}
 	}
+	return nil
+}
 
-	for idx, r := range redisResult {
-		e := examples[idx]
-		label := e.Label // master data of label is maintained by database, not cache
-		s, ok := r.(string)
-		if ok {
-			json.Unmarshal([]byte(s), e)
-			e.Label = label
+func (c *Cache) attachLightMetadata(examples example.Examples) error {
+	for _, e := range examples {
+		key := redisPrefix + ":" + e.Url
+		vals, err := c.Client.HMGet(key,
+			"FinalUrl",      // 0
+			"Title",         // 1
+			"Description",   // 2
+			"OgDescription", // 3
+			"Body",          // 4
+			"Score",         // 5
+			"StatusCode",    // 6
+		).Result()
+		if err != nil {
+			return err
+		}
+
+		// FinalUrl
+		if result, ok := vals[0].(string); ok {
+			e.FinalUrl = result
+		}
+		// Title
+		if result, ok := vals[1].(string); ok {
+			e.Title = result
+		}
+		// Description
+		if result, ok := vals[2].(string); ok {
+			e.Description = result
+		}
+		// OgDescription
+		if result, ok := vals[3].(string); ok {
+			e.OgDescription = result
+		}
+		// Body
+		if result, ok := vals[4].(string); ok {
+			e.Body = result
+		}
+		// Score
+		if result, ok := vals[5].(string); ok {
+			if score, err := strconv.ParseFloat(result, 64); err == nil {
+				e.Score = score
+			}
+		}
+		// StatusCode
+		if result, ok := vals[6].(string); ok {
+			if statusCode, err := strconv.Atoi(result); err == nil {
+				e.StatusCode = statusCode
+			}
 		}
 	}
 	return nil
@@ -83,8 +179,21 @@ func fetchMetaData(e *example.Example) {
 
 func (c *Cache) SetExample(example example.Example) error {
 	key := redisPrefix + ":" + example.Url
-	json, _ := json.Marshal(example)
-	if err := c.Client.Set(key, json, 0).Err(); err != nil {
+
+	vals := make(map[string]interface{})
+	vals["Label"] = &example.Label
+	vals["Fv"] = &example.Fv
+	vals["Url"] = example.Url
+	vals["FinalUrl"] = example.FinalUrl
+	vals["Title"] = example.Title
+	vals["Description"] = example.Description
+	vals["OgDescription"] = example.OgDescription
+	vals["Body"] = example.Body
+	vals["Score"] = example.Score
+	vals["IsNew"] = example.IsNew
+	vals["StatusCode"] = example.StatusCode
+
+	if err := c.Client.HMSet(key, vals).Err(); err != nil {
 		return err
 	}
 	if err := c.Client.Expire(key, time.Hour*240).Err(); err != nil {
@@ -93,7 +202,7 @@ func (c *Cache) SetExample(example example.Example) error {
 	return nil
 }
 
-func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples bool) {
+func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMetadata bool) {
 	batchSize := 100
 	examplesList := make([]example.Examples, 0)
 	n := len(examples)
@@ -103,10 +212,21 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 		examplesList = append(examplesList, examples[i:max])
 	}
 	for _, l := range examplesList {
-		cache.attachMetadata(l)
+		if useLightMetadata {
+			if err := cache.attachLightMetadata(l); err != nil {
+				log.Println(err.Error())
+			}
+		} else {
+			if err := cache.attachMetadata(l); err != nil {
+				log.Println(err.Error())
+			}
+		}
+		if !fetchNewExamples {
+			continue
+		}
 		examplesWithEmptyMetaData := example.Examples{}
 		for _, e := range l {
-			if e.StatusCode != 200 && fetchNewExamples {
+			if e.StatusCode != 200 {
 				examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, e)
 			}
 		}
@@ -121,7 +241,9 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 				defer wg.Done()
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				fetchMetaData(e)
-				cache.SetExample(*e)
+				if err := cache.SetExample(*e); err != nil {
+					log.Println(err.Error())
+				}
 				<-sem
 			}(e, idx)
 		}
