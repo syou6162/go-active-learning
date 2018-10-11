@@ -18,39 +18,51 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
+var client *redis.Client
+var once sync.Once
+
 type Cache struct {
 	Client *redis.Client
 }
 
 var redisPrefix = "url"
 
-func NewCache() (*Cache, error) {
-	host := util.GetEnv("REDIS_HOST", "localhost")
-	client := redis.NewClient(&redis.Options{
-		Addr:        fmt.Sprintf("%s:6379", host),
-		Password:    "", // no password set
-		DB:          0,  // use default DB
-		PoolSize:    100,
-		MaxRetries:  4,
-		PoolTimeout: time.Duration(10) * time.Second,
-		IdleTimeout: time.Duration(60) * time.Second,
+func Init() error {
+	var err error
+	once.Do(func() {
+		host := util.GetEnv("REDIS_HOST", "localhost")
+		client = redis.NewClient(&redis.Options{
+			Addr:        fmt.Sprintf("%s:6379", host),
+			Password:    "", // no password set
+			DB:          0,  // use default DB
+			PoolSize:    100,
+			MaxRetries:  4,
+			PoolTimeout: time.Duration(10) * time.Second,
+			IdleTimeout: time.Duration(60) * time.Second,
+		})
+		_, err = client.Ping().Result()
+		if err != nil {
+			return
+		}
 	})
-
-	_, err := client.Ping().Result()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &Cache{Client: client}, nil
+	return nil
 }
 
-func (c *Cache) Close() error {
-	return c.Client.Close()
+func Close() error {
+	if client != nil {
+		return client.Close()
+	} else {
+		return nil
+	}
 }
 
-func (c *Cache) attachMetadata(examples example.Examples) error {
+func attachMetadata(examples example.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
-		vals, err := c.Client.HMGet(key,
+		vals, err := client.HMGet(key,
 			"Fv",            // 0
 			"FinalUrl",      // 1
 			"Title",         // 2
@@ -114,10 +126,10 @@ func (c *Cache) attachMetadata(examples example.Examples) error {
 	return nil
 }
 
-func (c *Cache) attachLightMetadata(examples example.Examples) error {
+func attachLightMetadata(examples example.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
-		vals, err := c.Client.HMGet(key,
+		vals, err := client.HMGet(key,
 			"FinalUrl",      // 0
 			"Title",         // 1
 			"Description",   // 2
@@ -177,7 +189,7 @@ func fetchMetaData(e *example.Example) {
 	e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
 }
 
-func (c *Cache) SetExample(example example.Example) error {
+func SetExample(example example.Example) error {
 	key := redisPrefix + ":" + example.Url
 
 	vals := make(map[string]interface{})
@@ -193,16 +205,16 @@ func (c *Cache) SetExample(example example.Example) error {
 	vals["IsNew"] = example.IsNew
 	vals["StatusCode"] = example.StatusCode
 
-	if err := c.Client.HMSet(key, vals).Err(); err != nil {
+	if err := client.HMSet(key, vals).Err(); err != nil {
 		return err
 	}
-	if err := c.Client.Expire(key, time.Hour*240).Err(); err != nil {
+	if err := client.Expire(key, time.Hour*240).Err(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMetadata bool) {
+func AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMetadata bool) {
 	batchSize := 100
 	examplesList := make([]example.Examples, 0)
 	n := len(examples)
@@ -213,11 +225,11 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 	}
 	for _, l := range examplesList {
 		if useLightMetadata {
-			if err := cache.attachLightMetadata(l); err != nil {
+			if err := attachLightMetadata(l); err != nil {
 				log.Println(err.Error())
 			}
 		} else {
-			if err := cache.attachMetadata(l); err != nil {
+			if err := attachMetadata(l); err != nil {
 				log.Println(err.Error())
 			}
 		}
@@ -241,7 +253,7 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 				defer wg.Done()
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 				fetchMetaData(e)
-				if err := cache.SetExample(*e); err != nil {
+				if err := SetExample(*e); err != nil {
 					log.Println(err.Error())
 				}
 				<-sem
@@ -253,8 +265,8 @@ func (cache *Cache) AttachMetadata(examples example.Examples, fetchNewExamples b
 
 var listPrefix = "list:"
 
-func (c *Cache) AddExamplesToList(listName string, examples example.Examples) error {
-	if err := c.Client.Del(listPrefix + listName).Err(); err != nil {
+func AddExamplesToList(listName string, examples example.Examples) error {
+	if err := client.Del(listPrefix + listName).Err(); err != nil {
 		return err
 	}
 
@@ -267,15 +279,15 @@ func (c *Cache) AddExamplesToList(listName string, examples example.Examples) er
 		result = append(result, redis.Z{Score: e.Score, Member: url})
 	}
 	// ToDo: take care the case when result is empty
-	err := c.Client.ZAdd(listPrefix+listName, result...).Err()
+	err := client.ZAdd(listPrefix+listName, result...).Err()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c *Cache) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
-	sliceCmd := c.Client.ZRevRange(listPrefix+listName, from, to)
+func GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
+	sliceCmd := client.ZRevRange(listPrefix+listName, from, to)
 	if sliceCmd.Err() != nil {
 		return nil, sliceCmd.Err()
 	}

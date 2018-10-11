@@ -38,7 +38,7 @@ func doAnnotate(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 	showActiveFeatures := c.Bool("show-active-features")
 
-	cache, err := cache.NewCache()
+	err := cache.Init()
 	if err != nil {
 		return err
 	}
