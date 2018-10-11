@@ -97,7 +97,7 @@ func InsertExamplesFromReader(r io.Reader) error {
 	return nil
 }
 
-func readExamples(query string, args ...interface{}) ([]*example.Example, error) {
+func readExamples(query string, args ...interface{}) (example.Examples, error) {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
@@ -123,35 +123,35 @@ func readExamples(query string, args ...interface{}) ([]*example.Example, error)
 	return examples, nil
 }
 
-func ReadExamples() ([]*example.Example, error) {
+func ReadExamples() (example.Examples, error) {
 	query := `SELECT url, label FROM example;`
 	return readExamples(query)
 }
 
-func ReadRecentExamples(from time.Time) ([]*example.Example, error) {
+func ReadRecentExamples(from time.Time) (example.Examples, error) {
 	query := `SELECT url, label FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
 	return readExamples(query, from)
 }
 
-func ReadExamplesByLabel(label example.LabelType, limit int) ([]*example.Example, error) {
+func ReadExamplesByLabel(label example.LabelType, limit int) (example.Examples, error) {
 	query := `SELECT url, label FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
 	return readExamples(query, label, limit)
 }
 
-func ReadLabeledExamples(limit int) ([]*example.Example, error) {
+func ReadLabeledExamples(limit int) (example.Examples, error) {
 	query := `SELECT url, label FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return readExamples(query, limit)
 }
 
-func ReadPositiveExamples(limit int) ([]*example.Example, error) {
+func ReadPositiveExamples(limit int) (example.Examples, error) {
 	return ReadExamplesByLabel(example.POSITIVE, limit)
 }
 
-func ReadNegativeExamples(limit int) ([]*example.Example, error) {
+func ReadNegativeExamples(limit int) (example.Examples, error) {
 	return ReadExamplesByLabel(example.NEGATIVE, limit)
 }
 
-func ReadUnlabeledExamples(limit int) ([]*example.Example, error) {
+func ReadUnlabeledExamples(limit int) (example.Examples, error) {
 	return ReadExamplesByLabel(example.UNLABELED, limit)
 }
 
