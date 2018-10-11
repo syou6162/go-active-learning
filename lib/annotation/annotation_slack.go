@@ -27,7 +27,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
-	cache, err := cache.NewCache()
+	err := cache.Init()
 	if err != nil {
 		return err
 	}

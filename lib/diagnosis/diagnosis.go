@@ -52,7 +52,7 @@ List feature weight.
 func doDiagnose(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 
-	cache, err := cache.NewCache()
+	err := cache.Init()
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func (p FeatureList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func doListFeatureWeight(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 
-	cache, err := cache.NewCache()
+	err := cache.Init()
 	if err != nil {
 		return err
 	}
