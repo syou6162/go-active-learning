@@ -35,10 +35,9 @@ func Init() error {
 			Addr:        fmt.Sprintf("%s:6379", host),
 			Password:    "", // no password set
 			DB:          0,  // use default DB
-			PoolSize:    10,
-			MaxRetries:  4,
-			PoolTimeout: time.Duration(10) * time.Second,
-			IdleTimeout: time.Duration(60) * time.Second,
+			PoolSize:    100,
+			PoolTimeout: time.Duration(5) * time.Second,
+			IdleTimeout: time.Duration(10) * time.Second,
 		})
 		_, err = client.Ping().Result()
 		if err != nil {
