@@ -157,18 +157,14 @@ func attachLightMetadata(examples example.Examples) error {
 		if result, ok := vals[3].(string); ok {
 			e.OgDescription = result
 		}
-		// Body
-		if result, ok := vals[4].(string); ok {
-			e.Body = result
-		}
 		// Score
-		if result, ok := vals[5].(string); ok {
+		if result, ok := vals[4].(string); ok {
 			if score, err := strconv.ParseFloat(result, 64); err == nil {
 				e.Score = score
 			}
 		}
 		// StatusCode
-		if result, ok := vals[6].(string); ok {
+		if result, ok := vals[5].(string); ok {
 			if statusCode, err := strconv.Atoi(result); err == nil {
 				e.StatusCode = statusCode
 			}
