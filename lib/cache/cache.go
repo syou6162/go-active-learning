@@ -126,21 +126,33 @@ func attachMetadata(examples example.Examples) error {
 }
 
 func attachLightMetadata(examples example.Examples) error {
+	url2Cmd := make(map[string]*redis.SliceCmd)
+	url2Example := make(map[string]*example.Example)
+	pipe := client.Pipeline()
+
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
-		vals, err := client.HMGet(key,
+		url2Cmd[key] = pipe.HMGet(key,
 			"FinalUrl",      // 0
 			"Title",         // 1
 			"Description",   // 2
 			"OgDescription", // 3
-			"Body",          // 4
-			"Score",         // 5
-			"StatusCode",    // 6
-		).Result()
+			"Score",         // 4
+			"StatusCode",    // 5
+		)
+		url2Example[key] = e
+	}
+	_, err := pipe.Exec()
+	if err != nil {
+		return err
+	}
+
+	for k, cmd := range url2Cmd {
+		e := url2Example[k]
+		vals, err := cmd.Result()
 		if err != nil {
 			return err
 		}
-
 		// FinalUrl
 		if result, ok := vals[0].(string); ok {
 			e.FinalUrl = result
