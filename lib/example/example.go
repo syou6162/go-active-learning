@@ -34,6 +34,7 @@ type Example struct {
 	Title         string `json:"Title"`
 	Description   string `json:"Description"`
 	OgDescription string `json:"OgDescription"`
+	OgType        string `json:"OgType"`
 	Body          string `json:"Body"`
 	Score         float64
 	IsNew         bool
@@ -47,7 +48,7 @@ func NewExample(url string, label LabelType) *Example {
 	if label == UNLABELED {
 		IsNew = true
 	}
-	return &Example{label, []string{}, url, url, "", "", "", "", 0.0, IsNew, 0}
+	return &Example{label, []string{}, url, url, "", "", "", "", "", 0.0, IsNew, 0}
 }
 
 func (example *Example) Annotate(label LabelType) {

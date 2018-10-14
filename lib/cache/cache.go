@@ -67,10 +67,11 @@ func attachMetadata(examples example.Examples) error {
 			"Title",         // 2
 			"Description",   // 3
 			"OgDescription", // 4
-			"Body",          // 5
-			"Score",         // 6
-			"IsNew",         // 7
-			"StatusCode",    // 8
+			"OgType",        // 5
+			"Body",          // 6
+			"Score",         // 7
+			"IsNew",         // 8
+			"StatusCode",    // 9
 		).Result()
 		if err != nil {
 			return err
@@ -99,24 +100,28 @@ func attachMetadata(examples example.Examples) error {
 		if result, ok := vals[4].(string); ok {
 			e.OgDescription = result
 		}
-		// Body
+		// OgType
 		if result, ok := vals[5].(string); ok {
+			e.OgType = result
+		}
+		// Body
+		if result, ok := vals[6].(string); ok {
 			e.Body = result
 		}
 		// Score
-		if result, ok := vals[6].(string); ok {
+		if result, ok := vals[7].(string); ok {
 			if score, err := strconv.ParseFloat(result, 64); err == nil {
 				e.Score = score
 			}
 		}
 		// IsNew
-		if result, ok := vals[7].(string); ok {
+		if result, ok := vals[8].(string); ok {
 			if isNew, err := strconv.ParseBool(result); err == nil {
 				e.IsNew = isNew
 			}
 		}
 		// StatusCode
-		if result, ok := vals[8].(string); ok {
+		if result, ok := vals[9].(string); ok {
 			if statusCode, err := strconv.Atoi(result); err == nil {
 				e.StatusCode = statusCode
 			}
@@ -137,8 +142,9 @@ func attachLightMetadata(examples example.Examples) error {
 			"Title",         // 1
 			"Description",   // 2
 			"OgDescription", // 3
-			"Score",         // 4
-			"StatusCode",    // 5
+			"OgType",        // 4
+			"Score",         // 5
+			"StatusCode",    // 6
 		)
 		url2Example[key] = e
 	}
@@ -169,14 +175,18 @@ func attachLightMetadata(examples example.Examples) error {
 		if result, ok := vals[3].(string); ok {
 			e.OgDescription = result
 		}
-		// Score
+		// OgType
 		if result, ok := vals[4].(string); ok {
+			e.OgType = result
+		}
+		// Score
+		if result, ok := vals[5].(string); ok {
 			if score, err := strconv.ParseFloat(result, 64); err == nil {
 				e.Score = score
 			}
 		}
 		// StatusCode
-		if result, ok := vals[5].(string); ok {
+		if result, ok := vals[6].(string); ok {
 			if statusCode, err := strconv.Atoi(result); err == nil {
 				e.StatusCode = statusCode
 			}
@@ -191,6 +201,7 @@ func fetchMetaData(e *example.Example) {
 	e.FinalUrl = article.Url
 	e.Description = article.Description
 	e.OgDescription = article.OgDescription
+	e.OgType = article.OgType
 	e.Body = article.Body
 	e.StatusCode = article.StatusCode
 	e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
@@ -207,6 +218,7 @@ func SetExample(example example.Example) error {
 	vals["Title"] = example.Title
 	vals["Description"] = example.Description
 	vals["OgDescription"] = example.OgDescription
+	vals["OgType"] = example.OgType
 	vals["Body"] = example.Body
 	vals["Score"] = example.Score
 	vals["IsNew"] = example.IsNew
