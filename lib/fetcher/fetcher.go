@@ -15,6 +15,7 @@ type Article struct {
 	Title         string
 	Description   string
 	OgDescription string
+	OgType        string
 	Body          string
 	StatusCode    int
 }
@@ -54,5 +55,13 @@ func GetArticle(url string) Article {
 		finalUrl = resp.Request.URL.String()
 	}
 
-	return Article{finalUrl, article.Title, article.MetaDescription, article.MetaOgDescription, article.CleanedText, resp.StatusCode}
+	return Article{
+		finalUrl,
+		article.Title,
+		article.MetaDescription,
+		article.MetaOgDescription,
+		article.MetaOgType,
+		article.CleanedText,
+		resp.StatusCode,
+	}
 }
