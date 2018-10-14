@@ -177,7 +177,7 @@ func attachLightMetadata(examples example.Examples) error {
 		}
 		// OgType
 		if result, ok := vals[4].(string); ok {
-			e.OgDescription = result
+			e.OgType = result
 		}
 		// Score
 		if result, ok := vals[5].(string); ok {
