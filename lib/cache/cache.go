@@ -152,8 +152,8 @@ func attachLightMetadata(examples example.Examples) error {
 			"Title",         // 1
 			"Description",   // 2
 			"OgDescription", // 3
-			"OgImage",       // 4
-			"OgType",        // 5
+			"OgType",        // 4
+			"OgImage",       // 5
 			"Score",         // 6
 			"StatusCode",    // 7
 			"Favicon",       // 8
