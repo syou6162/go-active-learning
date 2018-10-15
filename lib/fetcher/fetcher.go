@@ -75,14 +75,14 @@ func GetArticle(origUrl string) Article {
 	}
 
 	return Article{
-		finalUrl,
-		article.Title,
-		article.MetaDescription,
-		article.MetaOgDescription,
-		article.MetaOgType,
-		article.MetaOgImage,
-		article.CleanedText,
-		resp.StatusCode,
-		favicon,
+		Url: finalUrl,
+		Title: article.Title,
+		Description: article.MetaDescription,
+		OgDescription: article.MetaOgDescription,
+		OgType: article.MetaOgType,
+		OgImage: article.MetaOgImage,
+		Body: article.CleanedText,
+		StatusCode: resp.StatusCode,
+		Favicon: favicon,
 	}
 }
