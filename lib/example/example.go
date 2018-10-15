@@ -3,6 +3,7 @@ package example
 import (
 	"encoding/json"
 	"math"
+	"strings"
 
 	"github.com/syou6162/go-active-learning/lib/feature"
 )
@@ -57,6 +58,16 @@ func (example *Example) Annotate(label LabelType) {
 
 func (example *Example) IsLabeled() bool {
 	return example.Label != UNLABELED
+}
+
+func (example *Example) isTwitterUrl() bool {
+	twitterUrl := "https://twitter.com"
+	return strings.Contains(example.Url, twitterUrl) || strings.Contains(example.FinalUrl, twitterUrl)
+}
+
+func (example *Example) IsArticle() bool {
+	// twitterはarticleと返ってくるが除外
+	return example.OgType == "article" && !example.isTwitterUrl()
 }
 
 func (slice Examples) Len() int {
