@@ -3,10 +3,12 @@ package fetcher
 import (
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"unicode/utf8"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/syou6162/GoOse"
 )
 
@@ -53,6 +55,13 @@ func GetArticle(url string) Article {
 	finalUrl := article.CanonicalLink
 	if finalUrl == "" {
 		finalUrl = resp.Request.URL.String()
+	}
+
+	arxivUrl := "https://arxiv.org/abs/"
+	if strings.Contains(url, arxivUrl) || strings.Contains(finalUrl, arxivUrl) {
+		// article.Docでもいけそうだが、gooseが中で書き換えていてダメ。Documentを作りなおす
+		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(html)))
+		article.MetaDescription = doc.Find(".abstract").Text()
 	}
 
 	return Article{
