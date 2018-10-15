@@ -68,10 +68,12 @@ func attachMetadata(examples example.Examples) error {
 			"Description",   // 3
 			"OgDescription", // 4
 			"OgType",        // 5
-			"Body",          // 6
-			"Score",         // 7
-			"IsNew",         // 8
-			"StatusCode",    // 9
+			"OgImage",       // 6
+			"Body",          // 7
+			"Score",         // 8
+			"IsNew",         // 9
+			"StatusCode",    // 10
+			"Favicon",       // 11
 		).Result()
 		if err != nil {
 			return err
@@ -104,27 +106,35 @@ func attachMetadata(examples example.Examples) error {
 		if result, ok := vals[5].(string); ok {
 			e.OgType = result
 		}
-		// Body
+		// OgImage
 		if result, ok := vals[6].(string); ok {
+			e.OgImage = result
+		}
+		// Body
+		if result, ok := vals[7].(string); ok {
 			e.Body = result
 		}
 		// Score
-		if result, ok := vals[7].(string); ok {
+		if result, ok := vals[8].(string); ok {
 			if score, err := strconv.ParseFloat(result, 64); err == nil {
 				e.Score = score
 			}
 		}
 		// IsNew
-		if result, ok := vals[8].(string); ok {
+		if result, ok := vals[9].(string); ok {
 			if isNew, err := strconv.ParseBool(result); err == nil {
 				e.IsNew = isNew
 			}
 		}
 		// StatusCode
-		if result, ok := vals[9].(string); ok {
+		if result, ok := vals[10].(string); ok {
 			if statusCode, err := strconv.Atoi(result); err == nil {
 				e.StatusCode = statusCode
 			}
+		}
+		// Favicon
+		if result, ok := vals[11].(string); ok {
+			e.Favicon = result
 		}
 	}
 	return nil
@@ -142,9 +152,11 @@ func attachLightMetadata(examples example.Examples) error {
 			"Title",         // 1
 			"Description",   // 2
 			"OgDescription", // 3
-			"OgType",        // 4
-			"Score",         // 5
-			"StatusCode",    // 6
+			"OgImage",       // 4
+			"OgType",        // 5
+			"Score",         // 6
+			"StatusCode",    // 7
+			"Favicon",       // 8
 		)
 		url2Example[key] = e
 	}
@@ -179,17 +191,25 @@ func attachLightMetadata(examples example.Examples) error {
 		if result, ok := vals[4].(string); ok {
 			e.OgType = result
 		}
-		// Score
+		// OgImage
 		if result, ok := vals[5].(string); ok {
+			e.OgImage = result
+		}
+		// Score
+		if result, ok := vals[6].(string); ok {
 			if score, err := strconv.ParseFloat(result, 64); err == nil {
 				e.Score = score
 			}
 		}
 		// StatusCode
-		if result, ok := vals[6].(string); ok {
+		if result, ok := vals[7].(string); ok {
 			if statusCode, err := strconv.Atoi(result); err == nil {
 				e.StatusCode = statusCode
 			}
+		}
+		// Favicon
+		if result, ok := vals[8].(string); ok {
+			e.Favicon = result
 		}
 	}
 	return nil
@@ -202,8 +222,10 @@ func fetchMetaData(e *example.Example) {
 	e.Description = article.Description
 	e.OgDescription = article.OgDescription
 	e.OgType = article.OgType
+	e.OgImage = article.OgImage
 	e.Body = article.Body
 	e.StatusCode = article.StatusCode
+	e.Favicon = article.Favicon
 	e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
 }
 
@@ -219,10 +241,12 @@ func SetExample(example example.Example) error {
 	vals["Description"] = example.Description
 	vals["OgDescription"] = example.OgDescription
 	vals["OgType"] = example.OgType
+	vals["OgImage"] = example.OgImage
 	vals["Body"] = example.Body
 	vals["Score"] = example.Score
 	vals["IsNew"] = example.IsNew
 	vals["StatusCode"] = example.StatusCode
+	vals["Favicon"] = example.Favicon
 
 	if err := client.HMSet(key, vals).Err(); err != nil {
 		return err

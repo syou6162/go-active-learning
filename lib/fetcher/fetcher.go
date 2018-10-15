@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"net/url"
 	"unicode/utf8"
 
 	"github.com/PuerkitoBio/goquery"
@@ -18,8 +19,10 @@ type Article struct {
 	Description   string
 	OgDescription string
 	OgType        string
+	OgImage       string
 	Body          string
 	StatusCode    int
+	Favicon       string
 }
 
 var articleFetcher = http.Client{
@@ -30,9 +33,9 @@ var articleFetcher = http.Client{
 	Timeout: time.Duration(5 * time.Second),
 }
 
-func GetArticle(url string) Article {
+func GetArticle(origUrl string) Article {
 	g := goose.New()
-	resp, err := articleFetcher.Get(url)
+	resp, err := articleFetcher.Get(origUrl)
 	if err != nil {
 		return Article{}
 	}
@@ -58,10 +61,17 @@ func GetArticle(url string) Article {
 	}
 
 	arxivUrl := "https://arxiv.org/abs/"
-	if strings.Contains(url, arxivUrl) || strings.Contains(finalUrl, arxivUrl) {
+	if strings.Contains(origUrl, arxivUrl) || strings.Contains(finalUrl, arxivUrl) {
 		// article.Docでもいけそうだが、gooseが中で書き換えていてダメ。Documentを作りなおす
 		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(html)))
 		article.MetaDescription = doc.Find(".abstract").Text()
+	}
+
+	favicon := ""
+	if u, err := url.Parse(article.MetaFavicon); err == nil {
+		if u.IsAbs() {
+			favicon = article.MetaFavicon
+		}
 	}
 
 	return Article{
@@ -69,8 +79,10 @@ func GetArticle(url string) Article {
 		article.Title,
 		article.MetaDescription,
 		article.MetaOgDescription,
+		article.MetaOgImage,
 		article.MetaOgType,
 		article.CleanedText,
 		resp.StatusCode,
+		favicon,
 	}
 }
