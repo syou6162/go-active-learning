@@ -48,7 +48,7 @@ func TestAttachMetaData(t *testing.T) {
 		t.Errorf("Feature vector must not be empty for %s", examples[0].Url)
 	}
 
-	if examples[1].OgType == "" {
-		t.Errorf("OgType must not be empty for %s", examples[1].Url)
+	if examples[1].OgType != "blog" {
+		t.Errorf("OgType must be blog for %s", examples[1].Url)
 	}
 }
