@@ -5,7 +5,10 @@ import (
 )
 
 func TestGetArticle(t *testing.T) {
-	a := GetArticle("http://www.yasuhisay.info/entry/20090516/1242480413")
+	a, err := GetArticle("http://www.yasuhisay.info/entry/20090516/1242480413")
+	if err != nil {
+		t.Error(err.Error())
+	}
 
 	if a.Title == "" {
 		t.Error("Title must not be empty")

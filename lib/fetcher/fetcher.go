@@ -46,26 +46,26 @@ func updateMetaDescriptionIfArxiv(article *goose.Article, origUrl string, finalU
 	return nil
 }
 
-func GetArticle(origUrl string) Article {
+func GetArticle(origUrl string) (*Article, error) {
 	g := goose.New()
 	resp, err := articleFetcher.Get(origUrl)
 	if err != nil {
-		return Article{}
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	html, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Article{StatusCode: resp.StatusCode}
+		return nil, err
 	}
 
 	if !utf8.Valid(html) {
-		return Article{Url: resp.Request.URL.String(), StatusCode: resp.StatusCode}
+		return nil, err
 	}
 
 	article, err := g.ExtractFromRawHTML(resp.Request.URL.String(), string(html))
 	if err != nil {
-		return Article{StatusCode: resp.StatusCode}
+		return nil, err
 	}
 
 	finalUrl := article.CanonicalLink
@@ -82,7 +82,7 @@ func GetArticle(origUrl string) Article {
 		}
 	}
 
-	return Article{
+	return &Article{
 		Url:           finalUrl,
 		Title:         article.Title,
 		Description:   article.MetaDescription,
@@ -92,5 +92,5 @@ func GetArticle(origUrl string) Article {
 		Body:          article.CleanedText,
 		StatusCode:    resp.StatusCode,
 		Favicon:       favicon,
-	}
+	}, nil
 }

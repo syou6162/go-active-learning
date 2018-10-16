@@ -215,8 +215,12 @@ func attachLightMetadata(examples example.Examples) error {
 	return nil
 }
 
-func fetchMetaData(e *example.Example) {
-	article := fetcher.GetArticle(e.Url)
+func fetchMetaData(e *example.Example) error {
+	article, err := fetcher.GetArticle(e.Url)
+	if err != nil {
+		return err
+	}
+
 	e.Title = article.Title
 	e.FinalUrl = article.Url
 	e.Description = article.Description
@@ -227,6 +231,8 @@ func fetchMetaData(e *example.Example) {
 	e.StatusCode = article.StatusCode
 	e.Favicon = article.Favicon
 	e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
+
+	return nil
 }
 
 func SetExample(example example.Example) error {
@@ -295,7 +301,9 @@ func AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMe
 			go func(e *example.Example, idx int) {
 				defer wg.Done()
 				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
-				fetchMetaData(e)
+				if err := fetchMetaData(e); err != nil {
+					log.Println(err.Error())
+				}
 				if err := SetExample(*e); err != nil {
 					log.Println(err.Error())
 				}
