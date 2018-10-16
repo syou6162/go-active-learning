@@ -33,6 +33,19 @@ var articleFetcher = http.Client{
 	Timeout: time.Duration(5 * time.Second),
 }
 
+func updateMetaDescriptionIfArxiv(article *goose.Article, origUrl string, finalUrl string, html []byte) error {
+	arxivUrl := "https://arxiv.org/abs/"
+	if strings.Contains(origUrl, arxivUrl) || strings.Contains(finalUrl, arxivUrl) {
+		// article.Docでもいけそうだが、gooseが中で書き換えていてダメ。Documentを作りなおす
+		doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(html)))
+		if err != nil {
+			return err
+		}
+		article.MetaDescription = doc.Find(".abstract").Text()
+	}
+	return nil
+}
+
 func GetArticle(origUrl string) Article {
 	g := goose.New()
 	resp, err := articleFetcher.Get(origUrl)
@@ -60,12 +73,7 @@ func GetArticle(origUrl string) Article {
 		finalUrl = resp.Request.URL.String()
 	}
 
-	arxivUrl := "https://arxiv.org/abs/"
-	if strings.Contains(origUrl, arxivUrl) || strings.Contains(finalUrl, arxivUrl) {
-		// article.Docでもいけそうだが、gooseが中で書き換えていてダメ。Documentを作りなおす
-		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(html)))
-		article.MetaDescription = doc.Find(".abstract").Text()
-	}
+	updateMetaDescriptionIfArxiv(article, origUrl, finalUrl, html)
 
 	favicon := ""
 	if u, err := url.Parse(article.MetaFavicon); err == nil {
