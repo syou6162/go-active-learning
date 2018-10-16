@@ -6,6 +6,32 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 )
 
+func TestInit(t *testing.T) {
+	err := Init()
+	if err != nil {
+		t.Errorf("Cannot connect to redis: %s", err.Error())
+	}
+	err = Init()
+	if err != nil {
+		t.Error(err.Error())
+	}
+}
+
+func TestClose(t *testing.T) {
+	err := Init()
+	if err != nil {
+		t.Errorf("Cannot connect to redis: %s", err.Error())
+	}
+	err = Close()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	err = Close()
+	if err == nil {
+		t.Error("Connection to redis should be closed")
+	}
+}
+
 func TestAttachMetaData(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
 	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
