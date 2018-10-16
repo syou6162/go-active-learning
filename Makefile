@@ -14,6 +14,7 @@ build:
 .PHONY: fmt
 fmt:
 	gofmt -s -w $$(git ls-files | grep -e '\.go$$' | grep -v -e vendor)
+	goimports -w $$(git ls-files | grep -e '\.go$$' | grep -v -e vendor)
 
 .PHONY: test
 test:
