@@ -115,6 +115,7 @@ func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifi
 
 	sort.Sort(sort.Reverse(miraResults))
 	bestModel := &miraResults[0].mira
+	examples = OverSamplingPositiveExamples(examples)
 	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.c)
 }
 
