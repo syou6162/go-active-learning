@@ -1,6 +1,8 @@
 package fetcher
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -60,7 +62,7 @@ func GetArticle(origUrl string) (*Article, error) {
 	}
 
 	if !utf8.Valid(html) {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("Invalid utf8 document: %s", origUrl))
 	}
 
 	article, err := g.ExtractFromRawHTML(resp.Request.URL.String(), string(html))

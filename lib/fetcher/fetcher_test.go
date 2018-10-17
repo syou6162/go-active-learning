@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -21,5 +22,13 @@ func TestGetArticle(t *testing.T) {
 	}
 	if a.StatusCode != 200 {
 		t.Error("StatusCode must be 200")
+	}
+}
+
+func TestGetArticleWithInvalidEncoding(t *testing.T) {
+	url := "http://www.atmarkit.co.jp/ait/articles/1702/20/news021.html"
+	a, err := GetArticle(url)
+	if err == nil {
+		t.Error(fmt.Sprintf("Error must occur for this url: %s", url))
 	}
 }
