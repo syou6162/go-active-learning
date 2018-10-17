@@ -74,6 +74,7 @@ func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifier {
+	util.Shuffle(examples)
 	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
 	train = OverSamplingPositiveExamples(train)
 
@@ -116,6 +117,7 @@ func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifi
 	sort.Sort(sort.Reverse(miraResults))
 	bestModel := &miraResults[0].mira
 	examples = OverSamplingPositiveExamples(examples)
+	util.Shuffle(examples)
 	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.c)
 }
 
