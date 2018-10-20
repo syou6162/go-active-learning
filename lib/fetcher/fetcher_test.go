@@ -27,7 +27,7 @@ func TestGetArticle(t *testing.T) {
 
 func TestGetArticleWithInvalidEncoding(t *testing.T) {
 	url := "http://www.atmarkit.co.jp/ait/articles/1702/20/news021.html"
-	a, err := GetArticle(url)
+	_, err := GetArticle(url)
 	if err == nil {
 		t.Error(fmt.Sprintf("Error must occur for this url: %s", url))
 	}
