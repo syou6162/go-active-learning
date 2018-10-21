@@ -16,17 +16,26 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
-var db *sql.DB
-var once sync.Once
+var (
+	db   *sql.DB
+	once sync.Once
+)
+
+func GetDataSourceName() string {
+	host := util.GetEnv("POSTGRES_HOST", "localhost")
+	dbUser := util.GetEnv("DB_USER", "nobody")
+	dbPassword := util.GetEnv("DB_PASSWORD", "nobody")
+	dbName := util.GetEnv("DB_NAME", "go-active-learning")
+	return fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s sslmode=disable",
+		host, dbUser, dbPassword, dbName,
+	)
+}
 
 func Init() error {
 	var err error
 	once.Do(func() {
-		host := util.GetEnv("POSTGRES_HOST", "localhost")
-		dbUser := util.GetEnv("DB_USER", "nobody")
-		dbPassword := util.GetEnv("DB_PASSWORD", "nobody")
-		dbName := util.GetEnv("DB_NAME", "go-active-learning")
-		db, err = sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", host, dbUser, dbPassword, dbName))
+		db, err = sql.Open("postgres", GetDataSourceName())
 		if err != nil {
 			return
 		}
