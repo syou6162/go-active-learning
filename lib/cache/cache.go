@@ -50,6 +50,10 @@ func Init() error {
 	return nil
 }
 
+func Ping() error {
+	return client.Ping().Err()
+}
+
 func Close() error {
 	if client != nil {
 		return client.Close()
