@@ -2,8 +2,12 @@ COVERAGE = coverage.out
 
 all: build
 
+deps-cmd:
+	go get github.com/golang/dep/cmd/dep
+
 .PHONY: deps
 deps:
+	dep ensure
 	go get github.com/mattn/goveralls
 	go get github.com/haya14busa/goverage
 
