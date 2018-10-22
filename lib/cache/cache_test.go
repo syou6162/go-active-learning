@@ -17,6 +17,12 @@ func TestInit(t *testing.T) {
 	}
 }
 
+func TestPing(t *testing.T) {
+	if err := Ping(); err != nil {
+		t.Errorf(err.Error())
+	}
+}
+
 func TestClose(t *testing.T) {
 	err := Init()
 	if err != nil {

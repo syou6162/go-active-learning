@@ -20,6 +20,12 @@ func TestMain(m *testing.M) {
 	os.Exit(ret)
 }
 
+func TestPing(t *testing.T) {
+	if err := db.Ping(); err != nil {
+		t.Errorf(err.Error())
+	}
+}
+
 func TestInsertExampleFromScanner(t *testing.T) {
 	_, err := db.DeleteAllExamples()
 	if err != nil {
