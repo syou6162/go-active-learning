@@ -47,6 +47,10 @@ func Init() error {
 	return nil
 }
 
+func Ping() error {
+	return db.Ping()
+}
+
 func Close() error {
 	if db != nil {
 		return db.Close()
