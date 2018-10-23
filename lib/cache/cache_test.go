@@ -1,20 +1,22 @@
 package cache
 
 import (
+	"log"
+	"os"
 	"testing"
 
 	"github.com/syou6162/go-active-learning/lib/example"
 )
 
-func TestInit(t *testing.T) {
+func TestMain(m *testing.M) {
 	err := Init()
 	if err != nil {
-		t.Errorf("Cannot connect to redis: %s", err.Error())
+		log.Fatal(err.Error())
 	}
-	err = Init()
-	if err != nil {
-		t.Error(err.Error())
-	}
+	defer Close()
+
+	ret := m.Run()
+	os.Exit(ret)
 }
 
 func TestPing(t *testing.T) {
@@ -23,31 +25,11 @@ func TestPing(t *testing.T) {
 	}
 }
 
-func TestClose(t *testing.T) {
-	err := Init()
-	if err != nil {
-		t.Errorf("Cannot connect to redis: %s", err.Error())
-	}
-	err = Close()
-	if err != nil {
-		t.Error(err.Error())
-	}
-	err = Close()
-	if err == nil {
-		t.Error("Connection to redis should be closed")
-	}
-}
-
 func TestAttachMetaData(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
 	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
 	e3 := example.NewExample("https://github.com", example.UNLABELED)
 	examples := example.Examples{e1, e2, e3}
-	err := Init()
-	if err != nil {
-		t.Error("Cannot connect to redis")
-	}
-	defer Close()
 	for _, e := range examples {
 		key := "url:" + e.Url
 		client.Del(key)
@@ -78,6 +60,23 @@ func TestAttachMetaData(t *testing.T) {
 	}
 	if len(examples[0].Fv) == 0 {
 		t.Errorf("Feature vector must not be empty for %s", examples[0].Url)
+	}
+
+	if examples[1].OgType != "blog" {
+		t.Errorf("OgType must be blog for %s", examples[1].Url)
+	}
+
+	e4 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	e5 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e6 := example.NewExample("https://github.com", example.UNLABELED)
+	examples = example.Examples{e4, e5, e6}
+	AttachMetadata(examples, false, false)
+
+	if examples[0].Title == "" {
+		t.Errorf("Title must be empty for %s", examples[0].Url)
+	}
+	if len(examples[0].Fv) == 0 {
+		t.Errorf("Feature vector must be empty for %s", examples[0].Url)
 	}
 
 	if examples[1].OgType != "blog" {
