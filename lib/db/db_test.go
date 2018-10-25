@@ -152,3 +152,31 @@ func TestReadRecentExamples(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 3", len(examples))
 	}
 }
+
+func TestSearchExamplesByUlrs(t *testing.T) {
+	_, err := db.DeleteAllExamples()
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := db.SearchExamplesByUlrs([]string{"http://hoge1.com", "http://hoge2.com"})
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 2 {
+		t.Errorf("len(examples) == %d, want 2", len(examples))
+	}
+}
