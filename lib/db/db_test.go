@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
@@ -121,5 +122,33 @@ func TestReadLabeledExamples(t *testing.T) {
 	}
 	if len(examples) != 2 {
 		t.Errorf("len(examples) == %d, want 2", len(examples))
+	}
+}
+
+func TestReadRecentExamples(t *testing.T) {
+	_, err := db.DeleteAllExamples()
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := db.ReadRecentExamples(time.Now().Add(time.Duration(-10) * time.Minute))
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 3 {
+		t.Errorf("len(examples) == %d, want 3", len(examples))
 	}
 }
