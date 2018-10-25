@@ -26,7 +26,7 @@ func TestPing(t *testing.T) {
 	}
 }
 
-func TestInsertExampleFromScanner(t *testing.T) {
+func TestInsertOrUpdateExample(t *testing.T) {
 	_, err := db.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
