@@ -133,3 +133,35 @@ func TestAttachLightMetaData(t *testing.T) {
 		t.Errorf("OgType must be blog for %s", examples[1].Url)
 	}
 }
+
+func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
+	listName := "general"
+	client.Del("list:" + listName)
+	err := AddExamplesToList(listName, example.Examples{})
+	if err == nil {
+		t.Error("Error should occur when adding empty list")
+	}
+
+	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e3 := example.NewExample("https://github.com", example.UNLABELED)
+	examples := example.Examples{e1, e2, e3}
+	for _, e := range examples {
+		key := "url:" + e.Url
+		client.Del(key)
+	}
+	AttachMetadata(examples, true, false)
+
+	err = AddExamplesToList(listName, examples)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	list, err := GetUrlsFromList(listName, 0, 100)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if len(list) != 3 {
+		t.Errorf("len(list) == %d, want 3", len(list))
+	}
+}
