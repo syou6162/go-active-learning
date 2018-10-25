@@ -194,3 +194,47 @@ func TestSearchExamplesByUlrs(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 2", len(examples))
 	}
 }
+
+func TestSearchExamplesByLabels(t *testing.T) {
+	_, err := db.DeleteAllExamples()
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.POSITIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := db.ReadPositiveExamples(10)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 1 {
+		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+
+	examples, err = db.ReadNegativeExamples(10)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 1 {
+		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+
+	examples, err = db.ReadUnlabeledExamples(10)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 1 {
+		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+}
