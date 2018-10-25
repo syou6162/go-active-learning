@@ -26,6 +26,28 @@ func TestPing(t *testing.T) {
 	}
 }
 
+func TestInsertExamplesFromReader(t *testing.T) {
+	_, err := db.DeleteAllExamples()
+	if err != nil {
+		t.Error(err)
+	}
+
+	fp, err := os.Open("../../tech_input_example.txt")
+	defer fp.Close()
+	if err != nil {
+		t.Error(err)
+	}
+	db.InsertExamplesFromReader(fp)
+
+	examples, err := db.ReadExamples()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) == 0 {
+		t.Errorf("len(examples) > 0, but %d", len(examples))
+	}
+}
+
 func TestInsertOrUpdateExample(t *testing.T) {
 	_, err := db.DeleteAllExamples()
 	if err != nil {
