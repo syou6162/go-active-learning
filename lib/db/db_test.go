@@ -82,6 +82,20 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
 
+	// same url but different label
+	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.POSITIVE})
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err = db.ReadExamples()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 1 {
+		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+
 	// different url
 	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://another.com", Label: example.NEGATIVE})
 	if err != nil {
