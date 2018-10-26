@@ -5,6 +5,7 @@ import (
 
 	"log"
 	"math"
+	"math/rand"
 	"os"
 	"runtime"
 	"strconv"
@@ -261,7 +262,10 @@ func SetExample(example example.Example) error {
 	if err := client.HMSet(key, vals).Err(); err != nil {
 		return err
 	}
-	if err := client.Expire(key, time.Hour*240).Err(); err != nil {
+
+	// 一度にexpireされるとクロールも一度に走ってOOMが発生するので、多少ばらしてそれを避ける
+	hour := int64(240 * rand.Float64())
+	if err := client.Expire(key, time.Hour*time.Duration(hour)).Err(); err != nil {
 		return err
 	}
 	return nil
