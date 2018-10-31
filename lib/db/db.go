@@ -61,7 +61,6 @@ func Close() error {
 
 func InsertOrUpdateExample(e *example.Example) (sql.Result, error) {
 	var label example.LabelType
-	now := time.Now()
 
 	url := e.FinalUrl
 	if url == "" {
@@ -71,12 +70,12 @@ func InsertOrUpdateExample(e *example.Example) (sql.Result, error) {
 	err := db.QueryRow(`SELECT label FROM example WHERE url = $1`, url).Scan(&label)
 	switch {
 	case err == sql.ErrNoRows:
-		return db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, now, now)
+		return db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, e.CreatedAt, e.UpdatedAt)
 	case err != nil:
 		return nil, err
 	default:
 		if label != e.Label {
-			return db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, now)
+			return db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, e.UpdatedAt)
 		}
 		return nil, nil
 	}
@@ -122,10 +121,12 @@ func readExamples(query string, args ...interface{}) (example.Examples, error) {
 	for rows.Next() {
 		var label example.LabelType
 		var url string
-		if err := rows.Scan(&url, &label); err != nil {
+		var createdAt time.Time
+		var updatedAt time.Time
+		if err := rows.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
 			return nil, err
 		}
-		e := example.Example{Url: url, Label: label}
+		e := example.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
 		examples = append(examples, &e)
 	}
 
@@ -137,22 +138,22 @@ func readExamples(query string, args ...interface{}) (example.Examples, error) {
 }
 
 func ReadExamples() (example.Examples, error) {
-	query := `SELECT url, label FROM example;`
+	query := `SELECT url, label, created_at, updated_at FROM example;`
 	return readExamples(query)
 }
 
 func ReadRecentExamples(from time.Time) (example.Examples, error) {
-	query := `SELECT url, label FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
+	query := `SELECT url, label, created_at, updated_at FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
 	return readExamples(query, from)
 }
 
 func ReadExamplesByLabel(label example.LabelType, limit int) (example.Examples, error) {
-	query := `SELECT url, label FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
+	query := `SELECT url, label, created_at, updated_at FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
 	return readExamples(query, label, limit)
 }
 
 func ReadLabeledExamples(limit int) (example.Examples, error) {
-	query := `SELECT url, label FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
+	query := `SELECT url, label, created_at, updated_at FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return readExamples(query, limit)
 }
 
@@ -170,7 +171,7 @@ func ReadUnlabeledExamples(limit int) (example.Examples, error) {
 
 func SearchExamplesByUlrs(urls []string) (example.Examples, error) {
 	// ref: https://godoc.org/github.com/lib/pq#Array
-	query := `SELECT url, label FROM example WHERE url = ANY($1);`
+	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = ANY($1);`
 	return readExamples(query, pq.Array(urls))
 }
 

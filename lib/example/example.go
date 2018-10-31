@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/syou6162/go-active-learning/lib/feature"
 )
@@ -40,8 +41,10 @@ type Example struct {
 	Body          string `json:"Body"`
 	Score         float64
 	IsNew         bool
-	StatusCode    int    `json:"StatusCode"`
-	Favicon       string `json:"Favicon"`
+	StatusCode    int       `json:"StatusCode"`
+	Favicon       string    `json:"Favicon"`
+	CreatedAt     time.Time `json:"CreatedAt"`
+	UpdatedAt     time.Time `json:"UpdatedAt"`
 }
 
 type Examples []*Example
@@ -51,7 +54,25 @@ func NewExample(url string, label LabelType) *Example {
 	if label == UNLABELED {
 		IsNew = true
 	}
-	return &Example{label, []string{}, url, url, "", "", "", "", "", "", 0.0, IsNew, 0, ""}
+	now := time.Now()
+	return &Example{
+		Label:         label,
+		Fv:            []string{},
+		Url:           url,
+		FinalUrl:      url,
+		Title:         "",
+		Description:   "",
+		OgDescription: "",
+		OgType:        "",
+		OgImage:       "",
+		Body:          "",
+		Score:         0.0,
+		IsNew:         IsNew,
+		StatusCode:    0,
+		Favicon:       "",
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
 }
 
 func (example *Example) Annotate(label LabelType) {

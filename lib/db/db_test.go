@@ -55,7 +55,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -69,7 +69,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -83,7 +83,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url but different label
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge.com", Label: example.POSITIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", example.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -97,7 +97,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// different url
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://another.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://another.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -117,15 +117,15 @@ func TestReadLabeledExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", example.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", example.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -145,15 +145,15 @@ func TestReadRecentExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", example.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", example.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -173,15 +173,15 @@ func TestSearchExamplesByUlrs(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", example.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -201,15 +201,15 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge1.com", Label: example.POSITIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", example.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge2.com", Label: example.NEGATIVE})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", example.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(&example.Example{Url: "http://hoge3.com", Label: example.UNLABELED})
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", example.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
