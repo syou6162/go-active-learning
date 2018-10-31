@@ -124,7 +124,6 @@ func readExamples(query string, args ...interface{}) (example.Examples, error) {
 		var createdAt time.Time
 		var updatedAt time.Time
 		if err := rows.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
-			fmt.Println(createdAt)
 			return nil, err
 		}
 		e := example.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
