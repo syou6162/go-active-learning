@@ -44,7 +44,7 @@ func isJapanese(str string) bool {
 	return flag
 }
 
-func extractEngNounFeatures(s string, prefix string) FeatureVector {
+func extractEngNounFeaturesWithoutPrefix(s string) FeatureVector {
 	var fv FeatureVector
 	if s == "" {
 		return fv
@@ -56,14 +56,22 @@ func extractEngNounFeatures(s string, prefix string) FeatureVector {
 		switch tok.Tag {
 		// https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
 		case "NN", "NNS", "NNP", "NNPS", "PRP", "PRP$":
-			fv = append(fv, prefix+":"+strings.ToLower(tok.Text))
+			fv = append(fv, strings.ToLower(tok.Text))
 		}
 	}
 
 	return fv
 }
 
-func ExtractJpnNounFeatures(s string, prefix string) FeatureVector {
+func extractEngNounFeatures(s string, prefix string) FeatureVector {
+	var fv FeatureVector
+	for _, surface := range extractEngNounFeaturesWithoutPrefix(s) {
+		fv = append(fv, prefix+":"+surface)
+	}
+	return fv
+}
+
+func ExtractJpnNounFeaturesWithoutPrefix(s string) FeatureVector {
 	var fv FeatureVector
 	if s == "" {
 		return fv
@@ -76,8 +84,16 @@ func ExtractJpnNounFeatures(s string, prefix string) FeatureVector {
 			if len(token.Features()) >= 2 && token.Features()[1] == "数" {
 				surface = "NUM"
 			}
-			fv = append(fv, prefix+":"+surface)
+			fv = append(fv, surface)
 		}
+	}
+	return fv
+}
+
+func ExtractJpnNounFeatures(s string, prefix string) FeatureVector {
+	var fv FeatureVector
+	for _, surface := range ExtractJpnNounFeaturesWithoutPrefix(s) {
+		fv = append(fv, prefix+":"+surface)
 	}
 	return fv
 }
@@ -87,6 +103,14 @@ func ExtractNounFeatures(s string, prefix string) FeatureVector {
 		return ExtractJpnNounFeatures(s, prefix)
 	} else {
 		return extractEngNounFeatures(s, prefix)
+	}
+}
+
+func ExtractNounFeaturesWithoutPrefix(s string) FeatureVector {
+	if isJapanese(s) {
+		return ExtractJpnNounFeaturesWithoutPrefix(s)
+	} else {
+		return extractEngNounFeaturesWithoutPrefix(s)
 	}
 }
 
