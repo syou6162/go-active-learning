@@ -51,7 +51,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:34a9a60fade37f8009ed4a19e02924198aba3eabfcc120ee5c6002b7de17212d"
+  digest = "1:dfb34e11914b4c2415202d36bf2954f6fe6b7faf660a75778183f57cd6cee75c"
   name = "github.com/go-redis/redis"
   packages = [
     ".",
@@ -64,7 +64,7 @@
     "internal/util",
   ]
   pruneopts = "UT"
-  revision = "b3d9bf10f6666b2ee5100a6f3f84f4caf3b4e37d"
+  revision = "58f22c56fdbdf07f5d6f5e397a6e134b94c65b0c"
 
 [[projects]]
   digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
@@ -172,12 +172,12 @@
   version = "v0.4.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:f611266e3ac01ab4adb6f1d67f6c1be82998d02f452faff450596658712d860b"
+  digest = "1:abcdbf03ca6ca13d3697e2186edc1f33863bbdac2b3a44dfa39015e8903f7409"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
   pruneopts = "UT"
-  revision = "be2c049b30ccd4d3fd795d6bf7dce74e42eeedaa"
+  revision = "e6d60cf7ba1f42d86d54cdf5508611c4aafb3970"
+  version = "v0.0.1"
 
 [[projects]]
   branch = "master"
@@ -213,11 +213,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0184b624551d01f1158050e4831e3099be0ff2c331c8885e77c3d4ba5d31061f"
+  digest = "1:56a755d0a6aa092a83ce4f9f6acfb9e21d8dd8ff24637138788f146ec0a6e37e"
   name = "github.com/syou6162/GoOse"
   packages = ["."]
   pruneopts = "UT"
-  revision = "93b721f1bd4f5ef59521d8a90855d057f2a70a24"
+  revision = "978701bc26cca4f7f67ee458ad0aed08b7687f49"
 
 [[projects]]
   branch = "master"
@@ -229,15 +229,15 @@
     "html/charset",
   ]
   pruneopts = "UT"
-  revision = "9b4f9f5ad5197c79fd623a3638e70d8b26cef344"
+  revision = "c10e9556a7bc0e7c942242b606f0acf024ad5d6a"
 
 [[projects]]
   branch = "master"
-  digest = "1:008fb9f84ae9bf7994228b9c78810d44162071ec13caf28291677897dca819ee"
+  digest = "1:35560529f5721d65f36dc23aa15fbf7306c5091cdc3f29f65881af5031b80cc8"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "d989b31c87461dc8ab2f1cac6792814e27fadea9"
+  revision = "9b800f95dbbc54abff0acf7ee32d88ba4e328c89"
 
 [[projects]]
   digest = "1:aa4d6967a3237f8367b6bf91503964a77183ecf696f1273e8ad3551bb4412b5f"

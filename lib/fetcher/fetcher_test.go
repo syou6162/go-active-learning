@@ -32,3 +32,16 @@ func TestGetArticleWithInvalidEncoding(t *testing.T) {
 		t.Error(fmt.Sprintf("Error must occur for this url: %s", url))
 	}
 }
+
+func TestFavicon(t *testing.T) {
+	url := "https://twitter.com/facebookai/status/1057764513582215168"
+	a, err := GetArticle(url)
+	if err != nil {
+		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
+	}
+	expectedFaviconPath := "https://abs.twimg.com/favicons/favicon.ico"
+	println(a.Favicon)
+	if expectedFaviconPath != a.Favicon {
+		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
+	}
+}
