@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/url"
 	"strings"
+	"sync"
 	"unicode"
 
 	"github.com/ikawaha/kagome/tokenizer"
@@ -29,6 +30,37 @@ func (fv *FeatureVector) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
+var (
+	japaneseTokenizer     tokenizer.Tokenizer
+	japaneseTokenizerOnce sync.Once
+	englishTokenizer      *tokenize.TreebankWordTokenizer
+	englishTokenizerOnce  sync.Once
+	englishTagger         *tag.PerceptronTagger
+	englishTaggerOnce     sync.Once
+)
+
+func GetJapaneseTokenizer() tokenizer.Tokenizer {
+	japaneseTokenizerOnce.Do(func() {
+		japaneseTokenizer = tokenizer.New()
+	})
+
+	return japaneseTokenizer
+}
+
+func GetEnglishTokenizer() *tokenize.TreebankWordTokenizer {
+	englishTokenizerOnce.Do(func() {
+		englishTokenizer = tokenize.NewTreebankWordTokenizer()
+	})
+	return englishTokenizer
+}
+
+func GetEnglishTagger() *tag.PerceptronTagger {
+	englishTaggerOnce.Do(func() {
+		englishTagger = tag.NewPerceptronTagger()
+	})
+	return englishTagger
+}
+
 func isJapanese(str string) bool {
 	flag := false
 	for _, r := range str {
@@ -50,8 +82,8 @@ func extractEngNounFeaturesWithoutPrefix(s string) FeatureVector {
 		return fv
 	}
 
-	words := tokenize.NewTreebankWordTokenizer().Tokenize(s)
-	tagger := tag.NewPerceptronTagger()
+	words := GetEnglishTokenizer().Tokenize(s)
+	tagger := GetEnglishTagger()
 	for _, tok := range tagger.Tag(words) {
 		switch tok.Tag {
 		// https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
@@ -76,7 +108,7 @@ func ExtractJpnNounFeaturesWithoutPrefix(s string) FeatureVector {
 	if s == "" {
 		return fv
 	}
-	t := tokenizer.New()
+	t := GetJapaneseTokenizer()
 	tokens := t.Tokenize(strings.ToLower(s))
 	for _, token := range tokens {
 		if token.Pos() == "名詞" {
