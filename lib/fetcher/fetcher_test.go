@@ -40,7 +40,56 @@ func TestFavicon(t *testing.T) {
 		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
 	}
 	expectedFaviconPath := "https://abs.twimg.com/favicons/favicon.ico"
-	println(a.Favicon)
+	if expectedFaviconPath != a.Favicon {
+		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
+	}
+
+	url = "https://arxiv.org/abs/1810.08403"
+	a, err = GetArticle(url)
+	if err != nil {
+		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
+	}
+	expectedFaviconPath = "https://arxiv.org/favicon.ico"
+	if expectedFaviconPath != a.Favicon {
+		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
+	}
+
+	url = "https://www.lifehacker.jp/2018/11/amazon-impact-absorption-case.html"
+	a, err = GetArticle(url)
+	if err != nil {
+		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
+	}
+	expectedFaviconPath = "https://www.lifehacker.jp/assets/common/img/favicon.ico"
+	if expectedFaviconPath != a.Favicon {
+		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
+	}
+
+	url = "https://peterroelants.github.io/"
+	a, err = GetArticle(url)
+	if err != nil {
+		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
+	}
+	expectedFaviconPath = "https://peterroelants.github.io/images/favicon/apple-icon-57x57.png"
+	if expectedFaviconPath != a.Favicon {
+		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
+	}
+
+	url = "https://www.getrevue.co/profile/icoxfog417/issues/weekly-machine-learning-79-121292"
+	a, err = GetArticle(url)
+	if err != nil {
+		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
+	}
+	expectedFaviconPath = "https://d3jbm9h03wxzi9.cloudfront.net/assets/favicon-84fc7f228d52c2410eb7aa839e279caeaa491588c7c75229ed33e1c7f69fe75d.ico"
+	if expectedFaviconPath != a.Favicon {
+		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
+	}
+
+	url = "https://ai.googleblog.com/2018/11/open-sourcing-bert-state-of-art-pre.html"
+	a, err = GetArticle(url)
+	if err != nil {
+		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
+	}
+	expectedFaviconPath = "https://ai.googleblog.com/favicon.ico"
 	if expectedFaviconPath != a.Favicon {
 		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
 	}
