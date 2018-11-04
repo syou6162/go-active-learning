@@ -31,7 +31,7 @@ func (fv *FeatureVector) UnmarshalBinary(data []byte) error {
 }
 
 var (
-	japaneseTokenizer     tokenizer.Tokenizer
+	japaneseTokenizer     *tokenizer.Tokenizer
 	japaneseTokenizerOnce sync.Once
 	englishTokenizer      *tokenize.TreebankWordTokenizer
 	englishTokenizerOnce  sync.Once
@@ -39,9 +39,10 @@ var (
 	englishTaggerOnce     sync.Once
 )
 
-func GetJapaneseTokenizer() tokenizer.Tokenizer {
+func GetJapaneseTokenizer() *tokenizer.Tokenizer {
 	japaneseTokenizerOnce.Do(func() {
-		japaneseTokenizer = tokenizer.New()
+		t := tokenizer.New()
+		japaneseTokenizer = &t
 	})
 
 	return japaneseTokenizer
