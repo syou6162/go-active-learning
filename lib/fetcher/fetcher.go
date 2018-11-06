@@ -55,6 +55,7 @@ func GetArticle(origUrl string) (*Article, error) {
 		return nil, err
 	}
 	if resp.StatusCode == http.StatusUnauthorized ||
+		resp.StatusCode == http.StatusForbidden ||
 		resp.StatusCode == http.StatusNotFound ||
 		resp.StatusCode == http.StatusGone ||
 		resp.StatusCode == http.StatusServiceUnavailable {
