@@ -74,7 +74,8 @@ func InsertOrUpdateExample(e *example.Example) (sql.Result, error) {
 	case err != nil:
 		return nil, err
 	default:
-		if label != e.Label {
+		if label != e.Label && // ラベルが変更される
+			e.Label != example.UNLABELED { // 変更されるラベルはPOSITIVEかNEGATIVEのみ
 			return db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, e.UpdatedAt)
 		}
 		return nil, nil

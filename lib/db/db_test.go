@@ -55,7 +55,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", example.NEGATIVE))
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", example.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -66,6 +66,9 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 	if len(examples) != 1 {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+	if examples[0].Label != example.UNLABELED {
+		t.Errorf("label == %d, want 1", examples[0].Label)
 	}
 
 	// same url
@@ -81,6 +84,9 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	if len(examples) != 1 {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
+	if examples[0].Label != example.NEGATIVE {
+		t.Errorf("label == %d, want 1", examples[0].Label)
+	}
 
 	// same url but different label
 	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", example.POSITIVE))
@@ -94,6 +100,26 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 	if len(examples) != 1 {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+	if examples[0].Label != example.POSITIVE {
+		t.Errorf("label == %d, want 1", examples[0].Label)
+	}
+
+	// cannot update to unlabeled
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", example.UNLABELED))
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err = db.ReadExamples()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 1 {
+		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+	if examples[0].Label != example.POSITIVE {
+		t.Errorf("label == %d, want 1", examples[0].Label)
 	}
 
 	// different url
