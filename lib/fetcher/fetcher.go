@@ -54,10 +54,12 @@ func GetArticle(origUrl string) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode == http.StatusUnauthorized ||
+	if resp.StatusCode == http.StatusFound ||
+		resp.StatusCode == http.StatusUnauthorized ||
 		resp.StatusCode == http.StatusForbidden ||
 		resp.StatusCode == http.StatusNotFound ||
 		resp.StatusCode == http.StatusGone ||
+		resp.StatusCode == http.StatusBadGateway ||
 		resp.StatusCode == http.StatusServiceUnavailable {
 		return nil, errors.New(fmt.Sprintf("%s: Cannot fetch %s", resp.Status, origUrl))
 	}
