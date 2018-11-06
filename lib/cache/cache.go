@@ -220,6 +220,47 @@ func attachLightMetadata(examples example.Examples) error {
 	return nil
 }
 
+var errorCountPrefix = "errorCountPrefix:"
+
+func incErrorCount(url string) error {
+	key := errorCountPrefix + url
+	exist, err := client.Exists(key).Result()
+	if err != nil {
+		return err
+	}
+	if exist == 0 {
+		hour := 24 * 10
+		client.Set(key, 1, time.Hour*time.Duration(hour))
+		return nil
+	} else {
+		if _, err = client.Incr(key).Result(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func getErrorCount(url string) (int, error) {
+	key := errorCountPrefix + url
+	c, err := client.Exists(key).Result()
+	if err != nil {
+		return 0, err
+	}
+	if c == 0 {
+		return 0, nil
+	}
+
+	cntStr, err := client.Get(key).Result()
+	if err != nil {
+		return 0, err
+	}
+	cnt, err := strconv.Atoi(cntStr)
+	if err != nil {
+		return 0, err
+	}
+	return cnt, nil
+}
+
 func fetchMetaData(e *example.Example) error {
 	article, err := fetcher.GetArticle(e.Url)
 	if err != nil {
@@ -308,12 +349,19 @@ func AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMe
 			sem <- struct{}{}
 			go func(e *example.Example, idx int) {
 				defer wg.Done()
-				fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
-				if err := fetchMetaData(e); err != nil {
+				cnt, err := getErrorCount(e.Url)
+				if err != nil {
 					log.Println(err.Error())
 				}
-				if err := SetExample(*e); err != nil {
-					log.Println(err.Error())
+				if cnt < 5 {
+					fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
+					if err := fetchMetaData(e); err != nil {
+						incErrorCount(e.Url)
+						log.Println(err.Error())
+					}
+					if err := SetExample(*e); err != nil {
+						log.Println(err.Error())
+					}
 				}
 				<-sem
 			}(e, idx)

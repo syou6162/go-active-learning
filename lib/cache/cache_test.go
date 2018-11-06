@@ -25,6 +25,43 @@ func TestPing(t *testing.T) {
 	}
 }
 
+func TestErrorCount(t *testing.T) {
+	existingUrl := "https://github.com"
+	nonExistingUrl := "http://hoge.fuga"
+	urls := []string{existingUrl, nonExistingUrl}
+	for _, u := range urls {
+		key := errorCountPrefix + u
+		client.Del(key)
+	}
+
+	for _, u := range urls {
+		cnt, err := getErrorCount(u)
+		if err != nil {
+			t.Errorf("Cannot get error count: %s", err.Error())
+		}
+		if cnt != 0 {
+			t.Errorf("Error count must be 0 for %s", u)
+		}
+	}
+
+	for _, u := range urls {
+		err := incErrorCount(u)
+		if err != nil {
+			t.Errorf("Cannot get error count: %s", err.Error())
+		}
+	}
+
+	for _, u := range urls {
+		cnt, err := getErrorCount(u)
+		if err != nil {
+			t.Errorf("Cannot get error count: %s", err.Error())
+		}
+		if cnt != 1 {
+			t.Errorf("Error count must be 1 for %s", u)
+		}
+	}
+}
+
 func TestAttachMetaData(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
 	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
@@ -33,6 +70,7 @@ func TestAttachMetaData(t *testing.T) {
 	for _, e := range examples {
 		key := "url:" + e.Url
 		client.Del(key)
+		client.Del(errorCountPrefix + e.Url)
 	}
 
 	if examples[0].Title != "" {
@@ -81,6 +119,39 @@ func TestAttachMetaData(t *testing.T) {
 
 	if examples[1].OgType != "blog" {
 		t.Errorf("OgType must be blog for %s", examples[1].Url)
+	}
+
+	cnt, err := getErrorCount("https://github.com")
+	if err != nil {
+		t.Errorf("Cannot get error count: %s", err.Error())
+	}
+	if cnt != 0 {
+		t.Errorf("count should be 0, but %d", cnt)
+	}
+}
+
+func TestAttachMetaDataNonExistingUrls(t *testing.T) {
+	nonExistingUrl := "http://hoge.fuga"
+	e := example.NewExample(nonExistingUrl, example.UNLABELED)
+	examples := example.Examples{e}
+	for _, e := range examples {
+		key := "url:" + e.Url
+		client.Del(key)
+		client.Del(errorCountPrefix + e.Url)
+	}
+
+	for i := 1; i <= 3; i++ {
+		AttachMetadata(examples, true, false)
+		if examples[0].Title != "" {
+			t.Errorf("Title must not be empty for %s", examples[0].Url)
+		}
+		cnt, err := getErrorCount(nonExistingUrl)
+		if err != nil {
+			t.Errorf("Cannot get error count: %s", err.Error())
+		}
+		if i != cnt {
+			t.Errorf("Count should be %d, but %d", i, cnt)
+		}
 	}
 }
 
