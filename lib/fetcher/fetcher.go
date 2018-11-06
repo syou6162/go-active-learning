@@ -54,6 +54,9 @@ func GetArticle(origUrl string) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, errors.New(fmt.Sprintf("%s: Cannot fetch %s", resp.Status, origUrl))
+	}
 	defer resp.Body.Close()
 
 	html, err := ioutil.ReadAll(resp.Body)

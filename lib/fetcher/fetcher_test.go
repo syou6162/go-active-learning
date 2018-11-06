@@ -25,6 +25,13 @@ func TestGetArticle(t *testing.T) {
 	}
 }
 
+func TestGetArticleNotFound(t *testing.T) {
+	_, err := GetArticle("http://www.yasuhisay.info/entry/NOT_FOUND")
+	if err == nil {
+		t.Error("Error should occur")
+	}
+}
+
 func TestGetArticleWithInvalidEncoding(t *testing.T) {
 	url := "http://www.atmarkit.co.jp/ait/articles/1702/20/news021.html"
 	_, err := GetArticle(url)
