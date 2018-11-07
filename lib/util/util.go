@@ -90,6 +90,18 @@ func RemoveNegativeExamples(examples example.Examples) example.Examples {
 	return result
 }
 
+func UniqueByFinalUrl(examples example.Examples) example.Examples {
+	result := example.Examples{}
+	m := make(map[string]bool)
+	for _, e := range examples {
+		if !m[e.FinalUrl] {
+			m[e.FinalUrl] = true
+			result = append(result, e)
+		}
+	}
+	return result
+}
+
 func SplitTrainAndDev(examples example.Examples) (train example.Examples, dev example.Examples) {
 	Shuffle(examples)
 	n := int(0.8 * float64(len(examples)))

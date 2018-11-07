@@ -43,6 +43,17 @@ func TestFilterStatusCodeOkExamples(t *testing.T) {
 	}
 }
 
+func TestUniqueByFinalUrl(t *testing.T) {
+	e1 := example.Example{FinalUrl: "aaa"}
+	e2 := example.Example{FinalUrl: "bbb"}
+	e3 := example.Example{FinalUrl: "aaa"}
+	examples := example.Examples{&e1, &e2, &e3}
+	result := UniqueByFinalUrl(examples)
+	if len(result) != 2 {
+		t.Errorf("length(result) should be %d, but %d", 2, len(result))
+	}
+}
+
 func TestRemoveDuplicate(t *testing.T) {
 	args := []string{"hoge", "fuga", "piyo", "hoge"}
 
