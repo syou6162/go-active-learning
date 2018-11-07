@@ -48,6 +48,28 @@ func updateMetaDescriptionIfArxiv(article *goose.Article, origUrl string, finalU
 	return nil
 }
 
+func removeUtmParams(origUrl string) (string, error) {
+	u, err := url.Parse(origUrl)
+	if err != nil {
+		return origUrl, err
+	}
+
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return origUrl, err
+	}
+
+	q.Del("utm_source")
+	q.Del("utm_medium")
+	q.Del("utm_campaign")
+	q.Del("utm_term")
+	q.Del("utm_content")
+
+	u.RawQuery = q.Encode()
+
+	return u.String(), nil
+}
+
 func GetArticle(origUrl string) (*Article, error) {
 	g := goose.New()
 	resp, err := articleFetcher.Get(origUrl)
@@ -82,6 +104,11 @@ func GetArticle(origUrl string) (*Article, error) {
 	finalUrl := article.CanonicalLink
 	if finalUrl == "" {
 		finalUrl = resp.Request.URL.String()
+	}
+
+	finalUrl, err = removeUtmParams(finalUrl)
+	if err != nil {
+		return nil, err
 	}
 
 	updateMetaDescriptionIfArxiv(article, origUrl, finalUrl, html)

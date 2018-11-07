@@ -40,6 +40,22 @@ func TestGetArticleWithInvalidEncoding(t *testing.T) {
 	}
 }
 
+func TestRemoveUtmParams(t *testing.T) {
+	before := "https://techplay.jp/event/698349?utm_source=event_698349"
+	after, err := removeUtmParams(before)
+	if err != nil {
+		t.Error(fmt.Sprintf("Error must occur for this url: %s", before))
+	}
+	expected := "https://techplay.jp/event/698349"
+	if expected != after {
+		t.Errorf("url should be %s, but %s", expected, after)
+	}
+	a, err := GetArticle(before)
+	if expected != a.Url {
+		t.Errorf("url should be %s, but %s", expected, a.Url)
+	}
+}
+
 func TestFavicon(t *testing.T) {
 	url := "https://twitter.com/facebookai/status/1057764513582215168"
 	a, err := GetArticle(url)
