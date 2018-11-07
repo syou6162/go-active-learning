@@ -306,7 +306,12 @@ func SetExample(example example.Example) error {
 
 	// 一度にexpireされるとクロールも一度に走ってOOMが発生するので、多少ばらしてそれを避ける
 	hour := int64(240 * rand.Float64())
-	if err := client.Expire(key, time.Hour*time.Duration(hour)).Err(); err != nil {
+	return SetExampleExpire(example, time.Hour*time.Duration(hour))
+}
+
+func SetExampleExpire(e example.Example, duration time.Duration) error {
+	key := redisPrefix + ":" + e.Url
+	if err := client.Expire(key, duration).Err(); err != nil {
 		return err
 	}
 	return nil
