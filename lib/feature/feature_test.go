@@ -10,6 +10,10 @@ func TestIsJapanese(t *testing.T) {
 	if !isJapanese(text) {
 		t.Error(fmt.Printf("%s should be Japanese", text))
 	}
+	text = "文献紹介 / Youtube"
+	if !isJapanese(text) {
+		t.Error(fmt.Printf("%s should be Japanese", text))
+	}
 	text = "This is a pen."
 	if isJapanese(text) {
 		t.Error(fmt.Printf("%s should be not Japanese", text))
@@ -20,7 +24,12 @@ func TestJapaneseNounFeatures(t *testing.T) {
 	text := "日本語のテストです"
 	fv := ExtractJpnNounFeaturesWithoutPrefix(text)
 	if len(fv) != 2 {
-		t.Error(fmt.Printf("Size of feature vector for %s should be 2", text))
+		t.Error(fmt.Printf("Size of feature vector for %s should be 2, but %d", text, len(fv)))
+	}
+	text = "文献紹介 / Youtube"
+	fv = ExtractJpnNounFeaturesWithoutPrefix(text)
+	if len(fv) != 4 {
+		t.Error(fmt.Printf("Size of feature vector for %s should be 4, but %d", text, len(fv)))
 	}
 }
 

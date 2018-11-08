@@ -63,18 +63,17 @@ func GetEnglishTagger() *tag.PerceptronTagger {
 }
 
 func isJapanese(str string) bool {
-	flag := false
 	for _, r := range str {
-		if unicode.In(r, unicode.Hiragana) || unicode.In(r, unicode.Katakana) {
-			flag = true
+		if unicode.In(r, unicode.Hiragana) || unicode.In(r, unicode.Katakana) || unicode.In(r, unicode.Han) {
+			return true
 		}
 	}
 
 	if strings.ContainsAny(str, "。、") {
-		flag = true
+		return true
 	}
 
-	return flag
+	return false
 }
 
 func extractEngNounFeaturesWithoutPrefix(s string) FeatureVector {
