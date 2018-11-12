@@ -28,23 +28,42 @@ const (
 	UNLABELED LabelType = 0
 )
 
+type ReferringTweets []string
+
+func (tweets *ReferringTweets) MarshalBinary() ([]byte, error) {
+	json, err := json.Marshal(tweets)
+	if err != nil {
+		return nil, err
+	}
+	return []byte(json), nil
+}
+
+func (tweets *ReferringTweets) UnmarshalBinary(data []byte) error {
+	err := json.Unmarshal(data, tweets)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type Example struct {
-	Label         LabelType `json:"Label"`
-	Fv            feature.FeatureVector
-	Url           string `json:"Url"`
-	FinalUrl      string `json:"FinalUrl"`
-	Title         string `json:"Title"`
-	Description   string `json:"Description"`
-	OgDescription string `json:"OgDescription"`
-	OgType        string `json:"OgType"`
-	OgImage       string `json:"OgImage"`
-	Body          string `json:"Body"`
-	Score         float64
-	IsNew         bool
-	StatusCode    int       `json:"StatusCode"`
-	Favicon       string    `json:"Favicon"`
-	CreatedAt     time.Time `json:"CreatedAt"`
-	UpdatedAt     time.Time `json:"UpdatedAt"`
+	Label           LabelType `json:"Label"`
+	Fv              feature.FeatureVector
+	Url             string `json:"Url"`
+	FinalUrl        string `json:"FinalUrl"`
+	Title           string `json:"Title"`
+	Description     string `json:"Description"`
+	OgDescription   string `json:"OgDescription"`
+	OgType          string `json:"OgType"`
+	OgImage         string `json:"OgImage"`
+	Body            string `json:"Body"`
+	Score           float64
+	IsNew           bool
+	StatusCode      int             `json:"StatusCode"`
+	Favicon         string          `json:"Favicon"`
+	CreatedAt       time.Time       `json:"CreatedAt"`
+	UpdatedAt       time.Time       `json:"UpdatedAt"`
+	ReferringTweets ReferringTweets `json:"ReferringTweets"`
 }
 
 type Examples []*Example
@@ -56,22 +75,23 @@ func NewExample(url string, label LabelType) *Example {
 	}
 	now := time.Now()
 	return &Example{
-		Label:         label,
-		Fv:            []string{},
-		Url:           url,
-		FinalUrl:      url,
-		Title:         "",
-		Description:   "",
-		OgDescription: "",
-		OgType:        "",
-		OgImage:       "",
-		Body:          "",
-		Score:         0.0,
-		IsNew:         IsNew,
-		StatusCode:    0,
-		Favicon:       "",
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		Label:           label,
+		Fv:              feature.FeatureVector{},
+		Url:             url,
+		FinalUrl:        url,
+		Title:           "",
+		Description:     "",
+		OgDescription:   "",
+		OgType:          "",
+		OgImage:         "",
+		Body:            "",
+		Score:           0.0,
+		IsNew:           IsNew,
+		StatusCode:      0,
+		Favicon:         "",
+		CreatedAt:       now,
+		UpdatedAt:       now,
+		ReferringTweets: []string{},
 	}
 }
 
