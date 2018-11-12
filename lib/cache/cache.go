@@ -67,18 +67,19 @@ func attachMetadata(examples example.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
 		vals, err := client.HMGet(key,
-			"Fv",            // 0
-			"FinalUrl",      // 1
-			"Title",         // 2
-			"Description",   // 3
-			"OgDescription", // 4
-			"OgType",        // 5
-			"OgImage",       // 6
-			"Body",          // 7
-			"Score",         // 8
-			"IsNew",         // 9
-			"StatusCode",    // 10
-			"Favicon",       // 11
+			"Fv",              // 0
+			"FinalUrl",        // 1
+			"Title",           // 2
+			"Description",     // 3
+			"OgDescription",   // 4
+			"OgType",          // 5
+			"OgImage",         // 6
+			"Body",            // 7
+			"Score",           // 8
+			"IsNew",           // 9
+			"StatusCode",      // 10
+			"Favicon",         // 11
+			"ReferringTweets", // 12
 		).Result()
 		if err != nil {
 			return err
@@ -141,6 +142,13 @@ func attachMetadata(examples example.Examples) error {
 		if result, ok := vals[11].(string); ok {
 			e.Favicon = result
 		}
+		// ReferringTweets
+		if result, ok := vals[12].(string); ok {
+			tweets := example.ReferringTweets{}
+			if err := tweets.UnmarshalBinary([]byte(result)); err == nil {
+				e.ReferringTweets = tweets
+			}
+		}
 	}
 	return nil
 }
@@ -153,15 +161,16 @@ func attachLightMetadata(examples example.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
 		url2Cmd[key] = pipe.HMGet(key,
-			"FinalUrl",      // 0
-			"Title",         // 1
-			"Description",   // 2
-			"OgDescription", // 3
-			"OgType",        // 4
-			"OgImage",       // 5
-			"Score",         // 6
-			"StatusCode",    // 7
-			"Favicon",       // 8
+			"FinalUrl",        // 0
+			"Title",           // 1
+			"Description",     // 2
+			"OgDescription",   // 3
+			"OgType",          // 4
+			"OgImage",         // 5
+			"Score",           // 6
+			"StatusCode",      // 7
+			"Favicon",         // 8
+			"ReferringTweets", // 9
 		)
 		url2Example[key] = e
 	}
@@ -215,6 +224,13 @@ func attachLightMetadata(examples example.Examples) error {
 		// Favicon
 		if result, ok := vals[8].(string); ok {
 			e.Favicon = result
+		}
+		// ReferringTweets
+		if result, ok := vals[9].(string); ok {
+			tweets := example.ReferringTweets{}
+			if err := tweets.UnmarshalBinary([]byte(result)); err == nil {
+				e.ReferringTweets = tweets
+			}
 		}
 	}
 	return nil
@@ -299,6 +315,7 @@ func SetExample(example example.Example) error {
 	vals["IsNew"] = example.IsNew
 	vals["StatusCode"] = example.StatusCode
 	vals["Favicon"] = example.Favicon
+	vals["ReferringTweets"] = &example.ReferringTweets
 
 	if err := client.HMSet(key, vals).Err(); err != nil {
 		return err

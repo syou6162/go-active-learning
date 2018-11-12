@@ -205,6 +205,26 @@ func TestAttachLightMetaData(t *testing.T) {
 	}
 }
 
+func TestReferringTweets(t *testing.T) {
+	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	examples := example.Examples{e1}
+	for _, e := range examples {
+		key := "url:" + e.Url
+		client.Del(key)
+	}
+
+	AttachMetadata(examples, true, true)
+	e1.ReferringTweets = example.ReferringTweets{"https:/twitter.com/1"}
+	SetExample(*e1)
+	e2 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
+	examples = example.Examples{e2}
+	AttachMetadata(examples, false, true)
+
+	if len(examples[0].ReferringTweets) != 1 {
+		t.Errorf("len(examples[0].ReferringTweets) should be 1, but %d", len(examples[0].ReferringTweets))
+	}
+}
+
 func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
 	listName := "general"
 	client.Del("list:" + listName)
