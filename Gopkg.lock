@@ -51,7 +51,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d9e652d8f9c8b16bccba711d57c14764b08280e7850969e7fef5f27e0e7cd412"
+  digest = "1:62e9e5a4de4090f87648cbeac5724e07c2f4ce6d2db1db5134ff1f0c182586fd"
   name = "github.com/go-redis/redis"
   packages = [
     ".",
@@ -64,7 +64,7 @@
     "internal/util",
   ]
   pruneopts = "UT"
-  revision = "0064936c5b77c874f8e1f089c955ec8bef3818c4"
+  revision = "effc0c507aa2cfe5b7ea45cc8be07de048a19cc3"
 
 [[projects]]
   digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
@@ -229,7 +229,7 @@
     "html/charset",
   ]
   pruneopts = "UT"
-  revision = "03003ca0c849e57b6ea29a4bab8d3cb6e4d568fe"
+  revision = "88d92db4c548972d942ac2a3531a8a9a34c82ca6"
 
 [[projects]]
   branch = "master"
