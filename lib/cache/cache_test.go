@@ -64,7 +64,7 @@ func TestErrorCount(t *testing.T) {
 
 func TestAttachMetaData(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
 	e3 := example.NewExample("https://github.com", example.UNLABELED)
 	examples := example.Examples{e1, e2, e3}
 	for _, e := range examples {
@@ -105,7 +105,7 @@ func TestAttachMetaData(t *testing.T) {
 	}
 
 	e4 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e5 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e5 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
 	e6 := example.NewExample("https://github.com", example.UNLABELED)
 	examples = example.Examples{e4, e5, e6}
 	AttachMetadata(examples, false, false)
@@ -157,7 +157,7 @@ func TestAttachMetaDataNonExistingUrls(t *testing.T) {
 
 func TestAttachLightMetaData(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
 	e3 := example.NewExample("https://github.com", example.UNLABELED)
 	examples := example.Examples{e1, e2, e3}
 	for _, e := range examples {
@@ -187,7 +187,7 @@ func TestAttachLightMetaData(t *testing.T) {
 	AttachMetadata(examples, true, true)
 
 	e1 = example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 = example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e2 = example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
 	e3 = example.NewExample("https://github.com", example.UNLABELED)
 	examples = example.Examples{e1, e2, e3}
 
@@ -234,7 +234,7 @@ func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
 	}
 
 	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 := example.NewExample("http://www.yasuhisay.info", example.NEGATIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
 	e3 := example.NewExample("https://github.com", example.UNLABELED)
 	examples := example.Examples{e1, e2, e3}
 	for _, e := range examples {

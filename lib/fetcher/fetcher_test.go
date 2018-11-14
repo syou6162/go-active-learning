@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetArticle(t *testing.T) {
-	a, err := GetArticle("http://www.yasuhisay.info/entry/20090516/1242480413")
+	a, err := GetArticle("https://www.yasuhisay.info/entry/20090516/1242480413")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -26,7 +26,7 @@ func TestGetArticle(t *testing.T) {
 }
 
 func TestGetArticleNotFound(t *testing.T) {
-	_, err := GetArticle("http://www.yasuhisay.info/entry/NOT_FOUND")
+	_, err := GetArticle("https://www.yasuhisay.info/entry/NOT_FOUND")
 	if err == nil {
 		t.Error("Error should occur")
 	}

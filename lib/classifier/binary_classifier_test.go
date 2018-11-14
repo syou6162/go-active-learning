@@ -7,7 +7,7 @@ import (
 )
 
 func TestSortByScore(t *testing.T) {
-	e0 := example.NewExample("http://www.yasuhisay.info/", example.POSITIVE)
+	e0 := example.NewExample("https://www.yasuhisay.info/", example.POSITIVE)
 	e0.Title = "yasuhisa"
 	e0.Fv = []string{"hoge", "fuga"}
 	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
