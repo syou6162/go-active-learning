@@ -30,6 +30,20 @@ func (fv *FeatureVector) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
+var excludingWordList = []string{
+	`:`, `;`,
+	`,`, `.`,
+	`"`, `''`,
+	`+`, `-`, `*`, `/`, `|`,
+	`[`, `]`,
+	`{`, `}`,
+	`(`, `)`,
+	`<`, `>`,
+	`「`, `」`,
+	`／`,
+	`@`, `#`, `~`, `%`, `$`, `^`,
+}
+
 var (
 	japaneseTokenizer     *tokenizer.Tokenizer
 	japaneseTokenizerOnce sync.Once
@@ -37,7 +51,10 @@ var (
 	englishTokenizerOnce  sync.Once
 	englishTagger         *tag.PerceptronTagger
 	englishTaggerOnce     sync.Once
+	excludingWordMapOnce  sync.Once
 )
+
+var excludingWordMap = make(map[string]bool)
 
 func GetJapaneseTokenizer() *tokenizer.Tokenizer {
 	japaneseTokenizerOnce.Do(func() {
@@ -76,6 +93,18 @@ func isJapanese(str string) bool {
 	return false
 }
 
+func IsExcludingWord(w string) bool {
+	excludingWordMapOnce.Do(func() {
+		for _, w := range excludingWordList {
+			excludingWordMap[w] = true
+		}
+	})
+	if _, ok := excludingWordMap[w]; ok {
+		return true
+	}
+	return false
+}
+
 func extractEngNounFeaturesWithoutPrefix(s string) FeatureVector {
 	var fv FeatureVector
 	if s == "" {
@@ -85,6 +114,9 @@ func extractEngNounFeaturesWithoutPrefix(s string) FeatureVector {
 	words := GetEnglishTokenizer().Tokenize(s)
 	tagger := GetEnglishTagger()
 	for _, tok := range tagger.Tag(words) {
+		if IsExcludingWord(tok.Text) {
+			continue
+		}
 		switch tok.Tag {
 		// https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html
 		case "NN", "NNS", "NNP", "NNPS", "PRP", "PRP$":
@@ -115,6 +147,9 @@ func ExtractJpnNounFeaturesWithoutPrefix(s string) FeatureVector {
 			surface := token.Surface
 			if len(token.Features()) >= 2 && token.Features()[1] == "数" {
 				surface = "NUM"
+			}
+			if IsExcludingWord(surface) {
+				continue
 			}
 			fv = append(fv, surface)
 		}
