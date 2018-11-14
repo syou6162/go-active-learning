@@ -213,11 +213,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7c257a930be3a60001196345b679565a03049af62203c14992f593bddf97a9bb"
+  digest = "1:5314962c7ce47123740c553897a4a5f3917a1ec4dab34ba0bcbd0965c52f381e"
   name = "github.com/syou6162/GoOse"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5d5b97884480b22d724b68050c222cc427bc9e6a"
+  revision = "a33014d1b7f31cb69de7a6bdc2e509dda0d26b3d"
 
 [[projects]]
   branch = "master"
