@@ -103,14 +103,14 @@ func (example *Example) IsLabeled() bool {
 	return example.Label != UNLABELED
 }
 
-func (example *Example) isTwitterUrl() bool {
+func (example *Example) IsTwitterUrl() bool {
 	twitterUrl := "https://twitter.com"
 	return strings.Contains(example.Url, twitterUrl) || strings.Contains(example.FinalUrl, twitterUrl)
 }
 
 func (example *Example) IsArticle() bool {
 	// twitterはarticleと返ってくるが除外
-	return example.OgType == "article" && !example.isTwitterUrl()
+	return example.OgType == "article" && !example.IsTwitterUrl()
 }
 
 func (slice Examples) Len() int {
