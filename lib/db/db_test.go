@@ -193,6 +193,39 @@ func TestReadRecentExamples(t *testing.T) {
 	}
 }
 
+func TestSearchExamplesByUlr(t *testing.T) {
+	_, err := db.DeleteAllExamples()
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", example.NEGATIVE))
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", example.NEGATIVE))
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", example.UNLABELED))
+	if err != nil {
+		t.Error(err)
+	}
+
+	example, err := db.SearchExamplesByUlr("http://hoge1.com")
+	if err != nil {
+		t.Error(err)
+	}
+	if example.Url == "" {
+		t.Errorf("example.Url == %s, want http://hoge1.com", example.Url)
+	}
+
+	example, err = db.SearchExamplesByUlr("http://hoge4.com")
+	if err == nil {
+		t.Errorf("search result must be nil")
+	}
+}
+
 func TestSearchExamplesByUlrs(t *testing.T) {
 	_, err := db.DeleteAllExamples()
 	if err != nil {
