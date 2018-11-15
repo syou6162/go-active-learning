@@ -138,6 +138,20 @@ func readExamples(query string, args ...interface{}) (example.Examples, error) {
 	return examples, nil
 }
 
+func readExample(query string, args ...interface{}) (*example.Example, error) {
+	var label example.LabelType
+	var url string
+	var createdAt time.Time
+	var updatedAt time.Time
+
+	row := db.QueryRow(query, args...)
+	if err := row.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
+		return nil, err
+	}
+	e := example.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
+	return &e, nil
+}
+
 func ReadExamples() (example.Examples, error) {
 	query := `SELECT url, label, created_at, updated_at FROM example;`
 	return readExamples(query)
@@ -168,6 +182,11 @@ func ReadNegativeExamples(limit int) (example.Examples, error) {
 
 func ReadUnlabeledExamples(limit int) (example.Examples, error) {
 	return ReadExamplesByLabel(example.UNLABELED, limit)
+}
+
+func SearchExamplesByUlr(url string) (*example.Example, error) {
+	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = $1;`
+	return readExample(query, url)
 }
 
 func SearchExamplesByUlrs(urls []string) (example.Examples, error) {
