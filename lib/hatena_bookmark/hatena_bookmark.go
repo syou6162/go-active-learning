@@ -44,6 +44,7 @@ func (bookmarks *HatenaBookmarks) UnmarshalBinary(data []byte) error {
 }
 
 func GetHatenaBookmark(url string) (*HatenaBookmarks, error) {
+	// ref: http://developer.hatena.ne.jp/ja/documents/bookmark/apis/getinfo
 	res, err := http.Get(fmt.Sprintf("http://b.hatena.ne.jp/entry/jsonlite/?url=%s", url))
 	if err != nil {
 		return nil, err
