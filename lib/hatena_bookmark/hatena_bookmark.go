@@ -19,12 +19,12 @@ type Bookmark struct {
 
 type HatenaBookmarks struct {
 	Title      string      `json:"title"`
-	Bookmarks  []*Bookmark `json:"bookmarks,omitempty"`
+	Bookmarks  []*Bookmark `json:"bookmarks"`
 	Screenshot string      `json:"screenshot"`
 	EntryUrl   string      `json:"entry_url"`
 	Count      int         `json:"count"`
-	Url        int         `json:"url"`
-	EId        int         `json:"eid"`
+	Url        string      `json:"url"`
+	EId        string      `json:"eid"`
 }
 
 func (bookmarks *HatenaBookmarks) MarshalBinary() ([]byte, error) {
