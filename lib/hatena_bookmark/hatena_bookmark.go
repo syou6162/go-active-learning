@@ -12,8 +12,8 @@ type Tags []string
 type Bookmark struct {
 	// Timestamp time.Time `json:"timestamp"`
 	// 使わないし、unmarshalが面倒なのでひとまずなしで
-	User      string `json:"user"`
-	Tags      Tags      `json:"tags"`
+	User    string `json:"user"`
+	Tags    Tags   `json:"tags"`
 	Comment string `json:"comment"`
 }
 
