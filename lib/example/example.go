@@ -60,12 +60,12 @@ type Example struct {
 	Body            string `json:"Body"`
 	Score           float64
 	IsNew           bool
-	StatusCode      int                             `json:"StatusCode"`
-	Favicon         string                          `json:"Favicon"`
-	CreatedAt       time.Time                       `json:"CreatedAt"`
-	UpdatedAt       time.Time                       `json:"UpdatedAt"`
-	ReferringTweets ReferringTweets                 `json:"ReferringTweets"`
-	HatenaBookmarks hatena_bookmark.HatenaBookmarks `json:"HatenaBookmarks"`
+	StatusCode      int                            `json:"StatusCode"`
+	Favicon         string                         `json:"Favicon"`
+	CreatedAt       time.Time                      `json:"CreatedAt"`
+	UpdatedAt       time.Time                      `json:"UpdatedAt"`
+	ReferringTweets ReferringTweets                `json:"ReferringTweets"`
+	HatenaBookmark  hatena_bookmark.HatenaBookmark `json:"HatenaBookmark"`
 }
 
 type Examples []*Example
@@ -94,7 +94,7 @@ func NewExample(url string, label LabelType) *Example {
 		CreatedAt:       now,
 		UpdatedAt:       now,
 		ReferringTweets: []string{},
-		HatenaBookmarks: hatena_bookmark.HatenaBookmarks{},
+		HatenaBookmark:  hatena_bookmark.HatenaBookmark{},
 	}
 }
 

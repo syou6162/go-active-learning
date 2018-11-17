@@ -81,7 +81,7 @@ func attachMetadata(examples example.Examples) error {
 			"StatusCode",      // 10
 			"Favicon",         // 11
 			"ReferringTweets", // 12
-			"HatenaBookmarks", // 13
+			"HatenaBookmark",  // 13
 		).Result()
 		if err != nil {
 			return err
@@ -151,11 +151,11 @@ func attachMetadata(examples example.Examples) error {
 				e.ReferringTweets = tweets
 			}
 		}
-		// HatenaBookmarks
+		// HatenaBookmark
 		if result, ok := vals[13].(string); ok {
-			bookmarks := hatena_bookmark.HatenaBookmarks{}
+			bookmarks := hatena_bookmark.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
-				e.HatenaBookmarks = bookmarks
+				e.HatenaBookmark = bookmarks
 			}
 		}
 	}
@@ -180,7 +180,7 @@ func attachLightMetadata(examples example.Examples) error {
 			"StatusCode",      // 7
 			"Favicon",         // 8
 			"ReferringTweets", // 9
-			"HatenaBookmarks", // 10
+			"HatenaBookmark",  // 10
 		)
 		url2Example[key] = e
 	}
@@ -242,11 +242,11 @@ func attachLightMetadata(examples example.Examples) error {
 				e.ReferringTweets = tweets
 			}
 		}
-		// HatenaBookmarks
+		// HatenaBookmark
 		if result, ok := vals[10].(string); ok {
-			bookmarks := hatena_bookmark.HatenaBookmarks{}
+			bookmarks := hatena_bookmark.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
-				e.HatenaBookmarks = bookmarks
+				e.HatenaBookmark = bookmarks
 			}
 		}
 	}
@@ -333,7 +333,7 @@ func SetExample(example example.Example) error {
 	vals["StatusCode"] = example.StatusCode
 	vals["Favicon"] = example.Favicon
 	vals["ReferringTweets"] = &example.ReferringTweets
-	vals["HatenaBookmarks"] = &example.HatenaBookmarks
+	vals["HatenaBookmark"] = &example.HatenaBookmark
 
 	if err := client.HMSet(key, vals).Err(); err != nil {
 		return err

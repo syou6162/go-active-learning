@@ -17,7 +17,7 @@ type Bookmark struct {
 	Comment string `json:"comment"`
 }
 
-type HatenaBookmarks struct {
+type HatenaBookmark struct {
 	Title      string      `json:"title"`
 	Bookmarks  []*Bookmark `json:"bookmarks"`
 	Screenshot string      `json:"screenshot"`
@@ -27,7 +27,7 @@ type HatenaBookmarks struct {
 	EId        string      `json:"eid"`
 }
 
-func (bookmarks *HatenaBookmarks) MarshalBinary() ([]byte, error) {
+func (bookmarks *HatenaBookmark) MarshalBinary() ([]byte, error) {
 	json, err := json.Marshal(bookmarks)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (bookmarks *HatenaBookmarks) MarshalBinary() ([]byte, error) {
 	return []byte(json), nil
 }
 
-func (bookmarks *HatenaBookmarks) UnmarshalBinary(data []byte) error {
+func (bookmarks *HatenaBookmark) UnmarshalBinary(data []byte) error {
 	err := json.Unmarshal(data, bookmarks)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (bookmarks *HatenaBookmarks) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-func GetHatenaBookmark(url string) (*HatenaBookmarks, error) {
+func GetHatenaBookmark(url string) (*HatenaBookmark, error) {
 	// ref: http://developer.hatena.ne.jp/ja/documents/bookmark/apis/getinfo
 	res, err := http.Get(fmt.Sprintf("http://b.hatena.ne.jp/entry/jsonlite/?url=%s", url))
 	if err != nil {
@@ -59,7 +59,7 @@ func GetHatenaBookmark(url string) (*HatenaBookmarks, error) {
 		return nil, err
 	}
 
-	bookmarks := HatenaBookmarks{}
+	bookmarks := HatenaBookmark{}
 	err = json.Unmarshal(body, &bookmarks)
 	if error != nil {
 		return nil, err
