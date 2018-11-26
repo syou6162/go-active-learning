@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
+
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
@@ -42,4 +43,3 @@ func (r *repository) Close() error {
 		return nil
 	}
 }
-
