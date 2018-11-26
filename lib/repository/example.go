@@ -151,6 +151,7 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	return r.readExamples(query, pq.Array(urls))
 }
 
-func (r *repository) DeleteAllExamples() (sql.Result, error) {
-	return r.db.Exec(`DELETE FROM example`)
+func (r *repository) DeleteAllExamples() error {
+	_, err := r.db.Exec(`DELETE FROM example`)
+	return err
 }

@@ -26,7 +26,7 @@ type Repository interface {
 	ReadUnlabeledExamples(limit int) (model.Examples, error)
 	SearchExamplesByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
-	DeleteAllExamples() (sql.Result, error)
+	DeleteAllExamples() error
 	Close() error
 }
 

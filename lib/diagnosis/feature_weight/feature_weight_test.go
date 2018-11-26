@@ -6,6 +6,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/command"
 	"github.com/syou6162/go-active-learning/lib/repository"
+	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
@@ -20,15 +21,15 @@ func TestDoListFeatureWeight(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	defer repo.Close()
+	a := service.NewApp(repo)
+	defer a.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = a.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
 	for _, example := range train {
-		if err = repo.InsertOrUpdateExample(example); err != nil {
+		if err = a.InsertOrUpdateExample(example); err != nil {
 			t.Error(err)
 		}
 	}

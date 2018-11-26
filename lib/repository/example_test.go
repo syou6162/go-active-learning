@@ -41,8 +41,7 @@ func TestInsertExamplesFromReader(t *testing.T) {
 	}
 	defer repo.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = repo.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
@@ -69,8 +68,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 	defer repo.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = repo.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
@@ -163,8 +161,7 @@ func TestReadLabeledExamples(t *testing.T) {
 	}
 	defer repo.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = repo.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
@@ -197,8 +194,7 @@ func TestReadRecentExamples(t *testing.T) {
 	}
 	defer repo.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = repo.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
@@ -231,8 +227,7 @@ func TestSearchExamplesByUlr(t *testing.T) {
 	}
 	defer repo.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = repo.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
@@ -270,8 +265,7 @@ func TestSearchExamplesByUlrs(t *testing.T) {
 	}
 	defer repo.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = repo.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
@@ -304,8 +298,7 @@ func TestSearchExamplesByLabels(t *testing.T) {
 	}
 	defer repo.Close()
 
-	_, err = repo.DeleteAllExamples()
-	if err != nil {
+	if err = repo.DeleteAllExamples(); err != nil {
 		t.Error(err)
 	}
 
