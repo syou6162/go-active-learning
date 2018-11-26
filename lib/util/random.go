@@ -3,10 +3,10 @@ package util
 import (
 	"math/rand"
 
-	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
-func Shuffle(examples example.Examples) {
+func Shuffle(examples model.Examples) {
 	n := len(examples)
 	for i := n - 1; i >= 0; i-- {
 		j := rand.Intn(i + 1)

@@ -1,10 +1,10 @@
 package evaluation
 
 import (
-	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
-func GetAccuracy(gold []example.LabelType, predict []example.LabelType) float64 {
+func GetAccuracy(gold []model.LabelType, predict []model.LabelType) float64 {
 	if len(gold) != len(predict) {
 		return 0.0
 	}
@@ -17,28 +17,28 @@ func GetAccuracy(gold []example.LabelType, predict []example.LabelType) float64 
 	return sum / float64(len(gold))
 }
 
-func GetPrecision(gold []example.LabelType, predict []example.LabelType) float64 {
+func GetPrecision(gold []model.LabelType, predict []model.LabelType) float64 {
 	tp := 0.0
 	fp := 0.0
 	for i, v := range gold {
-		if v == example.POSITIVE && predict[i] == example.POSITIVE {
+		if v == model.POSITIVE && predict[i] == model.POSITIVE {
 			tp += 1.0
 		}
-		if v == example.NEGATIVE && predict[i] == example.POSITIVE {
+		if v == model.NEGATIVE && predict[i] == model.POSITIVE {
 			fp += 1.0
 		}
 	}
 	return tp / (tp + fp)
 }
 
-func GetRecall(gold []example.LabelType, predict []example.LabelType) float64 {
+func GetRecall(gold []model.LabelType, predict []model.LabelType) float64 {
 	tp := 0.0
 	fn := 0.0
 	for i, v := range gold {
-		if v == example.POSITIVE && predict[i] == example.POSITIVE {
+		if v == model.POSITIVE && predict[i] == model.POSITIVE {
 			tp += 1.0
 		}
-		if v == example.POSITIVE && predict[i] == example.NEGATIVE {
+		if v == model.POSITIVE && predict[i] == model.NEGATIVE {
 			fn += 1.0
 		}
 	}

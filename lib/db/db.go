@@ -11,7 +11,7 @@ import (
 
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
-	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
@@ -59,8 +59,8 @@ func Close() error {
 	}
 }
 
-func InsertOrUpdateExample(e *example.Example) (sql.Result, error) {
-	var label example.LabelType
+func InsertOrUpdateExample(e *model.Example) (sql.Result, error) {
+	var label model.LabelType
 
 	url := e.FinalUrl
 	if url == "" {
@@ -75,14 +75,14 @@ func InsertOrUpdateExample(e *example.Example) (sql.Result, error) {
 		return nil, err
 	default:
 		if label != e.Label && // ラベルが変更される
-			e.Label != example.UNLABELED { // 変更されるラベルはPOSITIVEかNEGATIVEのみ
+			e.Label != model.UNLABELED { // 変更されるラベルはPOSITIVEかNEGATIVEのみ
 			return db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, e.UpdatedAt)
 		}
 		return nil, nil
 	}
 }
 
-func InsertExampleFromScanner(scanner *bufio.Scanner) (*example.Example, error) {
+func InsertExampleFromScanner(scanner *bufio.Scanner) (*model.Example, error) {
 	line := scanner.Text()
 	e, err := file.ParseLine(line)
 	if err != nil {
@@ -110,24 +110,24 @@ func InsertExamplesFromReader(r io.Reader) error {
 	return nil
 }
 
-func readExamples(query string, args ...interface{}) (example.Examples, error) {
+func readExamples(query string, args ...interface{}) (model.Examples, error) {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var examples example.Examples
+	var examples model.Examples
 
 	for rows.Next() {
-		var label example.LabelType
+		var label model.LabelType
 		var url string
 		var createdAt time.Time
 		var updatedAt time.Time
 		if err := rows.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
 			return nil, err
 		}
-		e := example.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
+		e := model.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
 		examples = append(examples, &e)
 	}
 
@@ -138,8 +138,8 @@ func readExamples(query string, args ...interface{}) (example.Examples, error) {
 	return examples, nil
 }
 
-func readExample(query string, args ...interface{}) (*example.Example, error) {
-	var label example.LabelType
+func readExample(query string, args ...interface{}) (*model.Example, error) {
+	var label model.LabelType
 	var url string
 	var createdAt time.Time
 	var updatedAt time.Time
@@ -148,48 +148,48 @@ func readExample(query string, args ...interface{}) (*example.Example, error) {
 	if err := row.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
 		return nil, err
 	}
-	e := example.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
+	e := model.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
 	return &e, nil
 }
 
-func ReadExamples() (example.Examples, error) {
+func ReadExamples() (model.Examples, error) {
 	query := `SELECT url, label, created_at, updated_at FROM example;`
 	return readExamples(query)
 }
 
-func ReadRecentExamples(from time.Time) (example.Examples, error) {
+func ReadRecentExamples(from time.Time) (model.Examples, error) {
 	query := `SELECT url, label, created_at, updated_at FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
 	return readExamples(query, from)
 }
 
-func ReadExamplesByLabel(label example.LabelType, limit int) (example.Examples, error) {
+func ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
 	query := `SELECT url, label, created_at, updated_at FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
 	return readExamples(query, label, limit)
 }
 
-func ReadLabeledExamples(limit int) (example.Examples, error) {
+func ReadLabeledExamples(limit int) (model.Examples, error) {
 	query := `SELECT url, label, created_at, updated_at FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return readExamples(query, limit)
 }
 
-func ReadPositiveExamples(limit int) (example.Examples, error) {
-	return ReadExamplesByLabel(example.POSITIVE, limit)
+func ReadPositiveExamples(limit int) (model.Examples, error) {
+	return ReadExamplesByLabel(model.POSITIVE, limit)
 }
 
-func ReadNegativeExamples(limit int) (example.Examples, error) {
-	return ReadExamplesByLabel(example.NEGATIVE, limit)
+func ReadNegativeExamples(limit int) (model.Examples, error) {
+	return ReadExamplesByLabel(model.NEGATIVE, limit)
 }
 
-func ReadUnlabeledExamples(limit int) (example.Examples, error) {
-	return ReadExamplesByLabel(example.UNLABELED, limit)
+func ReadUnlabeledExamples(limit int) (model.Examples, error) {
+	return ReadExamplesByLabel(model.UNLABELED, limit)
 }
 
-func SearchExamplesByUlr(url string) (*example.Example, error) {
+func SearchExamplesByUlr(url string) (*model.Example, error) {
 	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = $1;`
 	return readExample(query, url)
 }
 
-func SearchExamplesByUlrs(urls []string) (example.Examples, error) {
+func SearchExamplesByUlrs(urls []string) (model.Examples, error) {
 	// ref: https://godoc.org/github.com/lib/pq#Array
 	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = ANY($1);`
 	return readExamples(query, pq.Array(urls))

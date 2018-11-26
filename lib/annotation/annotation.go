@@ -3,7 +3,7 @@ package annotation
 import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/classifier"
-	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
 type ActionType int
@@ -33,8 +33,8 @@ func rune2ActionType(r rune) ActionType {
 	}
 }
 
-func NextExampleToBeAnnotated(model classifier.BinaryClassifier, examples example.Examples) *example.Example {
-	unlabeledExamples := model.SortByScore(examples)
+func NextExampleToBeAnnotated(m classifier.BinaryClassifier, examples model.Examples) *model.Example {
+	unlabeledExamples := m.SortByScore(examples)
 	if len(unlabeledExamples) == 0 {
 		return nil
 	}

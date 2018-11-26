@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
 func TestMain(m *testing.M) {
@@ -63,10 +64,10 @@ func TestErrorCount(t *testing.T) {
 }
 
 func TestAttachMetaData(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
-	e3 := example.NewExample("https://github.com", example.UNLABELED)
-	examples := example.Examples{e1, e2, e3}
+	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
+	e3 := example.NewExample("https://github.com", model.UNLABELED)
+	examples := model.Examples{e1, e2, e3}
 	for _, e := range examples {
 		key := "url:" + e.Url
 		client.Del(key)
@@ -104,10 +105,10 @@ func TestAttachMetaData(t *testing.T) {
 		t.Errorf("OgType must be blog for %s", examples[1].Url)
 	}
 
-	e4 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e5 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
-	e6 := example.NewExample("https://github.com", example.UNLABELED)
-	examples = example.Examples{e4, e5, e6}
+	e4 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e5 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
+	e6 := example.NewExample("https://github.com", model.UNLABELED)
+	examples = model.Examples{e4, e5, e6}
 	AttachMetadata(examples, false, false)
 
 	if examples[0].Title == "" {
@@ -132,8 +133,8 @@ func TestAttachMetaData(t *testing.T) {
 
 func TestAttachMetaDataNonExistingUrls(t *testing.T) {
 	nonExistingUrl := "http://hoge.fuga"
-	e := example.NewExample(nonExistingUrl, example.UNLABELED)
-	examples := example.Examples{e}
+	e := example.NewExample(nonExistingUrl, model.UNLABELED)
+	examples := model.Examples{e}
 	for _, e := range examples {
 		key := "url:" + e.Url
 		client.Del(key)
@@ -156,10 +157,10 @@ func TestAttachMetaDataNonExistingUrls(t *testing.T) {
 }
 
 func TestAttachLightMetaData(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
-	e3 := example.NewExample("https://github.com", example.UNLABELED)
-	examples := example.Examples{e1, e2, e3}
+	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
+	e3 := example.NewExample("https://github.com", model.UNLABELED)
+	examples := model.Examples{e1, e2, e3}
 	for _, e := range examples {
 		key := "url:" + e.Url
 		client.Del(key)
@@ -186,10 +187,10 @@ func TestAttachLightMetaData(t *testing.T) {
 
 	AttachMetadata(examples, true, true)
 
-	e1 = example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 = example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
-	e3 = example.NewExample("https://github.com", example.UNLABELED)
-	examples = example.Examples{e1, e2, e3}
+	e1 = example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e2 = example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
+	e3 = example.NewExample("https://github.com", model.UNLABELED)
+	examples = model.Examples{e1, e2, e3}
 
 	AttachMetadata(examples, false, true)
 
@@ -206,18 +207,18 @@ func TestAttachLightMetaData(t *testing.T) {
 }
 
 func TestReferringTweets(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	examples := example.Examples{e1}
+	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	examples := model.Examples{e1}
 	for _, e := range examples {
 		key := "url:" + e.Url
 		client.Del(key)
 	}
 
 	AttachMetadata(examples, true, true)
-	e1.ReferringTweets = example.ReferringTweets{"https:/twitter.com/1"}
+	e1.ReferringTweets = model.ReferringTweets{"https:/twitter.com/1"}
 	SetExample(*e1)
-	e2 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	examples = example.Examples{e2}
+	e2 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	examples = model.Examples{e2}
 	AttachMetadata(examples, false, true)
 
 	if len(examples[0].ReferringTweets) != 1 {
@@ -228,15 +229,15 @@ func TestReferringTweets(t *testing.T) {
 func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
 	listName := "general"
 	client.Del("list:" + listName)
-	err := AddExamplesToList(listName, example.Examples{})
+	err := AddExamplesToList(listName, model.Examples{})
 	if err == nil {
 		t.Error("Error should occur when adding empty list")
 	}
 
-	e1 := example.NewExample("http://b.hatena.ne.jp", example.POSITIVE)
-	e2 := example.NewExample("https://www.yasuhisay.info", example.NEGATIVE)
-	e3 := example.NewExample("https://github.com", example.UNLABELED)
-	examples := example.Examples{e1, e2, e3}
+	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
+	e3 := example.NewExample("https://github.com", model.UNLABELED)
+	examples := model.Examples{e1, e2, e3}
 	for _, e := range examples {
 		key := "url:" + e.Url
 		client.Del(key)
