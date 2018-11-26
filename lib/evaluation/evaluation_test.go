@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
 func TestGetAccuracy(t *testing.T) {
-	gold := []example.LabelType{example.POSITIVE, example.POSITIVE, example.NEGATIVE, example.NEGATIVE}
-	predict := []example.LabelType{example.POSITIVE, example.POSITIVE, example.NEGATIVE, example.POSITIVE}
+	gold := []model.LabelType{model.POSITIVE, model.POSITIVE, model.NEGATIVE, model.NEGATIVE}
+	predict := []model.LabelType{model.POSITIVE, model.POSITIVE, model.NEGATIVE, model.POSITIVE}
 	accuracy := 0.75
 
 	if GetAccuracy(gold, predict) != accuracy {
@@ -18,8 +18,8 @@ func TestGetAccuracy(t *testing.T) {
 }
 
 func TestGetPrecision(t *testing.T) {
-	gold := []example.LabelType{example.POSITIVE, example.POSITIVE, example.NEGATIVE, example.NEGATIVE}
-	predict := []example.LabelType{example.POSITIVE, example.NEGATIVE, example.NEGATIVE, example.POSITIVE}
+	gold := []model.LabelType{model.POSITIVE, model.POSITIVE, model.NEGATIVE, model.NEGATIVE}
+	predict := []model.LabelType{model.POSITIVE, model.NEGATIVE, model.NEGATIVE, model.POSITIVE}
 	precision := 0.5
 
 	if GetPrecision(gold, predict) != precision {
@@ -28,8 +28,8 @@ func TestGetPrecision(t *testing.T) {
 }
 
 func TestGetRecall(t *testing.T) {
-	gold := []example.LabelType{example.POSITIVE, example.POSITIVE, example.NEGATIVE, example.NEGATIVE}
-	predict := []example.LabelType{example.POSITIVE, example.NEGATIVE, example.NEGATIVE, example.POSITIVE}
+	gold := []model.LabelType{model.POSITIVE, model.POSITIVE, model.NEGATIVE, model.NEGATIVE}
+	predict := []model.LabelType{model.POSITIVE, model.NEGATIVE, model.NEGATIVE, model.POSITIVE}
 	recall := 0.5
 
 	if GetRecall(gold, predict) != recall {

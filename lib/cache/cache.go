@@ -16,7 +16,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/fetcher"
-	"github.com/syou6162/go-active-learning/lib/hatena_bookmark"
+	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -64,7 +64,7 @@ func Close() error {
 	}
 }
 
-func attachMetadata(examples example.Examples) error {
+func attachMetadata(examples model.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
 		vals, err := client.HMGet(key,
@@ -146,14 +146,14 @@ func attachMetadata(examples example.Examples) error {
 		}
 		// ReferringTweets
 		if result, ok := vals[12].(string); ok {
-			tweets := example.ReferringTweets{}
+			tweets := model.ReferringTweets{}
 			if err := tweets.UnmarshalBinary([]byte(result)); err == nil {
 				e.ReferringTweets = tweets
 			}
 		}
 		// HatenaBookmark
 		if result, ok := vals[13].(string); ok {
-			bookmarks := hatena_bookmark.HatenaBookmark{}
+			bookmarks := model.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
 				e.HatenaBookmark = bookmarks
 			}
@@ -162,9 +162,9 @@ func attachMetadata(examples example.Examples) error {
 	return nil
 }
 
-func attachLightMetadata(examples example.Examples) error {
+func attachLightMetadata(examples model.Examples) error {
 	url2Cmd := make(map[string]*redis.SliceCmd)
-	url2Example := make(map[string]*example.Example)
+	url2Example := make(map[string]*model.Example)
 	pipe := client.Pipeline()
 
 	for _, e := range examples {
@@ -237,14 +237,14 @@ func attachLightMetadata(examples example.Examples) error {
 		}
 		// ReferringTweets
 		if result, ok := vals[9].(string); ok {
-			tweets := example.ReferringTweets{}
+			tweets := model.ReferringTweets{}
 			if err := tweets.UnmarshalBinary([]byte(result)); err == nil {
 				e.ReferringTweets = tweets
 			}
 		}
 		// HatenaBookmark
 		if result, ok := vals[10].(string); ok {
-			bookmarks := hatena_bookmark.HatenaBookmark{}
+			bookmarks := model.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
 				e.HatenaBookmark = bookmarks
 			}
@@ -294,7 +294,7 @@ func getErrorCount(url string) (int, error) {
 	return cnt, nil
 }
 
-func fetchMetaData(e *example.Example) error {
+func fetchMetaData(e *model.Example) error {
 	article, err := fetcher.GetArticle(e.Url)
 	if err != nil {
 		return err
@@ -314,26 +314,26 @@ func fetchMetaData(e *example.Example) error {
 	return nil
 }
 
-func SetExample(example example.Example) error {
-	key := redisPrefix + ":" + example.Url
+func SetExample(e model.Example) error {
+	key := redisPrefix + ":" + e.Url
 
 	vals := make(map[string]interface{})
-	vals["Label"] = &example.Label
-	vals["Fv"] = &example.Fv
-	vals["Url"] = example.Url
-	vals["FinalUrl"] = example.FinalUrl
-	vals["Title"] = example.Title
-	vals["Description"] = example.Description
-	vals["OgDescription"] = example.OgDescription
-	vals["OgType"] = example.OgType
-	vals["OgImage"] = example.OgImage
-	vals["Body"] = example.Body
-	vals["Score"] = example.Score
-	vals["IsNew"] = example.IsNew
-	vals["StatusCode"] = example.StatusCode
-	vals["Favicon"] = example.Favicon
-	vals["ReferringTweets"] = &example.ReferringTweets
-	vals["HatenaBookmark"] = &example.HatenaBookmark
+	vals["Label"] = &e.Label
+	vals["Fv"] = &e.Fv
+	vals["Url"] = e.Url
+	vals["FinalUrl"] = e.FinalUrl
+	vals["Title"] = e.Title
+	vals["Description"] = e.Description
+	vals["OgDescription"] = e.OgDescription
+	vals["OgType"] = e.OgType
+	vals["OgImage"] = e.OgImage
+	vals["Body"] = e.Body
+	vals["Score"] = e.Score
+	vals["IsNew"] = e.IsNew
+	vals["StatusCode"] = e.StatusCode
+	vals["Favicon"] = e.Favicon
+	vals["ReferringTweets"] = &e.ReferringTweets
+	vals["HatenaBookmark"] = &e.HatenaBookmark
 
 	if err := client.HMSet(key, vals).Err(); err != nil {
 		return err
@@ -341,10 +341,10 @@ func SetExample(example example.Example) error {
 
 	// 一度にexpireされるとクロールも一度に走ってOOMが発生するので、多少ばらしてそれを避ける
 	hour := int64(240 * rand.Float64())
-	return SetExampleExpire(example, time.Hour*time.Duration(hour))
+	return SetExampleExpire(e, time.Hour*time.Duration(hour))
 }
 
-func SetExampleExpire(e example.Example, duration time.Duration) error {
+func SetExampleExpire(e model.Example, duration time.Duration) error {
 	key := redisPrefix + ":" + e.Url
 	if err := client.Expire(key, duration).Err(); err != nil {
 		return err
@@ -352,9 +352,9 @@ func SetExampleExpire(e example.Example, duration time.Duration) error {
 	return nil
 }
 
-func AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMetadata bool) {
+func AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMetadata bool) {
 	batchSize := 100
-	examplesList := make([]example.Examples, 0)
+	examplesList := make([]model.Examples, 0)
 	n := len(examples)
 
 	for i := 0; i < n; i += batchSize {
@@ -374,7 +374,7 @@ func AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMe
 		if !fetchNewExamples {
 			continue
 		}
-		examplesWithEmptyMetaData := example.Examples{}
+		examplesWithEmptyMetaData := model.Examples{}
 		for _, e := range l {
 			if e.StatusCode != 200 {
 				examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, e)
@@ -387,7 +387,7 @@ func AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMe
 		for idx, e := range examplesWithEmptyMetaData {
 			wg.Add(1)
 			sem <- struct{}{}
-			go func(e *example.Example, idx int) {
+			go func(e *model.Example, idx int) {
 				defer wg.Done()
 				cnt, err := getErrorCount(e.Url)
 				if err != nil {
@@ -412,7 +412,7 @@ func AttachMetadata(examples example.Examples, fetchNewExamples bool, useLightMe
 
 var listPrefix = "list:"
 
-func AddExamplesToList(listName string, examples example.Examples) error {
+func AddExamplesToList(listName string, examples model.Examples) error {
 	if err := client.Del(listPrefix + listName).Err(); err != nil {
 		return err
 	}

@@ -12,8 +12,9 @@ import (
 	"github.com/pkg/browser"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
-	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
+	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -44,13 +45,13 @@ func doAnnotate(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	err = db.Init()
+	repo, err := repository.New()
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer repo.Close()
 
-	examples, err := db.ReadExamples()
+	examples, err := repo.ReadExamples()
 	if err != nil {
 		return err
 	}
@@ -62,11 +63,11 @@ func doAnnotate(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	model := classifier.NewBinaryClassifier(examples)
+	m := classifier.NewBinaryClassifier(examples)
 
 annotationLoop:
 	for {
-		e := NextExampleToBeAnnotated(model, examples)
+		e := NextExampleToBeAnnotated(m, examples)
 		if e == nil {
 			fmt.Println("No example")
 			break annotationLoop
@@ -77,7 +78,7 @@ annotationLoop:
 			browser.OpenURL(e.Url)
 		}
 		if showActiveFeatures {
-			ShowActiveFeatures(model, *e, 5)
+			ShowActiveFeatures(m, *e, 5)
 		}
 
 		act, err := input2ActionType()
@@ -87,12 +88,12 @@ annotationLoop:
 		switch act {
 		case LABEL_AS_POSITIVE:
 			fmt.Println("Labeled as positive")
-			e.Annotate(example.POSITIVE)
-			db.InsertOrUpdateExample(e)
+			e.Annotate(model.POSITIVE)
+			repo.InsertOrUpdateExample(e)
 		case LABEL_AS_NEGATIVE:
 			fmt.Println("Labeled as negative")
-			e.Annotate(example.NEGATIVE)
-			db.InsertOrUpdateExample(e)
+			e.Annotate(model.NEGATIVE)
+			repo.InsertOrUpdateExample(e)
 		case SKIP:
 			fmt.Println("Skiped this example")
 			examples = util.RemoveExample(examples, *e)
@@ -105,7 +106,7 @@ annotationLoop:
 		default:
 			break annotationLoop
 		}
-		model = classifier.NewBinaryClassifier(examples)
+		m = classifier.NewBinaryClassifier(examples)
 	}
 
 	return nil
@@ -118,7 +119,7 @@ type FeatureWeightPair struct {
 
 type FeatureWeightPairs []FeatureWeightPair
 
-func SortedActiveFeatures(model classifier.BinaryClassifier, example example.Example, n int) FeatureWeightPairs {
+func SortedActiveFeatures(model classifier.BinaryClassifier, example model.Example, n int) FeatureWeightPairs {
 	pairs := FeatureWeightPairs{}
 	for _, f := range example.Fv {
 		pairs = append(pairs, FeatureWeightPair{f, model.GetWeight(f)})
@@ -139,7 +140,7 @@ func SortedActiveFeatures(model classifier.BinaryClassifier, example example.Exa
 	return result
 }
 
-func ShowActiveFeatures(model classifier.BinaryClassifier, example example.Example, n int) {
+func ShowActiveFeatures(model classifier.BinaryClassifier, example model.Example, n int) {
 	for _, pair := range SortedActiveFeatures(model, example, n) {
 		fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
 	}

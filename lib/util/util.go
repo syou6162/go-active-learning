@@ -3,11 +3,11 @@ package util
 import (
 	"os"
 
-	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
-func FilterLabeledExamples(examples example.Examples) example.Examples {
-	var result example.Examples
+func FilterLabeledExamples(examples model.Examples) model.Examples {
+	var result model.Examples
 	for _, e := range examples {
 		if e.IsLabeled() {
 			result = append(result, e)
@@ -16,8 +16,8 @@ func FilterLabeledExamples(examples example.Examples) example.Examples {
 	return result
 }
 
-func FilterUnlabeledExamples(examples example.Examples) example.Examples {
-	result := example.Examples{}
+func FilterUnlabeledExamples(examples model.Examples) model.Examples {
+	result := model.Examples{}
 
 	alreadyLabeledByURL := make(map[string]bool)
 	alreadyLabeledByTitle := make(map[string]bool)
@@ -56,8 +56,8 @@ func RemoveDuplicate(args []string) []string {
 	return results
 }
 
-func FilterStatusCodeOkExamples(examples example.Examples) example.Examples {
-	result := example.Examples{}
+func FilterStatusCodeOkExamples(examples model.Examples) model.Examples {
+	result := model.Examples{}
 
 	for _, e := range examples {
 		if e.StatusCode == 200 {
@@ -68,8 +68,8 @@ func FilterStatusCodeOkExamples(examples example.Examples) example.Examples {
 	return result
 }
 
-func RemoveExample(examples example.Examples, toBeRemoved example.Example) example.Examples {
-	result := example.Examples{}
+func RemoveExample(examples model.Examples, toBeRemoved model.Example) model.Examples {
+	result := model.Examples{}
 
 	for _, e := range examples {
 		if e.Url != toBeRemoved.Url {
@@ -80,18 +80,18 @@ func RemoveExample(examples example.Examples, toBeRemoved example.Example) examp
 	return result
 }
 
-func RemoveNegativeExamples(examples example.Examples) example.Examples {
-	result := example.Examples{}
+func RemoveNegativeExamples(examples model.Examples) model.Examples {
+	result := model.Examples{}
 	for _, e := range examples {
-		if e.Label != example.NEGATIVE {
+		if e.Label != model.NEGATIVE {
 			result = append(result, e)
 		}
 	}
 	return result
 }
 
-func UniqueByFinalUrl(examples example.Examples) example.Examples {
-	result := example.Examples{}
+func UniqueByFinalUrl(examples model.Examples) model.Examples {
+	result := model.Examples{}
 	m := make(map[string]bool)
 	for _, e := range examples {
 		if !m[e.FinalUrl] {
@@ -102,8 +102,8 @@ func UniqueByFinalUrl(examples example.Examples) example.Examples {
 	return result
 }
 
-func UniqueByTitle(examples example.Examples) example.Examples {
-	result := example.Examples{}
+func UniqueByTitle(examples model.Examples) model.Examples {
+	result := model.Examples{}
 	m := make(map[string]bool)
 	for _, e := range examples {
 		if !m[e.Title] {
@@ -114,7 +114,7 @@ func UniqueByTitle(examples example.Examples) example.Examples {
 	return result
 }
 
-func SplitTrainAndDev(examples example.Examples) (train example.Examples, dev example.Examples) {
+func SplitTrainAndDev(examples model.Examples) (train model.Examples, dev model.Examples) {
 	Shuffle(examples)
 	n := int(0.8 * float64(len(examples)))
 	return examples[0:n], examples[n:]

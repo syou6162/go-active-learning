@@ -11,8 +11,8 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
-	"github.com/syou6162/go-active-learning/lib/db"
-	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
+	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -25,13 +25,13 @@ func DoLabelConflict(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	err = db.Init()
+	repo, err := repository.New()
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer repo.Close()
 
-	examples, err := db.ReadExamples()
+	examples, err := repo.ReadExamples()
 	if err != nil {
 		return err
 	}
@@ -42,13 +42,13 @@ func DoLabelConflict(c *cli.Context) error {
 		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	model := classifier.NewBinaryClassifier(training)
+	m := classifier.NewBinaryClassifier(training)
 
-	wrongExamples := example.Examples{}
-	correctExamples := example.Examples{}
+	wrongExamples := model.Examples{}
+	correctExamples := model.Examples{}
 
 	for _, e := range training {
-		e.Score = model.PredictScore(e.Fv)
+		e.Score = m.PredictScore(e.Fv)
 		if float64(e.Label)*e.Score < 0 {
 			wrongExamples = append(wrongExamples, e)
 		} else {
@@ -58,12 +58,12 @@ func DoLabelConflict(c *cli.Context) error {
 
 	sort.Sort(sort.Reverse(wrongExamples))
 	sort.Sort(correctExamples)
-	printResult(model, correctExamples, wrongExamples)
+	printResult(m, correctExamples, wrongExamples)
 
 	return nil
 }
 
-func printResult(model classifier.BinaryClassifier, correctExamples example.Examples, wrongExamples example.Examples) error {
+func printResult(m classifier.BinaryClassifier, correctExamples model.Examples, wrongExamples model.Examples) error {
 	fmt.Println("Index\tLabel\tScore\tURL\tTitle")
 	result := append(wrongExamples, correctExamples...)
 
@@ -74,7 +74,7 @@ func printResult(model classifier.BinaryClassifier, correctExamples example.Exam
 		record := []string{
 			strconv.Itoa(idx),
 			strconv.Itoa(int(e.Label)),
-			fmt.Sprintf("%0.03f", model.PredictScore(e.Fv)),
+			fmt.Sprintf("%0.03f", m.PredictScore(e.Fv)),
 			e.Url,
 			e.Title,
 		}

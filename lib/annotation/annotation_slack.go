@@ -9,8 +9,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
-	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/model"
+	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -33,13 +34,13 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	err = db.Init()
+	repo, err := repository.New()
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer repo.Close()
 
-	examples, err := db.ReadExamples()
+	examples, err := repo.ReadExamples()
 	if err != nil {
 		return err
 	}
@@ -52,14 +53,14 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	model := classifier.NewBinaryClassifier(examples)
-	e := NextExampleToBeAnnotated(model, examples)
+	m := classifier.NewBinaryClassifier(examples)
+	e := NextExampleToBeAnnotated(m, examples)
 	if e == nil {
 		return errors.New("No e to annotate")
 	}
 
 	rtm.SendMessage(rtm.NewOutgoingMessage("Ready to annotate!", channelID))
-	showExample(rtm, model, e, channelID)
+	showExample(rtm, m, e, channelID)
 	prevTimestamp := ""
 
 annotationLoop:
@@ -82,12 +83,12 @@ annotationLoop:
 
 				switch act {
 				case LABEL_AS_POSITIVE:
-					e.Annotate(example.POSITIVE)
-					model = classifier.NewBinaryClassifier(examples)
+					e.Annotate(model.POSITIVE)
+					m = classifier.NewBinaryClassifier(examples)
 					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
-					e.Annotate(example.NEGATIVE)
-					model = classifier.NewBinaryClassifier(examples)
+					e.Annotate(model.NEGATIVE)
+					m = classifier.NewBinaryClassifier(examples)
 					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case SKIP:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Skiped this e", channelID))
@@ -101,11 +102,11 @@ annotationLoop:
 				default:
 					break annotationLoop
 				}
-				e = NextExampleToBeAnnotated(model, examples)
+				e = NextExampleToBeAnnotated(m, examples)
 				if e == nil {
 					return errors.New("No e to annotate")
 				}
-				showExample(rtm, model, e, channelID)
+				showExample(rtm, m, e, channelID)
 			case *slack.InvalidAuthEvent:
 				return errors.New("Invalid credentials")
 			default:
@@ -115,7 +116,7 @@ annotationLoop:
 	return nil
 }
 
-func showExample(rtm *slack.RTM, model classifier.BinaryClassifier, example *example.Example, channelID string) {
+func showExample(rtm *slack.RTM, model classifier.BinaryClassifier, example *model.Example, channelID string) {
 	activeFeaturesStr := "Active Features: "
 	for _, pair := range SortedActiveFeatures(model, *example, 5) {
 		activeFeaturesStr += fmt.Sprintf("%s(%+0.1f) ", pair.Feature, pair.Weight)

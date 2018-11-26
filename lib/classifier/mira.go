@@ -10,8 +10,8 @@ import (
 
 	mkr "github.com/mackerelio/mackerel-client-go"
 	"github.com/syou6162/go-active-learning/lib/evaluation"
-	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/feature"
+	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -24,7 +24,7 @@ func newMIRAClassifier(c float64) *MIRAClassifier {
 	return &MIRAClassifier{make(map[string]float64), c}
 }
 
-func NewMIRAClassifier(examples example.Examples, c float64) *MIRAClassifier {
+func NewMIRAClassifier(examples model.Examples, c float64) *MIRAClassifier {
 	train := util.FilterLabeledExamples(examples)
 	model := newMIRAClassifier(c)
 	for iter := 0; iter < 30; iter++ {
@@ -36,18 +36,18 @@ func NewMIRAClassifier(examples example.Examples, c float64) *MIRAClassifier {
 	return model
 }
 
-func OverSamplingPositiveExamples(examples example.Examples) example.Examples {
-	overSampled := example.Examples{}
-	posExamples := example.Examples{}
-	negExamples := example.Examples{}
+func OverSamplingPositiveExamples(examples model.Examples) model.Examples {
+	overSampled := model.Examples{}
+	posExamples := model.Examples{}
+	negExamples := model.Examples{}
 
 	numNeg := 0
 
 	for _, e := range examples {
-		if e.Label == example.NEGATIVE {
+		if e.Label == model.NEGATIVE {
 			numNeg += 1
 			negExamples = append(negExamples, e)
-		} else if e.Label == example.POSITIVE {
+		} else if e.Label == model.POSITIVE {
 			posExamples = append(posExamples, e)
 		}
 	}
@@ -73,7 +73,7 @@ func (l MIRAResultList) Len() int           { return len(l) }
 func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
-func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifier {
+func NewMIRAClassifierByCrossValidation(examples model.Examples) *MIRAClassifier {
 	util.Shuffle(examples)
 	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
 	train = OverSamplingPositiveExamples(train)
@@ -96,11 +96,11 @@ func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifi
 	}
 	wg.Wait()
 
-	for _, model := range models {
-		c := model.c
-		devPredicts := make([]example.LabelType, len(dev))
+	for _, m := range models {
+		c := m.c
+		devPredicts := make([]model.LabelType, len(dev))
 		for i, example := range dev {
-			devPredicts[i] = model.Predict(example.Fv)
+			devPredicts[i] = m.Predict(example.Fv)
 		}
 		accuracy := evaluation.GetAccuracy(ExtractGoldLabels(dev), devPredicts)
 		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
@@ -111,7 +111,7 @@ func NewMIRAClassifierByCrossValidation(examples example.Examples) *MIRAClassifi
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		miraResults = append(miraResults, MIRAResult{*model, f})
+		miraResults = append(miraResults, MIRAResult{*m, f})
 	}
 
 	sort.Sort(sort.Reverse(miraResults))
@@ -155,29 +155,29 @@ func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall 
 	return err
 }
 
-func (model *MIRAClassifier) learn(example example.Example) {
-	tmp := float64(example.Label) * model.PredictScore(example.Fv) // y w^T x
+func (m *MIRAClassifier) learn(example model.Example) {
+	tmp := float64(example.Label) * m.PredictScore(example.Fv) // y w^T x
 	loss := 0.0
 	if tmp < 1.0 {
 		loss = 1 - tmp
 	}
 
 	norm := float64(len(example.Fv) * len(example.Fv))
-	// tau := math.Min(model.c, loss/norm) // update by PA-I
-	tau := loss / (norm + 1.0/model.c) // update by PA-II
+	// tau := math.Min(m.c, loss/norm) // update by PA-I
+	tau := loss / (norm + 1.0/m.c) // update by PA-II
 
 	if tau != 0.0 {
 		for _, f := range example.Fv {
-			w, _ := model.weight[f]
-			model.weight[f] = w + tau*float64(example.Label)
+			w, _ := m.weight[f]
+			m.weight[f] = w + tau*float64(example.Label)
 		}
 	}
 }
 
-func (model MIRAClassifier) PredictScore(features feature.FeatureVector) float64 {
+func (m MIRAClassifier) PredictScore(features feature.FeatureVector) float64 {
 	result := 0.0
 	for _, f := range features {
-		w, ok := model.weight[f]
+		w, ok := m.weight[f]
 		if ok {
 			result = result + w*1.0
 		}
@@ -185,28 +185,28 @@ func (model MIRAClassifier) PredictScore(features feature.FeatureVector) float64
 	return result
 }
 
-func (model MIRAClassifier) Predict(features feature.FeatureVector) example.LabelType {
-	if model.PredictScore(features) > 0 {
-		return example.POSITIVE
+func (m MIRAClassifier) Predict(features feature.FeatureVector) model.LabelType {
+	if m.PredictScore(features) > 0 {
+		return model.POSITIVE
 	}
-	return example.NEGATIVE
+	return model.NEGATIVE
 }
 
-func (model MIRAClassifier) SortByScore(examples example.Examples) example.Examples {
-	return SortByScore(model, examples)
+func (m MIRAClassifier) SortByScore(examples model.Examples) model.Examples {
+	return SortByScore(m, examples)
 }
 
-func (model MIRAClassifier) GetWeight(f string) float64 {
-	w, ok := model.weight[f]
+func (m MIRAClassifier) GetWeight(f string) float64 {
+	w, ok := m.weight[f]
 	if ok {
 		return w
 	}
 	return 0.0
 }
 
-func (model MIRAClassifier) GetActiveFeatures() []string {
+func (m MIRAClassifier) GetActiveFeatures() []string {
 	result := make([]string, 0)
-	for f := range model.weight {
+	for f := range m.weight {
 		result = append(result, f)
 	}
 	return result
