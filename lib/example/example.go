@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/syou6162/go-active-learning/lib/feature"
-	"github.com/syou6162/go-active-learning/lib/hatena_bookmark"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
 type LabelType int
@@ -60,12 +60,12 @@ type Example struct {
 	Body            string `json:"Body"`
 	Score           float64
 	IsNew           bool
-	StatusCode      int                            `json:"StatusCode"`
-	Favicon         string                         `json:"Favicon"`
-	CreatedAt       time.Time                      `json:"CreatedAt"`
-	UpdatedAt       time.Time                      `json:"UpdatedAt"`
-	ReferringTweets ReferringTweets                `json:"ReferringTweets"`
-	HatenaBookmark  hatena_bookmark.HatenaBookmark `json:"HatenaBookmark"`
+	StatusCode      int                  `json:"StatusCode"`
+	Favicon         string               `json:"Favicon"`
+	CreatedAt       time.Time            `json:"CreatedAt"`
+	UpdatedAt       time.Time            `json:"UpdatedAt"`
+	ReferringTweets ReferringTweets      `json:"ReferringTweets"`
+	HatenaBookmark  model.HatenaBookmark `json:"HatenaBookmark"`
 }
 
 type Examples []*Example
@@ -94,7 +94,7 @@ func NewExample(url string, label LabelType) *Example {
 		CreatedAt:       now,
 		UpdatedAt:       now,
 		ReferringTweets: []string{},
-		HatenaBookmark:  hatena_bookmark.HatenaBookmark{},
+		HatenaBookmark:  model.HatenaBookmark{},
 	}
 }
 

@@ -16,7 +16,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/fetcher"
-	"github.com/syou6162/go-active-learning/lib/hatena_bookmark"
+	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -153,7 +153,7 @@ func attachMetadata(examples example.Examples) error {
 		}
 		// HatenaBookmark
 		if result, ok := vals[13].(string); ok {
-			bookmarks := hatena_bookmark.HatenaBookmark{}
+			bookmarks := model.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
 				e.HatenaBookmark = bookmarks
 			}
@@ -244,7 +244,7 @@ func attachLightMetadata(examples example.Examples) error {
 		}
 		// HatenaBookmark
 		if result, ok := vals[10].(string); ok {
-			bookmarks := hatena_bookmark.HatenaBookmark{}
+			bookmarks := model.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
 				e.HatenaBookmark = bookmarks
 			}
