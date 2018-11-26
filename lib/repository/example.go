@@ -13,7 +13,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
-func (r *repository) InsertOrUpdateExample(e *model.Example) (sql.Result, error) {
+func (r *repository) InsertOrUpdateExample(e *model.Example) error {
 	var label model.LabelType
 
 	url := e.FinalUrl
@@ -24,15 +24,17 @@ func (r *repository) InsertOrUpdateExample(e *model.Example) (sql.Result, error)
 	err := r.db.QueryRow(`SELECT label FROM example WHERE url = $1`, url).Scan(&label)
 	switch {
 	case err == sql.ErrNoRows:
-		return r.db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, e.CreatedAt, e.UpdatedAt)
+		_, err = r.db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, e.CreatedAt, e.UpdatedAt)
+		return err
 	case err != nil:
-		return nil, err
+		return err
 	default:
 		if label != e.Label && // ラベルが変更される
 			e.Label != model.UNLABELED { // 変更されるラベルはPOSITIVEかNEGATIVEのみ
-			return r.db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, e.UpdatedAt)
+			_, err = r.db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, e.UpdatedAt)
+			return err
 		}
-		return nil, nil
+		return nil
 	}
 }
 
@@ -42,7 +44,7 @@ func (r *repository) InsertExampleFromScanner(scanner *bufio.Scanner) (*model.Ex
 	if err != nil {
 		return nil, err
 	}
-	_, err = r.InsertOrUpdateExample(e)
+	err = r.InsertOrUpdateExample(e)
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +151,7 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	return r.readExamples(query, pq.Array(urls))
 }
 
-func (r *repository) DeleteAllExamples() (sql.Result, error) {
-	return r.db.Exec(`DELETE FROM example`)
+func (r *repository) DeleteAllExamples() error {
+	_, err := r.db.Exec(`DELETE FROM example`)
+	return err
 }

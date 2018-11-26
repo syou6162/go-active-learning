@@ -12,6 +12,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/repository"
+	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -38,9 +39,10 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	defer repo.Close()
+	app := service.NewApp(repo)
+	defer app.Close()
 
-	examples, err := repo.ReadExamples()
+	examples, err := app.ReadExamples()
 	if err != nil {
 		return err
 	}
