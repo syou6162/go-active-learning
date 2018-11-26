@@ -74,7 +74,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -91,7 +91,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -108,7 +108,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url but different label
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.POSITIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -125,7 +125,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// cannot update to unlabeled
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -142,7 +142,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// different url
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://another.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://another.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -168,15 +168,15 @@ func TestReadLabeledExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -202,15 +202,15 @@ func TestReadRecentExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -236,15 +236,15 @@ func TestSearchExamplesByUlr(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -275,15 +275,15 @@ func TestSearchExamplesByUlrs(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -309,15 +309,15 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}

@@ -28,8 +28,7 @@ func TestDoLabelConflict(t *testing.T) {
 	}
 
 	for _, example := range train {
-		_, err = repo.InsertOrUpdateExample(example)
-		if err != nil {
+		if err = repo.InsertOrUpdateExample(example); err != nil {
 			t.Error(err)
 		}
 	}
