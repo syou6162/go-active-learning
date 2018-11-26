@@ -9,9 +9,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
-	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/model"
+	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -34,13 +34,13 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	}
 	defer cache.Close()
 
-	err = db.Init()
+	repo, err := repository.New()
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer repo.Close()
 
-	examples, err := db.ReadExamples()
+	examples, err := repo.ReadExamples()
 	if err != nil {
 		return err
 	}

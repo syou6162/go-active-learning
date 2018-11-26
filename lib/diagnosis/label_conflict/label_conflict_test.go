@@ -5,7 +5,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/command"
-	"github.com/syou6162/go-active-learning/lib/db"
+	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
@@ -16,19 +16,19 @@ func TestDoLabelConflict(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = db.Init()
+	repo, err := repository.New()
 	if err != nil {
 		t.Error(err)
 	}
-	defer db.Close()
+	defer repo.Close()
 
-	_, err = db.DeleteAllExamples()
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
 	for _, example := range train {
-		_, err = db.InsertOrUpdateExample(example)
+		_, err = repo.InsertOrUpdateExample(example)
 		if err != nil {
 			t.Error(err)
 		}

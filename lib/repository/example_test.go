@@ -1,4 +1,4 @@
-package db_test
+package repository_test
 
 import (
 	"log"
@@ -6,30 +6,42 @@ import (
 	"testing"
 	"time"
 
-	"github.com/syou6162/go-active-learning/lib/db"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/model"
+	"github.com/syou6162/go-active-learning/lib/repository"
 )
 
 func TestMain(m *testing.M) {
-	err := db.Init()
+	repo, err := repository.New()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	defer db.Close()
+	defer repo.Close()
 
 	ret := m.Run()
 	os.Exit(ret)
 }
 
 func TestPing(t *testing.T) {
-	if err := db.Ping(); err != nil {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err := repo.Ping(); err != nil {
 		t.Errorf(err.Error())
 	}
 }
 
 func TestInsertExamplesFromReader(t *testing.T) {
-	_, err := db.DeleteAllExamples()
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -39,9 +51,9 @@ func TestInsertExamplesFromReader(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	db.InsertExamplesFromReader(fp)
+	repo.InsertExamplesFromReader(fp)
 
-	examples, err := db.ReadExamples()
+	examples, err := repo.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -51,17 +63,23 @@ func TestInsertExamplesFromReader(t *testing.T) {
 }
 
 func TestInsertOrUpdateExample(t *testing.T) {
-	_, err := db.DeleteAllExamples()
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadExamples()
+	examples, err := repo.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -73,12 +91,12 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples()
+	examples, err = repo.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -90,12 +108,12 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url but different label
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.POSITIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples()
+	examples, err = repo.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -107,12 +125,12 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// cannot update to unlabeled
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples()
+	examples, err = repo.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -124,12 +142,12 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// different url
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://another.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://another.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err = db.ReadExamples()
+	examples, err = repo.ReadExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -139,25 +157,31 @@ func TestInsertOrUpdateExample(t *testing.T) {
 }
 
 func TestReadLabeledExamples(t *testing.T) {
-	_, err := db.DeleteAllExamples()
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadLabeledExamples(10)
+	examples, err := repo.ReadLabeledExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -167,25 +191,31 @@ func TestReadLabeledExamples(t *testing.T) {
 }
 
 func TestReadRecentExamples(t *testing.T) {
-	_, err := db.DeleteAllExamples()
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadRecentExamples(time.Now().Add(time.Duration(-10) * time.Minute))
+	examples, err := repo.ReadRecentExamples(time.Now().Add(time.Duration(-10) * time.Minute))
 	if err != nil {
 		t.Error(err)
 	}
@@ -195,25 +225,31 @@ func TestReadRecentExamples(t *testing.T) {
 }
 
 func TestSearchExamplesByUlr(t *testing.T) {
-	_, err := db.DeleteAllExamples()
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
 
-	example, err := db.SearchExamplesByUlr("http://hoge1.com")
+	example, err := repo.SearchExamplesByUlr("http://hoge1.com")
 	if err != nil {
 		t.Error(err)
 	}
@@ -221,32 +257,38 @@ func TestSearchExamplesByUlr(t *testing.T) {
 		t.Errorf("example.Url == %s, want http://hoge1.com", example.Url)
 	}
 
-	example, err = db.SearchExamplesByUlr("http://hoge4.com")
+	example, err = repo.SearchExamplesByUlr("http://hoge4.com")
 	if err == nil {
 		t.Errorf("search result must be nil")
 	}
 }
 
 func TestSearchExamplesByUlrs(t *testing.T) {
-	_, err := db.DeleteAllExamples()
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.SearchExamplesByUlrs([]string{"http://hoge1.com", "http://hoge2.com"})
+	examples, err := repo.SearchExamplesByUlrs([]string{"http://hoge1.com", "http://hoge2.com"})
 	if err != nil {
 		t.Error(err)
 	}
@@ -256,25 +298,31 @@ func TestSearchExamplesByUlrs(t *testing.T) {
 }
 
 func TestSearchExamplesByLabels(t *testing.T) {
-	_, err := db.DeleteAllExamples()
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	_, err = repo.DeleteAllExamples()
 	if err != nil {
 		t.Error(err)
 	}
 
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = db.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	_, err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
 
-	examples, err := db.ReadPositiveExamples(10)
+	examples, err := repo.ReadPositiveExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -282,7 +330,7 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
 
-	examples, err = db.ReadNegativeExamples(10)
+	examples, err = repo.ReadNegativeExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -290,7 +338,7 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
 
-	examples, err = db.ReadUnlabeledExamples(10)
+	examples, err = repo.ReadUnlabeledExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
