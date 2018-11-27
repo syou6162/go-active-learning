@@ -32,7 +32,7 @@ jobs:
       - run: go get -t -d -v ./...
       - run: go build -v
       - run: psql -U postgres -f script/create_database.sql
-      - run: psql -U postgres -d go-active-learning-test -f script/create_table.sql
+      - run: sql-migrate up -env=test
       # Test
       - run: test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
       - run: make cover COVERAGE='/home/circleci/coverage.out'
