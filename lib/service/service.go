@@ -23,6 +23,7 @@ type GoActiveLearningApp interface {
 	SearchExamplesByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	DeleteAllExamples() error
+	Ping() error
 	Close() error
 }
 
@@ -32,6 +33,10 @@ func NewApp(repo repository.Repository) GoActiveLearningApp {
 
 type goActiveLearningApp struct {
 	repo repository.Repository
+}
+
+func (app *goActiveLearningApp) Ping() error {
+	return app.repo.Ping()
 }
 
 func (app *goActiveLearningApp) Close() error {
