@@ -32,6 +32,20 @@ func NewApp(repo repository.Repository, c cache.Cache) GoActiveLearningApp {
 	return &goActiveLearningApp{repo: repo, cache: c}
 }
 
+func NewDefaultApp() (GoActiveLearningApp, error) {
+	repo, err := repository.New()
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := cache.New()
+	if err != nil {
+		return nil, err
+	}
+
+	return &goActiveLearningApp{repo: repo, cache: c}, nil
+}
+
 type goActiveLearningApp struct {
 	repo  repository.Repository
 	cache cache.Cache
