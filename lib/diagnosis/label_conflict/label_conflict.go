@@ -28,7 +28,8 @@ func DoLabelConflict(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	app.AttachMetadata(examples, true, false)
+	app.Fetch(examples)
+	app.UpdateExamplesMetadata(examples)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {

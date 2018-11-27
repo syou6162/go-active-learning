@@ -25,7 +25,13 @@ type GoActiveLearningApp interface {
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	DeleteAllExamples() error
 
-	AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMetadata bool)
+	UpdateExampleMetadata(e model.Example) error
+	UpdateExamplesMetadata(examples model.Examples) error
+	UpdateExampleExpire(e model.Example, duration time.Duration) error
+	Fetch(examples model.Examples)
+
+	AttachMetadata(examples model.Examples) error
+	AttachLightMetadata(examples model.Examples) error
 
 	Ping() error
 	Close() error

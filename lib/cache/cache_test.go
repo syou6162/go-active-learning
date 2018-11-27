@@ -85,7 +85,7 @@ func TestAttachMetaData(t *testing.T) {
 	if len(examples[0].Fv) != 0 {
 		t.Errorf("Feature vector must be empty for %s", examples[0].Url)
 	}
-	cache.AttachMetadata(examples, false, false)
+	cache.AttachMetadata(examples)
 
 	if examples[0].Title != "" {
 		t.Errorf("Title must be empty for %s", examples[0].Url)
@@ -98,7 +98,8 @@ func TestAttachMetaData(t *testing.T) {
 		t.Errorf("OgType must be empty for %s", examples[1].Url)
 	}
 
-	cache.AttachMetadata(examples, true, false)
+	cache.Fetch(examples)
+	cache.UpdateExamplesMetadata(examples)
 	if examples[0].Title == "" {
 		t.Errorf("Title must not be empty for %s", examples[0].Url)
 	}
@@ -114,7 +115,7 @@ func TestAttachMetaData(t *testing.T) {
 	e5 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e6 := example.NewExample("https://github.com", model.UNLABELED)
 	examples = model.Examples{e4, e5, e6}
-	cache.AttachMetadata(examples, false, false)
+	cache.AttachMetadata(examples)
 
 	if examples[0].Title == "" {
 		t.Errorf("Title must be empty for %s", examples[0].Url)
@@ -153,7 +154,8 @@ func TestAttachMetaDataNonExistingUrls(t *testing.T) {
 	}
 
 	for i := 1; i <= 3; i++ {
-		cache.AttachMetadata(examples, true, false)
+		cache.Fetch(examples)
+		cache.AttachMetadata(examples)
 		if examples[0].Title != "" {
 			t.Errorf("Title must not be empty for %s", examples[0].Url)
 		}
@@ -189,7 +191,7 @@ func TestAttachLightMetaData(t *testing.T) {
 	if len(examples[0].Fv) != 0 {
 		t.Errorf("Feature vector must be empty for %s", examples[0].Url)
 	}
-	cache.AttachMetadata(examples, false, false)
+	cache.AttachMetadata(examples)
 
 	if examples[0].Title != "" {
 		t.Errorf("Title must be empty for %s", examples[0].Url)
@@ -202,16 +204,18 @@ func TestAttachLightMetaData(t *testing.T) {
 		t.Errorf("OgType must be empty for %s", examples[1].Url)
 	}
 
-	cache.AttachMetadata(examples, true, true)
+	cache.Fetch(examples)
+	cache.UpdateExamplesMetadata(examples)
 
 	e1 = example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	e2 = example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 = example.NewExample("https://github.com", model.UNLABELED)
 	examples = model.Examples{e1, e2, e3}
 
-	cache.AttachMetadata(examples, false, true)
+	cache.AttachLightMetadata(examples)
 
 	if examples[0].Title == "" {
+		println(examples[0].Title)
 		t.Errorf("Title must not be empty for %s", examples[0].Url)
 	}
 	if len(examples[0].Fv) != 0 {
@@ -219,6 +223,7 @@ func TestAttachLightMetaData(t *testing.T) {
 	}
 
 	if examples[1].OgType != "blog" {
+		println(examples[1].OgType)
 		t.Errorf("OgType must be blog for %s", examples[1].Url)
 	}
 }
@@ -237,12 +242,13 @@ func TestReferringTweets(t *testing.T) {
 		cache.client.Del(key)
 	}
 
-	cache.AttachMetadata(examples, true, true)
+	cache.Fetch(examples)
+	cache.AttachMetadata(examples)
 	e1.ReferringTweets = model.ReferringTweets{"https:/twitter.com/1"}
-	cache.SetExample(*e1)
+	cache.UpdateExampleMetadata(*e1)
 	e2 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	examples = model.Examples{e2}
-	cache.AttachMetadata(examples, false, true)
+	cache.AttachMetadata(examples)
 
 	if len(examples[0].ReferringTweets) != 1 {
 		t.Errorf("len(examples[0].ReferringTweets) should be 1, but %d", len(examples[0].ReferringTweets))
@@ -271,7 +277,8 @@ func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
 		key := "url:" + e.Url
 		cache.client.Del(key)
 	}
-	cache.AttachMetadata(examples, true, false)
+	cache.Fetch(examples)
+	cache.AttachMetadata(examples)
 
 	err = cache.AddExamplesToList(listName, examples)
 	if err != nil {
