@@ -38,9 +38,21 @@ type goActiveLearningApp struct {
 }
 
 func (app *goActiveLearningApp) Ping() error {
-	return app.repo.Ping()
+	if err := app.repo.Ping(); err != nil {
+		return err
+	}
+	if err := app.cache.Ping(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (app *goActiveLearningApp) Close() error {
-	return app.repo.Close()
+	if err := app.repo.Close(); err != nil {
+		return err
+	}
+	if err := app.cache.Close(); err != nil {
+		return err
+	}
+	return nil
 }
