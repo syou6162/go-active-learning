@@ -24,14 +24,16 @@ func (r *repository) InsertOrUpdateExample(e *model.Example) error {
 	err := r.db.QueryRow(`SELECT label FROM example WHERE url = $1`, url).Scan(&label)
 	switch {
 	case err == sql.ErrNoRows:
-		_, err = r.db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, e.CreatedAt, e.UpdatedAt)
+		_, err = r.db.Exec(`INSERT INTO example (url, final_url, title, description, og_description, og_type, og_image, body, score, is_new, status_code, favicon, label, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+			url, e.FinalUrl, e.Title, e.Description, e.OgDescription, e.OgType, e.OgImage, e.Body, e.Score, e.IsNew, e.StatusCode, e.Favicon, e.Label, e.CreatedAt, e.UpdatedAt)
 		return err
 	case err != nil:
 		return err
 	default:
 		if label != e.Label && // ラベルが変更される
 			e.Label != model.UNLABELED { // 変更されるラベルはPOSITIVEかNEGATIVEのみ
-			_, err = r.db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, e.UpdatedAt)
+			_, err = r.db.Exec(`UPDATE example SET label = $2, updated_at = $3, title = $4, description = $5, og_description = $6, og_type = $7, og_image = $8, body = $9, score = $10, is_new = $11, status_code = $12, favicon = $13 WHERE url = $1 `,
+				url, e.Label, e.UpdatedAt, e.Title, e.Description, e.OgDescription, e.OgType, e.OgImage, e.Body, e.Score, e.IsNew, e.StatusCode, e.Favicon)
 			return err
 		}
 		return nil
