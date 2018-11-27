@@ -39,11 +39,11 @@ func doAnnotate(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 	showActiveFeatures := c.Bool("show-active-features")
 
-	err := cache.Init()
+	cache_, err := cache.New()
 	if err != nil {
 		return err
 	}
-	defer cache.Close()
+	defer cache_.Close()
 
 	repo, err := repository.New()
 	if err != nil {
@@ -59,7 +59,7 @@ func doAnnotate(c *cli.Context) error {
 	stat := example.GetStat(examples)
 	fmt.Fprintln(os.Stderr, fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]))
 
-	cache.AttachMetadata(examples, true, false)
+	cache_.AttachMetadata(examples, true, false)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}

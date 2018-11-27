@@ -20,54 +20,54 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
-var client *redis.Client
-var once sync.Once
-
-type Cache struct {
-	Client *redis.Client
+type Cache interface {
+	Ping() error
+	Close() error
+	SetExample(e model.Example) error
+	SetExampleExpire(e model.Example, duration time.Duration) error
+	AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMetadata bool)
+	AddExamplesToList(listName string, examples model.Examples) error
+	GetUrlsFromList(listName string, from int64, to int64) ([]string, error)
 }
 
-var redisPrefix = "url"
+type cache struct {
+	client *redis.Client
+}
 
-func Init() error {
-	var err error
-	once.Do(func() {
-		host := util.GetEnv("REDIS_HOST", "localhost")
-		client = redis.NewClient(&redis.Options{
-			Addr:        fmt.Sprintf("%s:6379", host),
-			Password:    "", // no password set
-			DB:          0,  // use default DB
-			PoolSize:    100,
-			PoolTimeout: time.Duration(5) * time.Second,
-			IdleTimeout: time.Duration(10) * time.Second,
-		})
-		_, err = client.Ping().Result()
-		if err != nil {
-			return
-		}
+func New() (*cache, error) {
+	host := util.GetEnv("REDIS_HOST", "localhost")
+	client := redis.NewClient(&redis.Options{
+		Addr:        fmt.Sprintf("%s:6379", host),
+		Password:    "", // no password set
+		DB:          0,  // use default DB
+		PoolSize:    100,
+		PoolTimeout: time.Duration(5) * time.Second,
+		IdleTimeout: time.Duration(10) * time.Second,
 	})
-	if err != nil {
-		return err
+	if _, err := client.Ping().Result(); err != nil {
+		return nil, err
 	}
-	return nil
+	return &cache{client: client}, nil
 }
 
-func Ping() error {
-	return client.Ping().Err()
+func (c *cache) Ping() error {
+	return c.client.Ping().Err()
 }
 
-func Close() error {
-	if client != nil {
-		return client.Close()
+func (c *cache) Close() error {
+	if c.client != nil {
+		return c.client.Close()
 	} else {
 		return nil
 	}
 }
 
-func attachMetadata(examples model.Examples) error {
+var redisPrefix = "url"
+
+func (c *cache) attachMetadata(examples model.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
-		vals, err := client.HMGet(key,
+		vals, err := c.client.HMGet(key,
 			"Fv",              // 0
 			"FinalUrl",        // 1
 			"Title",           // 2
@@ -162,10 +162,10 @@ func attachMetadata(examples model.Examples) error {
 	return nil
 }
 
-func attachLightMetadata(examples model.Examples) error {
+func (c *cache) attachLightMetadata(examples model.Examples) error {
 	url2Cmd := make(map[string]*redis.SliceCmd)
 	url2Example := make(map[string]*model.Example)
-	pipe := client.Pipeline()
+	pipe := c.client.Pipeline()
 
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
@@ -255,35 +255,35 @@ func attachLightMetadata(examples model.Examples) error {
 
 var errorCountPrefix = "errorCountPrefix:"
 
-func incErrorCount(url string) error {
+func (c *cache) incErrorCount(url string) error {
 	key := errorCountPrefix + url
-	exist, err := client.Exists(key).Result()
+	exist, err := c.client.Exists(key).Result()
 	if err != nil {
 		return err
 	}
 	if exist == 0 {
 		hour := 24 * 10
-		client.Set(key, 1, time.Hour*time.Duration(hour))
+		c.client.Set(key, 1, time.Hour*time.Duration(hour))
 		return nil
 	} else {
-		if _, err = client.Incr(key).Result(); err != nil {
+		if _, err = c.client.Incr(key).Result(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func getErrorCount(url string) (int, error) {
+func (c *cache) getErrorCount(url string) (int, error) {
 	key := errorCountPrefix + url
-	c, err := client.Exists(key).Result()
+	ok, err := c.client.Exists(key).Result()
 	if err != nil {
 		return 0, err
 	}
-	if c == 0 {
+	if ok == 0 {
 		return 0, nil
 	}
 
-	cntStr, err := client.Get(key).Result()
+	cntStr, err := c.client.Get(key).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -314,7 +314,7 @@ func fetchMetaData(e *model.Example) error {
 	return nil
 }
 
-func SetExample(e model.Example) error {
+func (c *cache) SetExample(e model.Example) error {
 	key := redisPrefix + ":" + e.Url
 
 	vals := make(map[string]interface{})
@@ -335,24 +335,24 @@ func SetExample(e model.Example) error {
 	vals["ReferringTweets"] = &e.ReferringTweets
 	vals["HatenaBookmark"] = &e.HatenaBookmark
 
-	if err := client.HMSet(key, vals).Err(); err != nil {
+	if err := c.client.HMSet(key, vals).Err(); err != nil {
 		return err
 	}
 
 	// 一度にexpireされるとクロールも一度に走ってOOMが発生するので、多少ばらしてそれを避ける
 	hour := int64(240 * rand.Float64())
-	return SetExampleExpire(e, time.Hour*time.Duration(hour))
+	return c.SetExampleExpire(e, time.Hour*time.Duration(hour))
 }
 
-func SetExampleExpire(e model.Example, duration time.Duration) error {
+func (c *cache) SetExampleExpire(e model.Example, duration time.Duration) error {
 	key := redisPrefix + ":" + e.Url
-	if err := client.Expire(key, duration).Err(); err != nil {
+	if err := c.client.Expire(key, duration).Err(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMetadata bool) {
+func (c *cache) AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMetadata bool) {
 	batchSize := 100
 	examplesList := make([]model.Examples, 0)
 	n := len(examples)
@@ -363,11 +363,11 @@ func AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMeta
 	}
 	for _, l := range examplesList {
 		if useLightMetadata {
-			if err := attachLightMetadata(l); err != nil {
+			if err := c.attachLightMetadata(l); err != nil {
 				log.Println(err.Error())
 			}
 		} else {
-			if err := attachMetadata(l); err != nil {
+			if err := c.attachMetadata(l); err != nil {
 				log.Println(err.Error())
 			}
 		}
@@ -389,17 +389,17 @@ func AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMeta
 			sem <- struct{}{}
 			go func(e *model.Example, idx int) {
 				defer wg.Done()
-				cnt, err := getErrorCount(e.Url)
+				cnt, err := c.getErrorCount(e.Url)
 				if err != nil {
 					log.Println(err.Error())
 				}
 				if cnt < 5 {
 					fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 					if err := fetchMetaData(e); err != nil {
-						incErrorCount(e.Url)
+						c.incErrorCount(e.Url)
 						log.Println(err.Error())
 					}
-					if err := SetExample(*e); err != nil {
+					if err := c.SetExample(*e); err != nil {
 						log.Println(err.Error())
 					}
 				}
@@ -412,8 +412,8 @@ func AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMeta
 
 var listPrefix = "list:"
 
-func AddExamplesToList(listName string, examples model.Examples) error {
-	if err := client.Del(listPrefix + listName).Err(); err != nil {
+func (c *cache) AddExamplesToList(listName string, examples model.Examples) error {
+	if err := c.client.Del(listPrefix + listName).Err(); err != nil {
 		return err
 	}
 
@@ -426,15 +426,15 @@ func AddExamplesToList(listName string, examples model.Examples) error {
 		result = append(result, redis.Z{Score: e.Score, Member: url})
 	}
 	// ToDo: take care the case when result is empty
-	err := client.ZAdd(listPrefix+listName, result...).Err()
+	err := c.client.ZAdd(listPrefix+listName, result...).Err()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
-	sliceCmd := client.ZRevRange(listPrefix+listName, from, to)
+func (c *cache) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
+	sliceCmd := c.client.ZRevRange(listPrefix+listName, from, to)
 	if sliceCmd.Err() != nil {
 		return nil, sliceCmd.Err()
 	}

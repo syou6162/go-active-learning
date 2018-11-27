@@ -25,11 +25,11 @@ func (p FeatureList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func DoListFeatureWeight(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 
-	err := cache.Init()
+	cache_, err := cache.New()
 	if err != nil {
 		return err
 	}
-	defer cache.Close()
+	defer cache_.Close()
 
 	repo, err := repository.New()
 	if err != nil {
@@ -41,7 +41,7 @@ func DoListFeatureWeight(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	cache.AttachMetadata(examples, true, false)
+	cache_.AttachMetadata(examples, true, false)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {

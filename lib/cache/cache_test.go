@@ -1,42 +1,41 @@
 package cache
 
 import (
-	"log"
-	"os"
 	"testing"
 
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/model"
 )
 
-func TestMain(m *testing.M) {
-	err := Init()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer Close()
-
-	ret := m.Run()
-	os.Exit(ret)
-}
-
 func TestPing(t *testing.T) {
-	if err := Ping(); err != nil {
+	cache, err := New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer cache.Close()
+
+	if err := cache.Ping(); err != nil {
 		t.Errorf(err.Error())
 	}
 }
 
 func TestErrorCount(t *testing.T) {
+	cache, err := New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer cache.Close()
+
 	existingUrl := "https://github.com"
 	nonExistingUrl := "http://hoge.fuga"
 	urls := []string{existingUrl, nonExistingUrl}
 	for _, u := range urls {
 		key := errorCountPrefix + u
-		client.Del(key)
+		cache.client.Del(key)
 	}
 
 	for _, u := range urls {
-		cnt, err := getErrorCount(u)
+		cnt, err := cache.getErrorCount(u)
 		if err != nil {
 			t.Errorf("Cannot get error count: %s", err.Error())
 		}
@@ -46,14 +45,14 @@ func TestErrorCount(t *testing.T) {
 	}
 
 	for _, u := range urls {
-		err := incErrorCount(u)
+		err := cache.incErrorCount(u)
 		if err != nil {
 			t.Errorf("Cannot get error count: %s", err.Error())
 		}
 	}
 
 	for _, u := range urls {
-		cnt, err := getErrorCount(u)
+		cnt, err := cache.getErrorCount(u)
 		if err != nil {
 			t.Errorf("Cannot get error count: %s", err.Error())
 		}
@@ -64,14 +63,20 @@ func TestErrorCount(t *testing.T) {
 }
 
 func TestAttachMetaData(t *testing.T) {
+	cache, err := New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer cache.Close()
+
 	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("https://github.com", model.UNLABELED)
 	examples := model.Examples{e1, e2, e3}
 	for _, e := range examples {
 		key := "url:" + e.Url
-		client.Del(key)
-		client.Del(errorCountPrefix + e.Url)
+		cache.client.Del(key)
+		cache.client.Del(errorCountPrefix + e.Url)
 	}
 
 	if examples[0].Title != "" {
@@ -80,7 +85,7 @@ func TestAttachMetaData(t *testing.T) {
 	if len(examples[0].Fv) != 0 {
 		t.Errorf("Feature vector must be empty for %s", examples[0].Url)
 	}
-	AttachMetadata(examples, false, false)
+	cache.AttachMetadata(examples, false, false)
 
 	if examples[0].Title != "" {
 		t.Errorf("Title must be empty for %s", examples[0].Url)
@@ -93,7 +98,7 @@ func TestAttachMetaData(t *testing.T) {
 		t.Errorf("OgType must be empty for %s", examples[1].Url)
 	}
 
-	AttachMetadata(examples, true, false)
+	cache.AttachMetadata(examples, true, false)
 	if examples[0].Title == "" {
 		t.Errorf("Title must not be empty for %s", examples[0].Url)
 	}
@@ -109,7 +114,7 @@ func TestAttachMetaData(t *testing.T) {
 	e5 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e6 := example.NewExample("https://github.com", model.UNLABELED)
 	examples = model.Examples{e4, e5, e6}
-	AttachMetadata(examples, false, false)
+	cache.AttachMetadata(examples, false, false)
 
 	if examples[0].Title == "" {
 		t.Errorf("Title must be empty for %s", examples[0].Url)
@@ -122,7 +127,7 @@ func TestAttachMetaData(t *testing.T) {
 		t.Errorf("OgType must be blog for %s", examples[1].Url)
 	}
 
-	cnt, err := getErrorCount("https://github.com")
+	cnt, err := cache.getErrorCount("https://github.com")
 	if err != nil {
 		t.Errorf("Cannot get error count: %s", err.Error())
 	}
@@ -132,21 +137,27 @@ func TestAttachMetaData(t *testing.T) {
 }
 
 func TestAttachMetaDataNonExistingUrls(t *testing.T) {
+	cache, err := New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer cache.Close()
+
 	nonExistingUrl := "http://hoge.fuga"
 	e := example.NewExample(nonExistingUrl, model.UNLABELED)
 	examples := model.Examples{e}
 	for _, e := range examples {
 		key := "url:" + e.Url
-		client.Del(key)
-		client.Del(errorCountPrefix + e.Url)
+		cache.client.Del(key)
+		cache.client.Del(errorCountPrefix + e.Url)
 	}
 
 	for i := 1; i <= 3; i++ {
-		AttachMetadata(examples, true, false)
+		cache.AttachMetadata(examples, true, false)
 		if examples[0].Title != "" {
 			t.Errorf("Title must not be empty for %s", examples[0].Url)
 		}
-		cnt, err := getErrorCount(nonExistingUrl)
+		cnt, err := cache.getErrorCount(nonExistingUrl)
 		if err != nil {
 			t.Errorf("Cannot get error count: %s", err.Error())
 		}
@@ -157,13 +168,19 @@ func TestAttachMetaDataNonExistingUrls(t *testing.T) {
 }
 
 func TestAttachLightMetaData(t *testing.T) {
+	cache, err := New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer cache.Close()
+
 	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("https://github.com", model.UNLABELED)
 	examples := model.Examples{e1, e2, e3}
 	for _, e := range examples {
 		key := "url:" + e.Url
-		client.Del(key)
+		cache.client.Del(key)
 	}
 
 	if examples[0].Title != "" {
@@ -172,7 +189,7 @@ func TestAttachLightMetaData(t *testing.T) {
 	if len(examples[0].Fv) != 0 {
 		t.Errorf("Feature vector must be empty for %s", examples[0].Url)
 	}
-	AttachMetadata(examples, false, false)
+	cache.AttachMetadata(examples, false, false)
 
 	if examples[0].Title != "" {
 		t.Errorf("Title must be empty for %s", examples[0].Url)
@@ -185,14 +202,14 @@ func TestAttachLightMetaData(t *testing.T) {
 		t.Errorf("OgType must be empty for %s", examples[1].Url)
 	}
 
-	AttachMetadata(examples, true, true)
+	cache.AttachMetadata(examples, true, true)
 
 	e1 = example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	e2 = example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 = example.NewExample("https://github.com", model.UNLABELED)
 	examples = model.Examples{e1, e2, e3}
 
-	AttachMetadata(examples, false, true)
+	cache.AttachMetadata(examples, false, true)
 
 	if examples[0].Title == "" {
 		t.Errorf("Title must not be empty for %s", examples[0].Url)
@@ -207,19 +224,25 @@ func TestAttachLightMetaData(t *testing.T) {
 }
 
 func TestReferringTweets(t *testing.T) {
+	cache, err := New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer cache.Close()
+
 	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	examples := model.Examples{e1}
 	for _, e := range examples {
 		key := "url:" + e.Url
-		client.Del(key)
+		cache.client.Del(key)
 	}
 
-	AttachMetadata(examples, true, true)
+	cache.AttachMetadata(examples, true, true)
 	e1.ReferringTweets = model.ReferringTweets{"https:/twitter.com/1"}
-	SetExample(*e1)
+	cache.SetExample(*e1)
 	e2 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	examples = model.Examples{e2}
-	AttachMetadata(examples, false, true)
+	cache.AttachMetadata(examples, false, true)
 
 	if len(examples[0].ReferringTweets) != 1 {
 		t.Errorf("len(examples[0].ReferringTweets) should be 1, but %d", len(examples[0].ReferringTweets))
@@ -227,9 +250,15 @@ func TestReferringTweets(t *testing.T) {
 }
 
 func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
+	cache, err := New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer cache.Close()
+
 	listName := "general"
-	client.Del("list:" + listName)
-	err := AddExamplesToList(listName, model.Examples{})
+	cache.client.Del("list:" + listName)
+	err = cache.AddExamplesToList(listName, model.Examples{})
 	if err == nil {
 		t.Error("Error should occur when adding empty list")
 	}
@@ -240,16 +269,16 @@ func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
 	examples := model.Examples{e1, e2, e3}
 	for _, e := range examples {
 		key := "url:" + e.Url
-		client.Del(key)
+		cache.client.Del(key)
 	}
-	AttachMetadata(examples, true, false)
+	cache.AttachMetadata(examples, true, false)
 
-	err = AddExamplesToList(listName, examples)
+	err = cache.AddExamplesToList(listName, examples)
 	if err != nil {
 		t.Error(err.Error())
 	}
 
-	list, err := GetUrlsFromList(listName, 0, 100)
+	list, err := cache.GetUrlsFromList(listName, 0, 100)
 	if err != nil {
 		t.Error(err.Error())
 	}

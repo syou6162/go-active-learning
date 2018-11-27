@@ -29,11 +29,11 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
-	err := cache.Init()
+	cache_, err := cache.New()
 	if err != nil {
 		return err
 	}
-	defer cache.Close()
+	defer cache_.Close()
 
 	repo, err := repository.New()
 	if err != nil {
@@ -51,7 +51,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	msg := rtm.NewOutgoingMessage(fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]), channelID)
 	rtm.SendMessage(msg)
 
-	cache.AttachMetadata(examples, true, false)
+	cache_.AttachMetadata(examples, true, false)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
