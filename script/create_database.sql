@@ -2,3 +2,6 @@ CREATE DATABASE "go-active-learning";
 CREATE DATABASE "go-active-learning-test";
 
 CREATE ROLE "nobody" WITH PASSWORD 'nobody' LOGIN;
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO nobody;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO nobody;
