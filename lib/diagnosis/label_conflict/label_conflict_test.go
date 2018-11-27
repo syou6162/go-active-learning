@@ -5,7 +5,6 @@ import (
 
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/command"
-	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
@@ -17,11 +16,10 @@ func TestDoLabelConflict(t *testing.T) {
 		t.Error(err)
 	}
 
-	repo, err := repository.New()
+	a, err := service.NewDefaultApp()
 	if err != nil {
 		t.Error(err)
 	}
-	a := service.NewApp(repo)
 	defer a.Close()
 
 	if err = a.DeleteAllExamples(); err != nil {

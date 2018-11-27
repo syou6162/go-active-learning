@@ -59,3 +59,27 @@ func (app *goActiveLearningApp) SearchExamplesByUlrs(urls []string) (model.Examp
 func (app *goActiveLearningApp) DeleteAllExamples() error {
 	return app.repo.DeleteAllExamples()
 }
+
+func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
+	return app.cache.UpdateExampleMetadata(e)
+}
+
+func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) error {
+	return app.cache.UpdateExamplesMetadata(examples)
+}
+
+func (app *goActiveLearningApp) UpdateExampleExpire(e model.Example, duration time.Duration) error {
+	return app.cache.UpdateExampleExpire(e, duration)
+}
+
+func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
+	return app.cache.AttachMetadata(examples)
+}
+
+func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {
+	return app.cache.AttachLightMetadata(examples)
+}
+
+func (app *goActiveLearningApp) Fetch(examples model.Examples) {
+	app.cache.Fetch(examples)
+}

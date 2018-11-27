@@ -5,9 +5,8 @@ import (
 	"sort"
 
 	"github.com/codegangsta/cli"
-	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
-	"github.com/syou6162/go-active-learning/lib/repository"
+	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -25,23 +24,18 @@ func (p FeatureList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func DoListFeatureWeight(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 
-	err := cache.Init()
+	app, err := service.NewDefaultApp()
 	if err != nil {
 		return err
 	}
-	defer cache.Close()
+	defer app.Close()
 
-	repo, err := repository.New()
+	examples, err := app.ReadExamples()
 	if err != nil {
 		return err
 	}
-	defer repo.Close()
-
-	examples, err := repo.ReadExamples()
-	if err != nil {
-		return err
-	}
-	cache.AttachMetadata(examples, true, false)
+	app.Fetch(examples)
+	app.UpdateExamplesMetadata(examples)
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {
