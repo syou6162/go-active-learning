@@ -83,3 +83,11 @@ func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) err
 func (app *goActiveLearningApp) Fetch(examples model.Examples) {
 	app.cache.Fetch(examples)
 }
+
+func (app *goActiveLearningApp) AddExamplesToList(listName string, examples model.Examples) error {
+	return app.cache.AddExamplesToList(listName, examples)
+}
+
+func (app *goActiveLearningApp) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
+	return app.cache.GetUrlsFromList(listName, from, to)
+}
