@@ -7,11 +7,9 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
-	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/model"
-	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
@@ -29,17 +27,10 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
-	cache_, err := cache.New()
+	app, err := service.NewDefaultApp()
 	if err != nil {
 		return err
 	}
-	defer cache_.Close()
-
-	repo, err := repository.New()
-	if err != nil {
-		return err
-	}
-	app := service.NewApp(repo, cache_)
 	defer app.Close()
 
 	examples, err := app.ReadExamples()
@@ -51,7 +42,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	msg := rtm.NewOutgoingMessage(fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]), channelID)
 	rtm.SendMessage(msg)
 
-	cache_.AttachMetadata(examples, true, false)
+	app.AttachMetadata(examples, true, false)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}

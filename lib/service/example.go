@@ -59,3 +59,7 @@ func (app *goActiveLearningApp) SearchExamplesByUlrs(urls []string) (model.Examp
 func (app *goActiveLearningApp) DeleteAllExamples() error {
 	return app.repo.DeleteAllExamples()
 }
+
+func (app *goActiveLearningApp) AttachMetadata(examples model.Examples, fetchNewExamples bool, useLightMetadata bool) {
+	app.cache.AttachMetadata(examples, fetchNewExamples, useLightMetadata)
+}

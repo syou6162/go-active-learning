@@ -10,11 +10,10 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
-	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/example"
 	"github.com/syou6162/go-active-learning/lib/model"
-	"github.com/syou6162/go-active-learning/lib/repository"
+	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -39,19 +38,13 @@ func doAnnotate(c *cli.Context) error {
 	filterStatusCodeOk := c.Bool("filter-status-code-ok")
 	showActiveFeatures := c.Bool("show-active-features")
 
-	cache_, err := cache.New()
+	app, err := service.NewDefaultApp()
 	if err != nil {
 		return err
 	}
-	defer cache_.Close()
+	defer app.Close()
 
-	repo, err := repository.New()
-	if err != nil {
-		return err
-	}
-	defer repo.Close()
-
-	examples, err := repo.ReadExamples()
+	examples, err := app.ReadExamples()
 	if err != nil {
 		return err
 	}
@@ -59,7 +52,7 @@ func doAnnotate(c *cli.Context) error {
 	stat := example.GetStat(examples)
 	fmt.Fprintln(os.Stderr, fmt.Sprintf("Positive:%d, Negative:%d, Unlabeled:%d", stat["positive"], stat["negative"], stat["unlabeled"]))
 
-	cache_.AttachMetadata(examples, true, false)
+	app.AttachMetadata(examples, true, false)
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
@@ -89,11 +82,11 @@ annotationLoop:
 		case LABEL_AS_POSITIVE:
 			fmt.Println("Labeled as positive")
 			e.Annotate(model.POSITIVE)
-			repo.InsertOrUpdateExample(e)
+			app.InsertOrUpdateExample(e)
 		case LABEL_AS_NEGATIVE:
 			fmt.Println("Labeled as negative")
 			e.Annotate(model.NEGATIVE)
-			repo.InsertOrUpdateExample(e)
+			app.InsertOrUpdateExample(e)
 		case SKIP:
 			fmt.Println("Skiped this example")
 			examples = util.RemoveExample(examples, *e)
