@@ -27,6 +27,7 @@ type Repository interface {
 	SearchExamplesByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	DeleteAllExamples() error
+	Ping() error
 	Close() error
 }
 
