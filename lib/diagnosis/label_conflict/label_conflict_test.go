@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/codegangsta/cli"
+	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/command"
 	"github.com/syou6162/go-active-learning/lib/repository"
 	"github.com/syou6162/go-active-learning/lib/service"
@@ -21,7 +22,14 @@ func TestDoLabelConflict(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	a := service.NewApp(repo)
+
+	cache_, err := cache.New()
+	if err != nil {
+		t.Error(err)
+	}
+	defer cache_.Close()
+
+	a := service.NewApp(repo, cache_)
 	defer a.Close()
 
 	if err = a.DeleteAllExamples(); err != nil {

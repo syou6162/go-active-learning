@@ -39,7 +39,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	app := service.NewApp(repo)
+	app := service.NewApp(repo, cache_)
 	defer app.Close()
 
 	examples, err := app.ReadExamples()
