@@ -48,8 +48,8 @@ func (app *goActiveLearningApp) ReadUnlabeledExamples(limit int) (model.Examples
 	return app.repo.ReadUnlabeledExamples(limit)
 }
 
-func (app *goActiveLearningApp) SearchExamplesByUlr(url string) (*model.Example, error) {
-	return app.repo.SearchExamplesByUlr(url)
+func (app *goActiveLearningApp) FindExampleByUlr(url string) (*model.Example, error) {
+	return app.repo.FindExampleByUlr(url)
 }
 
 func (app *goActiveLearningApp) SearchExamplesByUlrs(urls []string) (model.Examples, error) {

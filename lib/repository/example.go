@@ -114,7 +114,7 @@ func (r *repository) ReadUnlabeledExamples(limit int) (model.Examples, error) {
 	return r.ReadExamplesByLabel(model.UNLABELED, limit)
 }
 
-func (r *repository) SearchExamplesByUlr(url string) (*model.Example, error) {
+func (r *repository) FindExampleByUlr(url string) (*model.Example, error) {
 	query := `SELECT * FROM example WHERE url = $1;`
 	return r.readExample(query, url)
 }

@@ -244,7 +244,7 @@ func TestSearchExamplesByUlr(t *testing.T) {
 		t.Error(err)
 	}
 
-	example, err := repo.SearchExamplesByUlr("http://hoge1.com")
+	example, err := repo.FindExampleByUlr("http://hoge1.com")
 	if err != nil {
 		t.Error(err)
 	}
@@ -252,7 +252,7 @@ func TestSearchExamplesByUlr(t *testing.T) {
 		t.Errorf("example.Url == %s, want http://hoge1.com", example.Url)
 	}
 
-	example, err = repo.SearchExamplesByUlr("http://hoge4.com")
+	example, err = repo.FindExampleByUlr("http://hoge4.com")
 	if err == nil {
 		t.Errorf("search result must be nil")
 	}

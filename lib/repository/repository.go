@@ -25,7 +25,7 @@ type Repository interface {
 	ReadPositiveExamples(limit int) (model.Examples, error)
 	ReadNegativeExamples(limit int) (model.Examples, error)
 	ReadUnlabeledExamples(limit int) (model.Examples, error)
-	SearchExamplesByUlr(url string) (*model.Example, error)
+	FindExampleByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	DeleteAllExamples() error
 	Ping() error
