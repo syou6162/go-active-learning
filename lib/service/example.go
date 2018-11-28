@@ -48,8 +48,8 @@ func (app *goActiveLearningApp) ReadUnlabeledExamples(limit int) (model.Examples
 	return app.repo.ReadUnlabeledExamples(limit)
 }
 
-func (app *goActiveLearningApp) SearchExamplesByUlr(url string) (*model.Example, error) {
-	return app.repo.SearchExamplesByUlr(url)
+func (app *goActiveLearningApp) FindExampleByUlr(url string) (*model.Example, error) {
+	return app.repo.FindExampleByUlr(url)
 }
 
 func (app *goActiveLearningApp) SearchExamplesByUlrs(urls []string) (model.Examples, error) {
@@ -61,11 +61,28 @@ func (app *goActiveLearningApp) DeleteAllExamples() error {
 }
 
 func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
-	return app.cache.UpdateExampleMetadata(e)
+	if err := app.cache.UpdateExampleMetadata(e); err != nil {
+		return err
+	}
+	if err := app.repo.InsertOrUpdateExample(&e); err != nil {
+		return err
+	}
+	return app.repo.UpdateFeatureVector(&e)
 }
 
 func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) error {
-	return app.cache.UpdateExamplesMetadata(examples)
+	if err := app.cache.UpdateExamplesMetadata(examples); err != nil {
+		return err
+	}
+	for _, e := range examples {
+		if err := app.repo.InsertOrUpdateExample(e); err != nil {
+			return err
+		}
+		if err := app.repo.UpdateFeatureVector(e); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (app *goActiveLearningApp) UpdateExampleExpire(e model.Example, duration time.Duration) error {
@@ -73,7 +90,19 @@ func (app *goActiveLearningApp) UpdateExampleExpire(e model.Example, duration ti
 }
 
 func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
-	return app.cache.AttachMetadata(examples)
+	if err := app.cache.AttachMetadata(examples); err != nil {
+		return err
+	}
+
+	fvList, err := app.repo.SearchFeatureVector(examples)
+	if err != nil {
+		return err
+	}
+
+	for idx, e := range examples {
+		e.Fv = fvList[idx]
+	}
+	return nil
 }
 
 func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {

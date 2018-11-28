@@ -1,14 +1,16 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
 	"io"
 	"time"
 
+	"github.com/jmoiron/sqlx"
+
 	"bufio"
 
 	_ "github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
@@ -24,15 +26,20 @@ type Repository interface {
 	ReadPositiveExamples(limit int) (model.Examples, error)
 	ReadNegativeExamples(limit int) (model.Examples, error)
 	ReadUnlabeledExamples(limit int) (model.Examples, error)
-	SearchExamplesByUlr(url string) (*model.Example, error)
+	FindExampleByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	DeleteAllExamples() error
+
+	UpdateFeatureVector(e *model.Example) error
+	FindFeatureVector(e *model.Example) (feature.FeatureVector, error)
+	SearchFeatureVector(examples model.Examples) ([]feature.FeatureVector, error)
+
 	Ping() error
 	Close() error
 }
 
 type repository struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func GetDataSourceName() string {
@@ -47,7 +54,7 @@ func GetDataSourceName() string {
 }
 
 func New() (*repository, error) {
-	db, err := sql.Open("postgres", GetDataSourceName())
+	db, err := sqlx.Open("postgres", GetDataSourceName())
 	if err != nil {
 		return nil, err
 	}

@@ -9,33 +9,41 @@ import (
 
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
+var exampleNotFoundError = model.NotFoundError("example")
+
 func (r *repository) InsertOrUpdateExample(e *model.Example) error {
-	var label model.LabelType
+	_, err := r.db.NamedExec(`
+INSERT INTO example
+( url,  final_url,  title,  description,  og_description,  og_type,  og_image,  body,  score,  is_new,  status_code,  favicon,  label,  created_at,  updated_at)
+VALUES
+(:url, :final_url, :title, :description, :og_description, :og_type, :og_image, :body, :score, :is_new, :status_code, :favicon, :label, :created_at, :updated_at)
+ON CONFLICT (url)
+DO UPDATE SET
+url = :url, final_url = :final_url, title = :title,
+description = :description, og_description = :og_description, og_type = :og_type, og_image = :og_image,
+body = :body, score = :score, is_new = :is_new, status_code = :status_code, favicon = :favicon,
+label = :label, created_at = :created_at, updated_at = :updated_at
+WHERE (:label != 0) AND (example.label != EXCLUDED.label)
+;`, e)
+	return err
+}
 
-	url := e.FinalUrl
-	if url == "" {
-		url = e.Url
-	}
-
-	err := r.db.QueryRow(`SELECT label FROM example WHERE url = $1`, url).Scan(&label)
-	switch {
-	case err == sql.ErrNoRows:
-		_, err = r.db.Exec(`INSERT INTO example (url, label, created_at, updated_at) VALUES ($1, $2, $3, $4)`, url, e.Label, e.CreatedAt, e.UpdatedAt)
+func (r *repository) UpdateFeatureVector(e *model.Example) error {
+	tmp, err := r.FindExampleByUlr(e.Url)
+	if err != nil {
 		return err
-	case err != nil:
-		return err
-	default:
-		if label != e.Label && // ラベルが変更される
-			e.Label != model.UNLABELED { // 変更されるラベルはPOSITIVEかNEGATIVEのみ
-			_, err = r.db.Exec(`UPDATE example SET label = $2, updated_at = $3 WHERE url = $1 `, url, e.Label, e.UpdatedAt)
-			return err
-		}
-		return nil
 	}
+	id := tmp.Id
+	if _, err = r.db.Exec(`DELETE FROM feature WHERE example_id = $1;`, id); err != nil {
+		return err
+	}
+	_, err = r.db.Exec(`INSERT INTO feature (example_id, feature) VALUES ($1, unnest(cast($2 AS TEXT[])));`, id, pq.Array(e.Fv))
+	return err
 }
 
 func (r *repository) InsertExampleFromScanner(scanner *bufio.Scanner) (*model.Example, error) {
@@ -67,64 +75,44 @@ func (r *repository) InsertExamplesFromReader(reader io.Reader) error {
 }
 
 func (r *repository) readExamples(query string, args ...interface{}) (model.Examples, error) {
-	rows, err := r.db.Query(query, args...)
+	examples := model.Examples{}
+	err := r.db.Select(&examples, query, args...)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	var examples model.Examples
-
-	for rows.Next() {
-		var label model.LabelType
-		var url string
-		var createdAt time.Time
-		var updatedAt time.Time
-		if err := rows.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
-			return nil, err
-		}
-		e := model.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
-		examples = append(examples, &e)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
 	return examples, nil
 }
 
 func (r *repository) readExample(query string, args ...interface{}) (*model.Example, error) {
-	var label model.LabelType
-	var url string
-	var createdAt time.Time
-	var updatedAt time.Time
+	e := model.Example{}
 
-	row := r.db.QueryRow(query, args...)
-	if err := row.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
+	err := r.db.Get(&e, query, args...)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, exampleNotFoundError
+		}
 		return nil, err
 	}
-	e := model.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
 	return &e, nil
 }
 
 func (r *repository) ReadExamples() (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example;`
+	query := `SELECT * FROM example;`
 	return r.readExamples(query)
 }
 
 func (r *repository) ReadRecentExamples(from time.Time) (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
+	query := `SELECT * FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
 	return r.readExamples(query, from)
 }
 
 func (r *repository) ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
+	query := `SELECT * FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
 	return r.readExamples(query, label, limit)
 }
 
 func (r *repository) ReadLabeledExamples(limit int) (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
+	query := `SELECT * FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return r.readExamples(query, limit)
 }
 
@@ -140,15 +128,68 @@ func (r *repository) ReadUnlabeledExamples(limit int) (model.Examples, error) {
 	return r.ReadExamplesByLabel(model.UNLABELED, limit)
 }
 
-func (r *repository) SearchExamplesByUlr(url string) (*model.Example, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = $1;`
+func (r *repository) FindExampleByUlr(url string) (*model.Example, error) {
+	query := `SELECT * FROM example WHERE url = $1;`
 	return r.readExample(query, url)
 }
 
 func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error) {
 	// ref: https://godoc.org/github.com/lib/pq#Array
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = ANY($1);`
+	query := `SELECT * FROM example WHERE url = ANY($1);`
 	return r.readExamples(query, pq.Array(urls))
+}
+
+func (r *repository) FindFeatureVector(e *model.Example) (feature.FeatureVector, error) {
+	fv := feature.FeatureVector{}
+	tmp, err := r.FindExampleByUlr(e.Url)
+	if err != nil {
+		return fv, err
+	}
+	id := tmp.Id
+	query := `SELECT feature FROM feature WHERE example_id = $1;`
+	err = r.db.Select(&fv, query, id)
+	if err != nil {
+		return fv, err
+	}
+	return fv, nil
+}
+
+func (r *repository) SearchFeatureVector(examples model.Examples) ([]feature.FeatureVector, error) {
+	type Pair struct {
+		ExampleId int    `db:"example_id"`
+		Feature   string `db:"feature"`
+	}
+
+	fvList := make([]feature.FeatureVector, 0)
+	urls := make([]string, 0)
+	for _, e := range examples {
+		urls = append(urls, e.Url)
+	}
+
+	tmp, err := r.SearchExamplesByUlrs(urls)
+	if err != nil {
+		return fvList, err
+	}
+	ids := make([]int, 0)
+	for _, e := range tmp {
+		ids = append(ids, e.Id)
+	}
+
+	query := `SELECT example_id, feature FROM feature WHERE example_id = ANY($1);`
+	pairs := make([]Pair, 0)
+	err = r.db.Select(&pairs, query, pq.Array(ids))
+	if err != nil {
+		return fvList, err
+	}
+	m := make(map[int][]string)
+
+	for _, pair := range pairs {
+		m[pair.ExampleId] = append(m[pair.ExampleId], pair.Feature)
+	}
+	for _, id := range ids {
+		fvList = append(fvList, m[id])
+	}
+	return fvList, nil
 }
 
 func (r *repository) DeleteAllExamples() error {

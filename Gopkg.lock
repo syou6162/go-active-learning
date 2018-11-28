@@ -110,6 +110,17 @@
   revision = "a179b97cfa6fc3949fe1bcd21e01011bc17f4c2f"
 
 [[projects]]
+  digest = "1:6c41d4f998a03b6604227ccad36edaed6126c397e5d78709ef4814a1145a6757"
+  name = "github.com/jmoiron/sqlx"
+  packages = [
+    ".",
+    "reflectx",
+  ]
+  pruneopts = "UT"
+  revision = "d161d7a76b5661016ad0b085869f77fd410f3e6a"
+  version = "v1.2.0"
+
+[[projects]]
   branch = "master"
   digest = "1:7cefc4f7f6a411c2598d3344563e4d23fd4e4d88fd1591831fe39cccff41ad28"
   name = "github.com/lib/pq"
@@ -286,6 +297,7 @@
     "github.com/ikawaha/kagome/tokenizer",
     "github.com/jdkato/prose/tag",
     "github.com/jdkato/prose/tokenize",
+    "github.com/jmoiron/sqlx",
     "github.com/lib/pq",
     "github.com/mackerelio/mackerel-client-go",
     "github.com/mattn/go-tty",

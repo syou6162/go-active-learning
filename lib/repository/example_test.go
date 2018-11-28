@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/repository"
 )
@@ -102,7 +103,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
 	if examples[0].Label != model.NEGATIVE {
-		t.Errorf("label == %d, want 1", examples[0].Label)
+		t.Errorf("label == %d, want -1", examples[0].Label)
 	}
 
 	// same url but different label
@@ -244,7 +245,7 @@ func TestSearchExamplesByUlr(t *testing.T) {
 		t.Error(err)
 	}
 
-	example, err := repo.SearchExamplesByUlr("http://hoge1.com")
+	example, err := repo.FindExampleByUlr("http://hoge1.com")
 	if err != nil {
 		t.Error(err)
 	}
@@ -252,7 +253,7 @@ func TestSearchExamplesByUlr(t *testing.T) {
 		t.Errorf("example.Url == %s, want http://hoge1.com", example.Url)
 	}
 
-	example, err = repo.SearchExamplesByUlr("http://hoge4.com")
+	example, err = repo.FindExampleByUlr("http://hoge4.com")
 	if err == nil {
 		t.Errorf("search result must be nil")
 	}
@@ -337,5 +338,56 @@ func TestSearchExamplesByLabels(t *testing.T) {
 	}
 	if len(examples) != 1 {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+}
+
+func TestFeatureVectorReadWrite(t *testing.T) {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err = repo.DeleteAllExamples(); err != nil {
+		t.Error(err)
+	}
+
+	e1 := example.NewExample("http://hoge.com", model.UNLABELED)
+	err = repo.InsertOrUpdateExample(e1)
+	if err != nil {
+		t.Error(err)
+	}
+	e1.Fv = feature.FeatureVector{"BIAS"}
+
+	if err = repo.UpdateFeatureVector(e1); err != nil {
+		t.Error(err)
+	}
+
+	fv, err := repo.FindFeatureVector(e1)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(fv) != 1 {
+		t.Errorf("len(fv) == %d, want 1", len(fv))
+	}
+
+	e2 := example.NewExample("http://fuga.com", model.UNLABELED)
+	err = repo.InsertOrUpdateExample(e2)
+	if err != nil {
+		t.Error(err)
+	}
+	e2.Fv = feature.FeatureVector{"BIAS2", "hoge"}
+	if err = repo.UpdateFeatureVector(e2); err != nil {
+		t.Error(err)
+	}
+	fvList, err := repo.SearchFeatureVector(model.Examples{e1, e2})
+	if err != nil {
+		t.Error(err)
+	}
+	if len(fvList) != 2 {
+		t.Errorf("len(fvList) == %d, want 2", len(fvList))
+	}
+	if fvList[1][1] != "hoge" {
+		t.Errorf("fvList[1][1] == %s, want hoge", fvList[1][1])
 	}
 }
