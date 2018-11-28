@@ -1,10 +1,11 @@
 package repository
 
 import (
-	"database/sql"
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 
 	"bufio"
 
@@ -32,7 +33,7 @@ type Repository interface {
 }
 
 type repository struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func GetDataSourceName() string {
@@ -47,7 +48,7 @@ func GetDataSourceName() string {
 }
 
 func New() (*repository, error) {
-	db, err := sql.Open("postgres", GetDataSourceName())
+	db, err := sqlx.Open("postgres", GetDataSourceName())
 	if err != nil {
 		return nil, err
 	}

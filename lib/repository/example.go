@@ -13,6 +13,8 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
+var exampleNotFoundError = model.NotFoundError("example")
+
 func (r *repository) InsertOrUpdateExample(e *model.Example) error {
 	var label model.LabelType
 
@@ -69,64 +71,44 @@ func (r *repository) InsertExamplesFromReader(reader io.Reader) error {
 }
 
 func (r *repository) readExamples(query string, args ...interface{}) (model.Examples, error) {
-	rows, err := r.db.Query(query, args...)
+	examples := model.Examples{}
+	err := r.db.Select(&examples, query, args...)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	var examples model.Examples
-
-	for rows.Next() {
-		var label model.LabelType
-		var url string
-		var createdAt time.Time
-		var updatedAt time.Time
-		if err := rows.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
-			return nil, err
-		}
-		e := model.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
-		examples = append(examples, &e)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
 	return examples, nil
 }
 
 func (r *repository) readExample(query string, args ...interface{}) (*model.Example, error) {
-	var label model.LabelType
-	var url string
-	var createdAt time.Time
-	var updatedAt time.Time
+	e := model.Example{}
 
-	row := r.db.QueryRow(query, args...)
-	if err := row.Scan(&url, &label, &createdAt, &updatedAt); err != nil {
+	err := r.db.Get(&e, query, args...)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, exampleNotFoundError
+		}
 		return nil, err
 	}
-	e := model.Example{Url: url, Label: label, CreatedAt: createdAt, UpdatedAt: updatedAt}
 	return &e, nil
 }
 
 func (r *repository) ReadExamples() (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example;`
+	query := `SELECT * FROM example;`
 	return r.readExamples(query)
 }
 
 func (r *repository) ReadRecentExamples(from time.Time) (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
+	query := `SELECT * FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
 	return r.readExamples(query, from)
 }
 
 func (r *repository) ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
+	query := `SELECT * FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
 	return r.readExamples(query, label, limit)
 }
 
 func (r *repository) ReadLabeledExamples(limit int) (model.Examples, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
+	query := `SELECT * FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
 	return r.readExamples(query, limit)
 }
 
@@ -143,13 +125,13 @@ func (r *repository) ReadUnlabeledExamples(limit int) (model.Examples, error) {
 }
 
 func (r *repository) SearchExamplesByUlr(url string) (*model.Example, error) {
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = $1;`
+	query := `SELECT * FROM example WHERE url = $1;`
 	return r.readExample(query, url)
 }
 
 func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error) {
 	// ref: https://godoc.org/github.com/lib/pq#Array
-	query := `SELECT url, label, created_at, updated_at FROM example WHERE url = ANY($1);`
+	query := `SELECT * FROM example WHERE url = ANY($1);`
 	return r.readExamples(query, pq.Array(urls))
 }
 
