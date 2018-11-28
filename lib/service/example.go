@@ -2,7 +2,9 @@ package service
 
 import (
 	"bufio"
+	"fmt"
 	"io"
+	"log"
 	"time"
 
 	"github.com/syou6162/go-active-learning/lib/model"
@@ -76,10 +78,10 @@ func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) 
 	}
 	for _, e := range examples {
 		if err := app.repo.InsertOrUpdateExample(e); err != nil {
-			return err
+			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
 		if err := app.repo.UpdateFeatureVector(e); err != nil {
-			return err
+			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
 	}
 	return nil

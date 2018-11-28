@@ -1,6 +1,9 @@
 package add
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/hatena_bookmark"
 	"github.com/syou6162/go-active-learning/lib/service"
@@ -31,7 +34,7 @@ func doAdd(c *cli.Context) error {
 
 	for _, e := range examples {
 		if err = app.InsertOrUpdateExample(e); err != nil {
-			return err
+			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
 		if bookmark, err := hatena_bookmark.GetHatenaBookmark(e.FinalUrl); err == nil {
 			e.HatenaBookmark = *bookmark
