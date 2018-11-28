@@ -12,6 +12,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/feature"
 )
 
 type Repository interface {
@@ -28,6 +29,10 @@ type Repository interface {
 	FindExampleByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	DeleteAllExamples() error
+
+	UpdateFeatureVector(e *model.Example) error
+	FindFeatureVector(e *model.Example) (feature.FeatureVector, error)
+
 	Ping() error
 	Close() error
 }
