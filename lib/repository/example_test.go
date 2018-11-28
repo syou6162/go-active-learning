@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/repository"
 )
@@ -337,5 +338,36 @@ func TestSearchExamplesByLabels(t *testing.T) {
 	}
 	if len(examples) != 1 {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+}
+
+func TestFeatureVectorReadWrite(t *testing.T) {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err = repo.DeleteAllExamples(); err != nil {
+		t.Error(err)
+	}
+
+	e := example.NewExample("http://hoge.com", model.UNLABELED)
+	err = repo.InsertOrUpdateExample(e)
+	if err != nil {
+		t.Error(err)
+	}
+	e.Fv = feature.FeatureVector{"BIAS"}
+
+	if err = repo.UpdateFeatureVector(e); err != nil {
+		t.Error(err)
+	}
+
+	fv, err := repo.FindFeatureVector(e)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(fv) != 1 {
+		t.Errorf("len(fv) == %d, want 1", len(fv))
 	}
 }

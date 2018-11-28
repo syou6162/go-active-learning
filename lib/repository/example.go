@@ -9,6 +9,7 @@ import (
 
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
@@ -29,6 +30,19 @@ body = :body, score = :score, is_new = :is_new, status_code = :status_code, favi
 label = :label, created_at = :created_at, updated_at = :updated_at
 WHERE (:label != 0) AND (example.label != EXCLUDED.label)
 ;`, e)
+	return err
+}
+
+func (r *repository) UpdateFeatureVector(e *model.Example) error {
+	tmp, err := r.FindExampleByUlr(e.Url)
+	if err != nil {
+		return err
+	}
+	id := tmp.Id
+	if _, err = r.db.Exec(`DELETE FROM feature WHERE example_id = $1;`, id); err != nil {
+		return err
+	}
+	_, err = r.db.Exec(`INSERT INTO feature (example_id, feature) VALUES ($1, unnest(cast($2 AS TEXT[])));`, id, pq.Array(e.Fv))
 	return err
 }
 
@@ -123,6 +137,21 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	// ref: https://godoc.org/github.com/lib/pq#Array
 	query := `SELECT * FROM example WHERE url = ANY($1);`
 	return r.readExamples(query, pq.Array(urls))
+}
+
+func (r *repository) FindFeatureVector(e *model.Example) (feature.FeatureVector, error) {
+	fv := feature.FeatureVector{}
+	tmp, err := r.FindExampleByUlr(e.Url)
+	if err != nil {
+		return fv, err
+	}
+	id := tmp.Id
+	query := `SELECT feature FROM feature WHERE example_id = $1;`
+	err = r.db.Select(&fv, query, id)
+	if err != nil {
+		return fv, err
+	}
+	return fv, nil
 }
 
 func (r *repository) DeleteAllExamples() error {
