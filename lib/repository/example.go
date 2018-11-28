@@ -154,6 +154,44 @@ func (r *repository) FindFeatureVector(e *model.Example) (feature.FeatureVector,
 	return fv, nil
 }
 
+func (r *repository) SearchFeatureVector(examples model.Examples) ([]feature.FeatureVector, error) {
+	type Pair struct {
+		ExampleId int    `db:"example_id"`
+		Feature   string `db:"feature"`
+	}
+
+	fvList := make([]feature.FeatureVector, 0)
+	urls := make([]string, 0)
+	for _, e := range examples {
+		urls = append(urls, e.Url)
+	}
+
+	tmp, err := r.SearchExamplesByUlrs(urls)
+	if err != nil {
+		return fvList, err
+	}
+	ids := make([]int, 0)
+	for _, e := range tmp {
+		ids = append(ids, e.Id)
+	}
+
+	query := `SELECT example_id, feature FROM feature WHERE example_id = ANY($1);`
+	pairs := make([]Pair, 0)
+	err = r.db.Select(&pairs, query, pq.Array(ids))
+	if err != nil {
+		return fvList, err
+	}
+	m := make(map[int][]string)
+
+	for _, pair := range pairs {
+		m[pair.ExampleId] = append(m[pair.ExampleId], pair.Feature)
+	}
+	for _, id := range ids {
+		fvList = append(fvList, m[id])
+	}
+	return fvList, nil
+}
+
 func (r *repository) DeleteAllExamples() error {
 	_, err := r.db.Exec(`DELETE FROM example`)
 	return err

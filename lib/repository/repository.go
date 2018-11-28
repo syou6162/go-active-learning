@@ -10,9 +10,9 @@ import (
 	"bufio"
 
 	_ "github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
-	"github.com/syou6162/go-active-learning/lib/feature"
 )
 
 type Repository interface {
@@ -32,6 +32,7 @@ type Repository interface {
 
 	UpdateFeatureVector(e *model.Example) error
 	FindFeatureVector(e *model.Example) (feature.FeatureVector, error)
+	SearchFeatureVector(examples model.Examples) ([]feature.FeatureVector, error)
 
 	Ping() error
 	Close() error

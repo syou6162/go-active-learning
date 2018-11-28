@@ -94,13 +94,13 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 		return err
 	}
 
-	// ToDo: N+1
-	for _, e := range examples {
-		fv, err := app.repo.FindFeatureVector(e)
-		if err != nil {
-			return err
-		}
-		e.Fv = fv
+	fvList, err := app.repo.SearchFeatureVector(examples)
+	if err != nil {
+		return err
+	}
+
+	for idx, e := range examples {
+		e.Fv = fvList[idx]
 	}
 	return nil
 }
