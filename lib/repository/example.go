@@ -17,6 +17,8 @@ import (
 var exampleNotFoundError = model.NotFoundError("example")
 
 func (r *repository) InsertOrUpdateExample(e *model.Example) error {
+	now := time.Now()
+	e.UpdatedAt = now
 	_, err := r.db.NamedExec(`
 INSERT INTO example
 ( url,  final_url,  title,  description,  og_description,  og_type,  og_image,  body,  score,  is_new,  status_code,  favicon,  label,  created_at,  updated_at)
