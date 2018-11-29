@@ -88,6 +88,9 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	if examples[0].Label != model.UNLABELED {
 		t.Errorf("label == %d, want 1", examples[0].Label)
 	}
+	if examples[0].Id == 0 {
+		t.Error("id must not be 0")
+	}
 
 	// same url
 	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.NEGATIVE))
@@ -376,7 +379,7 @@ func TestFeatureVectorReadWrite(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	e2.Fv = feature.FeatureVector{"BIAS2", "hoge"}
+	e2.Fv = feature.FeatureVector{"hoge"}
 	if err = repo.UpdateFeatureVector(e2); err != nil {
 		t.Error(err)
 	}
@@ -387,7 +390,7 @@ func TestFeatureVectorReadWrite(t *testing.T) {
 	if len(fvList) != 2 {
 		t.Errorf("len(fvList) == %d, want 2", len(fvList))
 	}
-	if fvList[1][1] != "hoge" {
-		t.Errorf("fvList[1][1] == %s, want hoge", fvList[1][1])
+	if fvList[1][0] != "hoge" {
+		t.Errorf("fvList[1][0] == %s, want hoge", fvList[1][0])
 	}
 }

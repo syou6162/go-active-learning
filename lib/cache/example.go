@@ -131,7 +131,7 @@ func (c *cache) AttachMetadata(examples model.Examples) error {
 		if result, ok := vals[13].(string); ok {
 			bookmarks := model.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
-				e.HatenaBookmark = bookmarks
+				e.HatenaBookmark = &bookmarks
 			}
 		}
 	}
@@ -222,7 +222,7 @@ func (c *cache) AttachLightMetadata(examples model.Examples) error {
 		if result, ok := vals[10].(string); ok {
 			bookmarks := model.HatenaBookmark{}
 			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
-				e.HatenaBookmark = bookmarks
+				e.HatenaBookmark = &bookmarks
 			}
 		}
 	}
@@ -309,7 +309,7 @@ func (c *cache) UpdateExampleMetadata(e model.Example) error {
 	vals["StatusCode"] = e.StatusCode
 	vals["Favicon"] = e.Favicon
 	vals["ReferringTweets"] = &e.ReferringTweets
-	vals["HatenaBookmark"] = &e.HatenaBookmark
+	vals["HatenaBookmark"] = e.HatenaBookmark
 
 	if err := c.client.HMSet(key, vals).Err(); err != nil {
 		return err

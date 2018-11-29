@@ -34,6 +34,10 @@ type Repository interface {
 	FindFeatureVector(e *model.Example) (feature.FeatureVector, error)
 	SearchFeatureVector(examples model.Examples) ([]feature.FeatureVector, error)
 
+	UpdateHatenaBookmark(e *model.Example) error
+	SearchHatenaBookmarks(examples model.Examples) ([]*model.HatenaBookmark, error)
+	FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark, error)
+
 	Ping() error
 	Close() error
 }

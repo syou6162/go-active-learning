@@ -69,7 +69,13 @@ func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
 	if err := app.repo.InsertOrUpdateExample(&e); err != nil {
 		return err
 	}
-	return app.repo.UpdateFeatureVector(&e)
+	if err := app.repo.UpdateFeatureVector(&e); err != nil {
+		return err
+	}
+	if err := app.repo.UpdateHatenaBookmark(&e); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) error {
@@ -81,7 +87,10 @@ func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) 
 			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
 		if err := app.repo.UpdateFeatureVector(e); err != nil {
-			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
+			log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
+		}
+		if err := app.repo.UpdateHatenaBookmark(e); err != nil {
+			log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
 		}
 	}
 	return nil
@@ -92,10 +101,6 @@ func (app *goActiveLearningApp) UpdateExampleExpire(e model.Example, duration ti
 }
 
 func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
-	if err := app.cache.AttachMetadata(examples); err != nil {
-		return err
-	}
-
 	fvList, err := app.repo.SearchFeatureVector(examples)
 	if err != nil {
 		return err
@@ -104,11 +109,26 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 	for idx, e := range examples {
 		e.Fv = fvList[idx]
 	}
+
+	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
+	if err != nil {
+		return err
+	}
+	for idx, e := range examples {
+		e.HatenaBookmark = hatenaBookmarks[idx]
+	}
 	return nil
 }
 
 func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {
-	return app.cache.AttachLightMetadata(examples)
+	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
+	if err != nil {
+		return err
+	}
+	for idx, e := range examples {
+		e.HatenaBookmark = hatenaBookmarks[idx]
+	}
+	return nil
 }
 
 func (app *goActiveLearningApp) Fetch(examples model.Examples) {
