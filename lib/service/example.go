@@ -118,6 +118,8 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 	for idx, e := range examples {
 		if b, ok := hbByid[idx]; ok {
 			e.HatenaBookmark = b
+		} else {
+			e.HatenaBookmark = &model.HatenaBookmark{Bookmarks:[]*model.Bookmark{}}
 		}
 	}
 	return nil
@@ -132,6 +134,8 @@ func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) err
 	for idx, e := range examples {
 		if b, ok := hbByid[idx]; ok {
 			e.HatenaBookmark = b
+		} else {
+			e.HatenaBookmark = &model.HatenaBookmark{Bookmarks:[]*model.Bookmark{}}
 		}
 	}
 	return nil
