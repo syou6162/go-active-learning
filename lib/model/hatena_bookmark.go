@@ -36,7 +36,11 @@ func (hbt HatenaBookmarkTime) Value() (driver.Value, error) {
 }
 
 func (tags *Tags) Scan(value interface{}) error {
-	v := strings.Split(value.(string), "\t")
+	s := value.(string)
+	if s == "" {
+		return nil
+	}
+	v := strings.Split(s, "\t")
 	*tags = append(*tags, v...)
 	return nil
 }
