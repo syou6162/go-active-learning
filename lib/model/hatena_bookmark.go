@@ -1,7 +1,9 @@
 package model
 
 import (
+	"database/sql/driver"
 	"encoding/json"
+	"strings"
 	"time"
 )
 
@@ -20,6 +22,27 @@ func (hbt *HatenaBookmarkTime) UnmarshalJSON(data []byte) error {
 
 func (hbt HatenaBookmarkTime) MarshalJSON() ([]byte, error) {
 	return json.Marshal(hbt.Format("2006/01/02 15:04"))
+}
+
+// ref: https://qiita.com/roothybrid7/items/52623bedb45ff0c26a8a
+func (hbt *HatenaBookmarkTime) Scan(value interface{}) error {
+	v := value.(time.Time)
+	hbt.Time = &v
+	return nil
+}
+
+func (hbt HatenaBookmarkTime) Value() (driver.Value, error) {
+	return *hbt.Time, nil
+}
+
+func (tags *Tags) Scan(value interface{}) error {
+	v := strings.Split(value.(string), "\t")
+	*tags = append(*tags, v...)
+	return nil
+}
+
+func (tags Tags) Value() (driver.Value, error) {
+	return strings.Join(tags, "\t"), nil
 }
 
 type Bookmark struct {

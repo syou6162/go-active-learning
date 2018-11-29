@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS bookmark (
   "hatena_bookmark_id" SERIAL NOT NULL,
   "user" TEXT NOT NULL,
   "comment" TEXT NOT NULL,
+  "tags" TEXT NOT NULL,
   "timestamp" timestamp NOT NULL,
   CONSTRAINT bookmark_hatena_bookmark_id_fkey FOREIGN KEY ("hatena_bookmark_id") REFERENCES hatena_bookmark("id") ON UPDATE NO ACTION ON DELETE CASCADE
 );
