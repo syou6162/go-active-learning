@@ -113,11 +113,29 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 	for idx, e := range examples {
 		e.Fv = fvList[idx]
 	}
+
+	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
+	if err != nil {
+		return err
+	}
+	for idx, e := range examples {
+		e.HatenaBookmark = hatenaBookmarks[idx]
+	}
 	return nil
 }
 
 func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {
-	return app.cache.AttachLightMetadata(examples)
+	if err := app.cache.AttachLightMetadata(examples); err != nil {
+		return err
+	}
+	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
+	if err != nil {
+		return err
+	}
+	for idx, e := range examples {
+		e.HatenaBookmark = hatenaBookmarks[idx]
+	}
+	return nil
 }
 
 func (app *goActiveLearningApp) Fetch(examples model.Examples) {
