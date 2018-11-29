@@ -92,6 +92,14 @@ func (app *goActiveLearningApp) UpdateExampleExpire(e model.Example, duration ti
 	return app.cache.UpdateExampleExpire(e, duration)
 }
 
+func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]*model.HatenaBookmark {
+	result := make(map[int]*model.HatenaBookmark)
+	for _, hb := range hatenaBookmarks {
+		result[hb.ExampleId] = hb
+	}
+	return result
+}
+
 func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 	fvList, err := app.repo.SearchFeatureVector(examples)
 	if err != nil {
@@ -106,8 +114,11 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 	if err != nil {
 		return err
 	}
+	hbByid := hatenaBookmarkByExampleId(hatenaBookmarks)
 	for idx, e := range examples {
-		e.HatenaBookmark = hatenaBookmarks[idx]
+		if b, ok := hbByid[idx]; ok {
+			e.HatenaBookmark = b
+		}
 	}
 	return nil
 }
@@ -117,8 +128,11 @@ func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) err
 	if err != nil {
 		return err
 	}
+	hbByid := hatenaBookmarkByExampleId(hatenaBookmarks)
 	for idx, e := range examples {
-		e.HatenaBookmark = hatenaBookmarks[idx]
+		if b, ok := hbByid[idx]; ok {
+			e.HatenaBookmark = b
+		}
 	}
 	return nil
 }
