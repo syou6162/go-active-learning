@@ -21,6 +21,7 @@ func (r *repository) UpdateHatenaBookmark(e *model.Example) error {
 		return err
 	}
 
+	e.HatenaBookmark.ExampleId = id
 	if _, err = r.db.NamedExec(`
 INSERT INTO hatena_bookmark
 ( example_id,  title,  screenshot,  entry_url,  count,  url,  eid)
