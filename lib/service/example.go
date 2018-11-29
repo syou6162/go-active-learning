@@ -69,7 +69,13 @@ func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
 	if err := app.repo.InsertOrUpdateExample(&e); err != nil {
 		return err
 	}
-	return app.repo.UpdateFeatureVector(&e)
+	if err := app.repo.UpdateFeatureVector(&e); err != nil {
+		return err
+	}
+	if err := app.repo.UpdateHatenaBookmark(&e); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) error {
@@ -81,7 +87,10 @@ func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) 
 			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
 		if err := app.repo.UpdateFeatureVector(e); err != nil {
-			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
+			log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
+		}
+		if err := app.repo.UpdateHatenaBookmark(e); err != nil {
+			log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
 		}
 	}
 	return nil
