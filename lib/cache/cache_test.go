@@ -205,7 +205,9 @@ func TestAttachLightMetaData(t *testing.T) {
 	}
 
 	cache.Fetch(examples)
-	cache.UpdateExamplesMetadata(examples)
+	if err := cache.UpdateExamplesMetadata(examples); err != nil {
+		t.Error(err.Error())
+	}
 
 	e1 = example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	e2 = example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)

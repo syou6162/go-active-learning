@@ -31,7 +31,7 @@ func NewExample(url string, label model.LabelType) *model.Example {
 		CreatedAt:       now,
 		UpdatedAt:       now,
 		ReferringTweets: []string{},
-		HatenaBookmark:  model.HatenaBookmark{},
+		HatenaBookmark:  &model.HatenaBookmark{},
 	}
 }
 

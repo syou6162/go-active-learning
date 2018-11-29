@@ -65,7 +65,7 @@ type Example struct {
 	CreatedAt       time.Time       `json:"CreatedAt" db:"created_at"`
 	UpdatedAt       time.Time       `json:"UpdatedAt" db:"updated_at"`
 	ReferringTweets ReferringTweets `json:"ReferringTweets"`
-	HatenaBookmark  HatenaBookmark  `json:"HatenaBookmark"`
+	HatenaBookmark  *HatenaBookmark `json:"HatenaBookmark"`
 }
 
 type Examples []*Example

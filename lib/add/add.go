@@ -37,7 +37,7 @@ func doAdd(c *cli.Context) error {
 			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
 		if bookmark, err := hatena_bookmark.GetHatenaBookmark(e.FinalUrl); err == nil {
-			e.HatenaBookmark = *bookmark
+			e.HatenaBookmark = bookmark
 			app.UpdateExampleMetadata(*e)
 		}
 	}
