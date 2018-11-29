@@ -9,7 +9,7 @@ import (
 
 func TestFilterLabeledExamples(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
-	e2 := example.NewExample("http://www.yasuhisay.info", model.NEGATIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("http://google.com", model.UNLABELED)
 
 	examples := FilterLabeledExamples(model.Examples{e1, e2, e3})
@@ -20,7 +20,7 @@ func TestFilterLabeledExamples(t *testing.T) {
 
 func TestFilterUnlabeledExamples(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
-	e2 := example.NewExample("http://www.yasuhisay.info", model.NEGATIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("http://google.com", model.UNLABELED)
 	e3.Title = "Google"
 
@@ -33,7 +33,7 @@ func TestFilterUnlabeledExamples(t *testing.T) {
 func TestFilterStatusCodeOkExamples(t *testing.T) {
 	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
 	e1.StatusCode = 200
-	e2 := example.NewExample("http://www.yasuhisay.info", model.NEGATIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e2.StatusCode = 404
 	e3 := example.NewExample("http://google.com", model.UNLABELED)
 	e3.StatusCode = 304
@@ -66,15 +66,15 @@ func TestRemoveDuplicate(t *testing.T) {
 
 func TestSplitTrainAndDev(t *testing.T) {
 	e1 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
-	e2 := example.NewExample("http://www.yasuhisay.info", model.NEGATIVE)
+	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("http://google.com", model.UNLABELED)
 	e4 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
-	e5 := example.NewExample("http://www.yasuhisay.info", model.NEGATIVE)
+	e5 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e6 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
-	e7 := example.NewExample("http://www.yasuhisay.info", model.NEGATIVE)
+	e7 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e8 := example.NewExample("http://google.com", model.UNLABELED)
 	e9 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
-	e10 := example.NewExample("http://www.yasuhisay.info", model.NEGATIVE)
+	e10 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 
 	train, dev := SplitTrainAndDev(model.Examples{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
 	if len(train) != 8 {
