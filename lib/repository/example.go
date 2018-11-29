@@ -34,7 +34,15 @@ WHERE
 ((EXCLUDED.label != 0) AND (example.label != EXCLUDED.label)) OR
 ((example.status_code != 200) AND (EXCLUDED.status_code = 200))
 ;`, e)
-	return err
+	if err != nil {
+		return err
+	}
+	tmp, err := r.FindExampleByUlr(e.Url)
+	if err != nil {
+		return err
+	}
+	e.Id = tmp.Id
+	return nil
 }
 
 func (r *repository) UpdateFeatureVector(e *model.Example) error {
