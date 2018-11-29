@@ -90,7 +90,7 @@ func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) 
 			log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
 		}
 		if err := app.repo.UpdateHatenaBookmark(e); err != nil {
-			log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
+			log.Println(fmt.Sprintf("Error occured updating bookmark info %s %s", e.Url, err.Error()))
 		}
 	}
 	return nil
