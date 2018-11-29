@@ -101,10 +101,6 @@ func (app *goActiveLearningApp) UpdateExampleExpire(e model.Example, duration ti
 }
 
 func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
-	if err := app.cache.AttachMetadata(examples); err != nil {
-		return err
-	}
-
 	fvList, err := app.repo.SearchFeatureVector(examples)
 	if err != nil {
 		return err
@@ -125,9 +121,6 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 }
 
 func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {
-	if err := app.cache.AttachLightMetadata(examples); err != nil {
-		return err
-	}
 	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
 	if err != nil {
 		return err
