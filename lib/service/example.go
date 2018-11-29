@@ -67,13 +67,13 @@ func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
 		return err
 	}
 	if err := app.repo.InsertOrUpdateExample(&e); err != nil {
-		return err
+		log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 	}
 	if err := app.repo.UpdateFeatureVector(&e); err != nil {
-		return err
+		log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
 	}
 	if err := app.repo.UpdateHatenaBookmark(&e); err != nil {
-		return err
+		log.Println(fmt.Sprintf("Error occured updating bookmark info %s %s", e.Url, err.Error()))
 	}
 	return nil
 }
@@ -83,15 +83,7 @@ func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) 
 		return err
 	}
 	for _, e := range examples {
-		if err := app.repo.InsertOrUpdateExample(e); err != nil {
-			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
-		}
-		if err := app.repo.UpdateFeatureVector(e); err != nil {
-			log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
-		}
-		if err := app.repo.UpdateHatenaBookmark(e); err != nil {
-			log.Println(fmt.Sprintf("Error occured updating bookmark info %s %s", e.Url, err.Error()))
-		}
+		app.UpdateExampleMetadata(*e)
 	}
 	return nil
 }
