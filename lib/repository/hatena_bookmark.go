@@ -82,3 +82,24 @@ func (r *repository) SearchHatenaBookmarks(examples model.Examples) ([]*model.Ha
 	}
 	return result, nil
 }
+
+func (r *repository) FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark, error) {
+	hatenaBookmark := &model.HatenaBookmark{}
+
+	query := `SELECT * FROM hatena_bookmark WHERE example_id = $1;`
+	err := r.db.Get(hatenaBookmark, query, e.Id)
+	if err != nil {
+		return hatenaBookmark, err
+	}
+
+	hatenaBookmarkId := hatenaBookmark.Id
+	bookmarks := make([]*model.Bookmark, 0)
+	query = `SELECT * FROM bookmark WHERE hatena_bookmark_id = $1;`
+	err = r.db.Select(&bookmarks, query, hatenaBookmarkId)
+	if err != nil {
+		return hatenaBookmark, err
+	}
+
+	hatenaBookmark.Bookmarks = bookmarks
+	return hatenaBookmark, nil
+}

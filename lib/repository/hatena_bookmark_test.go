@@ -42,12 +42,37 @@ func TestUpdateHatenaBookmark(t *testing.T) {
 		t.Error(err)
 	}
 
-	result, err := repo.SearchHatenaBookmarks(model.Examples{e})
-	for _, tmp := range result {
-		if tmp.Title == "" {
+	{
+		result, err := repo.SearchHatenaBookmarks(model.Examples{e})
+		if err != nil {
+			t.Error(err)
+		}
+
+		for _, tmp := range result {
+			if tmp.Title == "" {
+				t.Error("Title must not be empty")
+			}
+			for _, b := range tmp.Bookmarks {
+				if b.User == "" {
+					t.Error("User must not be empty")
+				}
+				if len(b.Tags) == 0 {
+					t.Error("Tags must not be empty")
+				}
+			}
+		}
+	}
+
+	{
+		result, err := repo.FindHatenaBookmark(e)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if result.Title == "" {
 			t.Error("Title must not be empty")
 		}
-		for _, b := range tmp.Bookmarks {
+		for _, b := range result.Bookmarks {
 			if b.User == "" {
 				t.Error("User must not be empty")
 			}

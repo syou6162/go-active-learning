@@ -36,6 +36,7 @@ type Repository interface {
 
 	UpdateHatenaBookmark(e *model.Example) error
 	SearchHatenaBookmarks(examples model.Examples) ([]*model.HatenaBookmark, error)
+	FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark, error)
 
 	Ping() error
 	Close() error
