@@ -58,6 +58,10 @@ func (app *goActiveLearningApp) SearchExamplesByUlrs(urls []string) (model.Examp
 	return app.repo.SearchExamplesByUlrs(urls)
 }
 
+func (app *goActiveLearningApp) SearchExamplesByKeywords(keywords []string, limit int) (model.Examples, error) {
+	return app.repo.SearchExamplesByKeywords(keywords, limit)
+}
+
 func (app *goActiveLearningApp) DeleteAllExamples() error {
 	return app.repo.DeleteAllExamples()
 }

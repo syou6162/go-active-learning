@@ -7,6 +7,8 @@ import (
 
 	"io"
 
+	"fmt"
+
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/feature"
@@ -149,6 +151,18 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	// ref: https://godoc.org/github.com/lib/pq#Array
 	query := `SELECT * FROM example WHERE url = ANY($1);`
 	return r.readExamples(query, pq.Array(urls))
+}
+
+func (r *repository) SearchExamplesByKeywords(keywords []string, limit int) (model.Examples, error) {
+	if len(keywords) == 0 {
+		return model.Examples{}, nil
+	}
+	regexList := make([]string, 0)
+	for _, w := range keywords {
+		regexList = append(regexList, fmt.Sprintf(`.*%s.*`, w))
+	}
+	query := `SELECT * FROM example WHERE title ~* ALL($1) ORDER BY score DESC LIMIT $2;`
+	return r.readExamples(query, pq.Array(regexList), limit)
 }
 
 func (r *repository) FindFeatureVector(e *model.Example) (feature.FeatureVector, error) {
