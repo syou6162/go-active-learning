@@ -23,9 +23,9 @@ func (r *repository) UpdateReferringTweets(e *model.Example) error {
 		t.ExampleId = id
 		if _, err = r.db.NamedExec(`
 INSERT INTO tweet
-( example_id,  created_at,  id_str,  full_text,  favorite_count,  retweet_count,  lang,  retweeted,  screen_name,  name,  profile_image_url)
+( example_id,  created_at,  id_str,  full_text,  favorite_count,  retweet_count,  lang,  screen_name,  name,  profile_image_url)
 VALUES
-(:example_id, :created_at, :id_str, :full_text, :favorite_count, :retweet_count, :lang, :retweeted, :screen_name, :name, :profile_image_url)
+(:example_id, :created_at, :id_str, :full_text, :favorite_count, :retweet_count, :lang, :screen_name, :name, :profile_image_url)
 ;`, t); err != nil {
 			return err
 		}
@@ -42,7 +42,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 		exampleIds = append(exampleIds, e.Id)
 	}
 
-	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND retweeted = FALSE ORDER BY favorite_count DESC;`
+	query := `SELECT * FROM tweet WHERE example_id = ANY($1) ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, pq.Array(exampleIds))
 	if err != nil {
 		return referringTweetsByExampleId, err
@@ -57,7 +57,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 
-	query := `SELECT * FROM tweet WHERE example_id = $1 AND retweeted = FALSE ORDER BY favorite_count DESC;`
+	query := `SELECT * FROM tweet WHERE example_id = $1 ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, e.Id)
 	if err != nil {
 		return referringTweets, err
