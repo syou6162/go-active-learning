@@ -14,6 +14,7 @@ type Tweet struct {
 	FavoriteCount int       `json:"FavoriteCount" db:"favorite_count"`
 	RetweetCount  int       `json:"RetweetCount" db:"retweet_count"`
 	Lang          string    `json:"Lang" db:"lang"`
+	Retweeted     bool      `json:"retweeted" db:"retweeted"`
 
 	ScreenName      string `json:"ScreenName" db:"screen_name"`
 	Name            string `json:"Name" db:"name"`
