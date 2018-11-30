@@ -30,7 +30,7 @@ func NewExample(url string, label model.LabelType) *model.Example {
 		Favicon:         "",
 		CreatedAt:       now,
 		UpdatedAt:       now,
-		ReferringTweets: []string{},
+		ReferringTweets: &model.ReferringTweets{},
 		HatenaBookmark:  &model.HatenaBookmark{Bookmarks: make([]*model.Bookmark, 0)},
 	}
 }

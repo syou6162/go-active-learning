@@ -44,19 +44,18 @@ func (c *cache) AttachMetadata(examples model.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
 		vals, err := c.client.HMGet(key,
-			"Fv",              // 0
-			"FinalUrl",        // 1
-			"Title",           // 2
-			"Description",     // 3
-			"OgDescription",   // 4
-			"OgType",          // 5
-			"OgImage",         // 6
-			"Body",            // 7
-			"Score",           // 8
-			"IsNew",           // 9
-			"StatusCode",      // 10
-			"Favicon",         // 11
-			"ReferringTweets", // 12
+			"Fv",            // 0
+			"FinalUrl",      // 1
+			"Title",         // 2
+			"Description",   // 3
+			"OgDescription", // 4
+			"OgType",        // 5
+			"OgImage",       // 6
+			"Body",          // 7
+			"Score",         // 8
+			"IsNew",         // 9
+			"StatusCode",    // 10
+			"Favicon",       // 11
 		).Result()
 		if err != nil {
 			return err
@@ -119,13 +118,6 @@ func (c *cache) AttachMetadata(examples model.Examples) error {
 		if result, ok := vals[11].(string); ok {
 			e.Favicon = result
 		}
-		// ReferringTweets
-		if result, ok := vals[12].(string); ok {
-			tweets := model.ReferringTweets{}
-			if err := tweets.UnmarshalBinary([]byte(result)); err == nil {
-				e.ReferringTweets = tweets
-			}
-		}
 	}
 	return nil
 }
@@ -138,16 +130,15 @@ func (c *cache) AttachLightMetadata(examples model.Examples) error {
 	for _, e := range examples {
 		key := redisPrefix + ":" + e.Url
 		url2Cmd[key] = pipe.HMGet(key,
-			"FinalUrl",        // 0
-			"Title",           // 1
-			"Description",     // 2
-			"OgDescription",   // 3
-			"OgType",          // 4
-			"OgImage",         // 5
-			"Score",           // 6
-			"StatusCode",      // 7
-			"Favicon",         // 8
-			"ReferringTweets", // 9
+			"FinalUrl",      // 0
+			"Title",         // 1
+			"Description",   // 2
+			"OgDescription", // 3
+			"OgType",        // 4
+			"OgImage",       // 5
+			"Score",         // 6
+			"StatusCode",    // 7
+			"Favicon",       // 8
 		)
 		url2Example[key] = e
 	}
@@ -201,13 +192,6 @@ func (c *cache) AttachLightMetadata(examples model.Examples) error {
 		// Favicon
 		if result, ok := vals[8].(string); ok {
 			e.Favicon = result
-		}
-		// ReferringTweets
-		if result, ok := vals[9].(string); ok {
-			tweets := model.ReferringTweets{}
-			if err := tweets.UnmarshalBinary([]byte(result)); err == nil {
-				e.ReferringTweets = tweets
-			}
 		}
 	}
 	return nil
@@ -292,7 +276,6 @@ func (c *cache) UpdateExampleMetadata(e model.Example) error {
 	vals["IsNew"] = e.IsNew
 	vals["StatusCode"] = e.StatusCode
 	vals["Favicon"] = e.Favicon
-	vals["ReferringTweets"] = &e.ReferringTweets
 
 	if err := c.client.HMSet(key, vals).Err(); err != nil {
 		return err

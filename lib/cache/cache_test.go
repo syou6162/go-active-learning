@@ -230,33 +230,6 @@ func TestAttachLightMetaData(t *testing.T) {
 	}
 }
 
-func TestReferringTweets(t *testing.T) {
-	cache, err := New()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	defer cache.Close()
-
-	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
-	examples := model.Examples{e1}
-	for _, e := range examples {
-		key := "url:" + e.Url
-		cache.client.Del(key)
-	}
-
-	cache.Fetch(examples)
-	cache.AttachMetadata(examples)
-	e1.ReferringTweets = model.ReferringTweets{"https:/twitter.com/1"}
-	cache.UpdateExampleMetadata(*e1)
-	e2 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
-	examples = model.Examples{e2}
-	cache.AttachMetadata(examples)
-
-	if len(examples[0].ReferringTweets) != 1 {
-		t.Errorf("len(examples[0].ReferringTweets) should be 1, but %d", len(examples[0].ReferringTweets))
-	}
-}
-
 func TestAddExamplesToListAndGetUrlsFromList(t *testing.T) {
 	cache, err := New()
 	if err != nil {

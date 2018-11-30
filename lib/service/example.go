@@ -79,6 +79,9 @@ func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
 	if err := app.repo.UpdateHatenaBookmark(&e); err != nil {
 		log.Println(fmt.Sprintf("Error occured updating bookmark info %s %s", e.Url, err.Error()))
 	}
+	if err := app.repo.UpdateReferringTweets(&e); err != nil {
+		log.Println(fmt.Sprintf("Error occured updating twitter info %s %s", e.Url, err.Error()))
+	}
 	return nil
 }
 
@@ -126,6 +129,19 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 			e.HatenaBookmark = &model.HatenaBookmark{Bookmarks: []*model.Bookmark{}}
 		}
 	}
+
+	referringTweetsById, err := app.repo.SearchReferringTweetsList(examples)
+	if err != nil {
+		return err
+	}
+	for _, e := range examples {
+		if t, ok := referringTweetsById[e.Id]; ok {
+			e.ReferringTweets = &t
+		} else {
+			e.ReferringTweets = &model.ReferringTweets{}
+		}
+	}
+
 	return nil
 }
 
@@ -140,6 +156,18 @@ func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) err
 			e.HatenaBookmark = b
 		} else {
 			e.HatenaBookmark = &model.HatenaBookmark{Bookmarks: []*model.Bookmark{}}
+		}
+	}
+
+	referringTweetsById, err := app.repo.SearchReferringTweetsList(examples)
+	if err != nil {
+		return err
+	}
+	for _, e := range examples {
+		if t, ok := referringTweetsById[e.Id]; ok {
+			e.ReferringTweets = &t
+		} else {
+			e.ReferringTweets = &model.ReferringTweets{}
 		}
 	}
 	return nil
