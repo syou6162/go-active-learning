@@ -42,7 +42,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 		exampleIds = append(exampleIds, e.Id)
 	}
 
-	query := `SELECT * FROM tweet WHERE example_id = ANY($1);`
+	query := `SELECT * FROM tweet WHERE example_id = ANY($1) ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, pq.Array(exampleIds))
 	if err != nil {
 		return referringTweetsByExampleId, err
@@ -57,7 +57,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 
-	query := `SELECT * FROM tweet WHERE example_id = $1;`
+	query := `SELECT * FROM tweet WHERE example_id = $1 ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, e.Id)
 	if err != nil {
 		return referringTweets, err
