@@ -27,14 +27,14 @@ func TestUpdateReferringTweets(t *testing.T) {
 	}
 	now := time.Now()
 	t1 := model.Tweet{
-		CreatedAt: now,
-		IdStr: "1111111",
-		FullText: "hello world!!!",
-		FavoriteCount: 10,
-		RetweetCount: 10,
-		Lang: "en",
-		ScreenName: "syou6162",
-		Name: "syou6162",
+		CreatedAt:       now,
+		IdStr:           "1111111",
+		FullText:        "hello world!!!",
+		FavoriteCount:   10,
+		RetweetCount:    10,
+		Lang:            "en",
+		ScreenName:      "syou6162",
+		Name:            "syou6162",
 		ProfileImageUrl: "http://hogehoge.com/profile.png",
 	}
 
