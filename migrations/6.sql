@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS tweet (
 );
 
 CREATE INDEX IF NOT EXISTS "example_id_idx_tweet" ON tweet ("example_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "example_id_id_str_idx_tweet" ON tweet ("example_id", "id_str");
 
 -- +migrate Down
+DROP INDEX "example_id_id_str_idx_tweet";
 DROP INDEX "example_id_idx_tweet";
 DROP TABLE tweet;
