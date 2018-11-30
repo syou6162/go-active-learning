@@ -57,7 +57,6 @@ func (c *cache) AttachMetadata(examples model.Examples) error {
 			"StatusCode",      // 10
 			"Favicon",         // 11
 			"ReferringTweets", // 12
-			"HatenaBookmark",  // 13
 		).Result()
 		if err != nil {
 			return err
@@ -127,13 +126,6 @@ func (c *cache) AttachMetadata(examples model.Examples) error {
 				e.ReferringTweets = tweets
 			}
 		}
-		// HatenaBookmark
-		if result, ok := vals[13].(string); ok {
-			bookmarks := model.HatenaBookmark{}
-			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
-				e.HatenaBookmark = &bookmarks
-			}
-		}
 	}
 	return nil
 }
@@ -156,7 +148,6 @@ func (c *cache) AttachLightMetadata(examples model.Examples) error {
 			"StatusCode",      // 7
 			"Favicon",         // 8
 			"ReferringTweets", // 9
-			"HatenaBookmark",  // 10
 		)
 		url2Example[key] = e
 	}
@@ -216,13 +207,6 @@ func (c *cache) AttachLightMetadata(examples model.Examples) error {
 			tweets := model.ReferringTweets{}
 			if err := tweets.UnmarshalBinary([]byte(result)); err == nil {
 				e.ReferringTweets = tweets
-			}
-		}
-		// HatenaBookmark
-		if result, ok := vals[10].(string); ok {
-			bookmarks := model.HatenaBookmark{}
-			if err := bookmarks.UnmarshalBinary([]byte(result)); err == nil {
-				e.HatenaBookmark = &bookmarks
 			}
 		}
 	}
@@ -309,7 +293,6 @@ func (c *cache) UpdateExampleMetadata(e model.Example) error {
 	vals["StatusCode"] = e.StatusCode
 	vals["Favicon"] = e.Favicon
 	vals["ReferringTweets"] = &e.ReferringTweets
-	vals["HatenaBookmark"] = e.HatenaBookmark
 
 	if err := c.client.HMSet(key, vals).Err(); err != nil {
 		return err
