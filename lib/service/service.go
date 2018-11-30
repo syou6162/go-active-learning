@@ -23,7 +23,7 @@ type GoActiveLearningApp interface {
 	ReadUnlabeledExamples(limit int) (model.Examples, error)
 	FindExampleByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
-	SearchExamplesByKeywords(keywords []string, limit int) (model.Examples, error)
+	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)
 	DeleteAllExamples() error
 
 	UpdateExampleMetadata(e model.Example) error

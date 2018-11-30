@@ -153,7 +153,7 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	return r.readExamples(query, pq.Array(urls))
 }
 
-func (r *repository) SearchExamplesByKeywords(keywords []string, limit int) (model.Examples, error) {
+func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error) {
 	if len(keywords) == 0 {
 		return model.Examples{}, nil
 	}
@@ -161,7 +161,7 @@ func (r *repository) SearchExamplesByKeywords(keywords []string, limit int) (mod
 	for _, w := range keywords {
 		regexList = append(regexList, fmt.Sprintf(`.*%s.*`, w))
 	}
-	query := `SELECT * FROM example WHERE title ~* ALL($1) ORDER BY score DESC LIMIT $2;`
+	query := fmt.Sprintf(`SELECT * FROM example WHERE title ~* %s($1) ORDER BY score DESC LIMIT $2;`, aggregator)
 	return r.readExamples(query, pq.Array(regexList), limit)
 }
 

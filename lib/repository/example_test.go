@@ -420,16 +420,20 @@ func TestSearchExamplesByWords(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err := repo.SearchExamplesByKeywords([]string{"日本語"}, 100)
+	examples, err := repo.SearchExamplesByKeywords([]string{"日本語"}, "ALL", 100)
 	if len(examples) != 1 {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
-	examples, err = repo.SearchExamplesByKeywords([]string{"語"}, 100)
+	examples, err = repo.SearchExamplesByKeywords([]string{"語"}, "ALL", 100)
 	if len(examples) != 2 {
 		t.Errorf("len(examples) == %d, want 2", len(examples))
 	}
-	examples, err = repo.SearchExamplesByKeywords([]string{"日本語", "英語"}, 100)
+	examples, err = repo.SearchExamplesByKeywords([]string{"日本語", "英語"}, "ALL", 100)
 	if len(examples) != 0 {
 		t.Errorf("len(examples) == %d, want 0", len(examples))
+	}
+	examples, err = repo.SearchExamplesByKeywords([]string{"日本語", "英語"}, "ANY", 100)
+	if len(examples) != 2 {
+		t.Errorf("len(examples) == %d, want 2", len(examples))
 	}
 }

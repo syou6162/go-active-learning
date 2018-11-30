@@ -28,7 +28,7 @@ type Repository interface {
 	ReadUnlabeledExamples(limit int) (model.Examples, error)
 	FindExampleByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
-	SearchExamplesByKeywords(keywords []string, limit int) (model.Examples, error)
+	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)
 	DeleteAllExamples() error
 
 	UpdateFeatureVector(e *model.Example) error
