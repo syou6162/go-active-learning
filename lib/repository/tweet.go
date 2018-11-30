@@ -6,7 +6,7 @@ import (
 )
 
 func (r *repository) UpdateReferringTweets(e *model.Example) error {
-	if len(*e.ReferringTweets) == 0 {
+	if e.ReferringTweets == nil || len(*e.ReferringTweets) == 0 {
 		return nil
 	}
 
