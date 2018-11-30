@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/model"
 )
 
 func (r *repository) UpdateReferringTweets(e *model.Example) error {
@@ -49,8 +49,18 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 	}
 
 	for _, t := range referringTweets {
-		tmp := referringTweetsByExampleId[t.ExampleId]
-		tmp = append(tmp, t)
+		referringTweetsByExampleId[t.ExampleId] = append(referringTweetsByExampleId[t.ExampleId], t)
 	}
 	return referringTweetsByExampleId, nil
+}
+
+func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
+	referringTweets := model.ReferringTweets{}
+
+	query := `SELECT * FROM tweet WHERE example_id = $1;`
+	err := r.db.Select(&referringTweets, query, e.Id)
+	if err != nil {
+		return referringTweets, err
+	}
+	return referringTweets, nil
 }
