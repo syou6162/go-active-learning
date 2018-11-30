@@ -394,3 +394,42 @@ func TestFeatureVectorReadWrite(t *testing.T) {
 		t.Errorf("fvList[1][0] == %s, want hoge", fvList[1][0])
 	}
 }
+
+func TestSearchExamplesByWords(t *testing.T) {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err = repo.DeleteAllExamples(); err != nil {
+		t.Error(err)
+	}
+
+	e1 := example.NewExample("http://hoge.com", model.UNLABELED)
+	e1.Title = "日本語"
+	err = repo.InsertOrUpdateExample(e1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	e2 := example.NewExample("http://fuga.com", model.UNLABELED)
+	e2.Title = "英語"
+	err = repo.InsertOrUpdateExample(e2)
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := repo.SearchExamplesByKeywords([]string{"日本語"}, 100)
+	if len(examples) != 1 {
+		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+	examples, err = repo.SearchExamplesByKeywords([]string{"語"}, 100)
+	if len(examples) != 2 {
+		t.Errorf("len(examples) == %d, want 2", len(examples))
+	}
+	examples, err = repo.SearchExamplesByKeywords([]string{"日本語", "英語"}, 100)
+	if len(examples) != 0 {
+		t.Errorf("len(examples) == %d, want 0", len(examples))
+	}
+}
