@@ -180,13 +180,13 @@ func (r *repository) FindFeatureVector(e *model.Example) (feature.FeatureVector,
 	return fv, nil
 }
 
-func (r *repository) SearchFeatureVector(examples model.Examples) ([]feature.FeatureVector, error) {
+func (r *repository) SearchFeatureVector(examples model.Examples) (map[int]feature.FeatureVector, error) {
 	type Pair struct {
 		ExampleId int    `db:"example_id"`
 		Feature   string `db:"feature"`
 	}
 
-	fvList := make([]feature.FeatureVector, 0)
+	fvById := make(map[int]feature.FeatureVector)
 	urls := make([]string, 0)
 	for _, e := range examples {
 		urls = append(urls, e.Url)
@@ -194,7 +194,7 @@ func (r *repository) SearchFeatureVector(examples model.Examples) ([]feature.Fea
 
 	tmp, err := r.SearchExamplesByUlrs(urls)
 	if err != nil {
-		return fvList, err
+		return fvById, err
 	}
 	ids := make([]int, 0)
 	for _, e := range tmp {
@@ -205,17 +205,13 @@ func (r *repository) SearchFeatureVector(examples model.Examples) ([]feature.Fea
 	pairs := make([]Pair, 0)
 	err = r.db.Select(&pairs, query, pq.Array(ids))
 	if err != nil {
-		return fvList, err
+		return fvById, err
 	}
-	m := make(map[int][]string)
 
 	for _, pair := range pairs {
-		m[pair.ExampleId] = append(m[pair.ExampleId], pair.Feature)
+		fvById[pair.ExampleId] = append(fvById[pair.ExampleId], pair.Feature)
 	}
-	for _, id := range ids {
-		fvList = append(fvList, m[id])
-	}
-	return fvList, nil
+	return fvById, nil
 }
 
 func (r *repository) DeleteAllExamples() error {

@@ -108,44 +108,29 @@ func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]
 }
 
 func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
+	// make sure that example id must be filled
+	for _, e := range examples {
+		if e.Id == 0 {
+			tmp, err := app.FindExampleByUlr(e.Url)
+			if err != nil {
+				return err
+			}
+			e.Id = tmp.Id
+		}
+	}
+
 	fvList, err := app.repo.SearchFeatureVector(examples)
 	if err != nil {
 		return err
 	}
 
-	// ToDo: Rewrite
-	if len(fvList) > 0 {
-		for idx, e := range examples {
-			e.Fv = fvList[idx]
-		}
-	}
-
-	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
-	if err != nil {
-		return err
-	}
-	hbByid := hatenaBookmarkByExampleId(hatenaBookmarks)
 	for _, e := range examples {
-		if b, ok := hbByid[e.Id]; ok {
-			e.HatenaBookmark = b
-		} else {
-			e.HatenaBookmark = &model.HatenaBookmark{Bookmarks: []*model.Bookmark{}}
+		if fv, ok := fvList[e.Id]; ok {
+			e.Fv = fv
 		}
 	}
 
-	referringTweetsById, err := app.repo.SearchReferringTweetsList(examples)
-	if err != nil {
-		return err
-	}
-	for _, e := range examples {
-		if t, ok := referringTweetsById[e.Id]; ok {
-			e.ReferringTweets = &t
-		} else {
-			e.ReferringTweets = &model.ReferringTweets{}
-		}
-	}
-
-	return nil
+	return app.AttachLightMetadata(examples)
 }
 
 func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {

@@ -390,8 +390,8 @@ func TestFeatureVectorReadWrite(t *testing.T) {
 	if len(fvList) != 2 {
 		t.Errorf("len(fvList) == %d, want 2", len(fvList))
 	}
-	if fvList[1][0] != "hoge" {
-		t.Errorf("fvList[1][0] == %s, want hoge", fvList[1][0])
+	if fvList[e2.Id][0] != "hoge" {
+		t.Errorf("fvList[e2.Id][0] == %s, want hoge", fvList[e2.Id][0])
 	}
 }
 
