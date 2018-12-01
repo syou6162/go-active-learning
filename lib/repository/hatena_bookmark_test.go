@@ -35,6 +35,7 @@ func TestUpdateHatenaBookmark(t *testing.T) {
 	hb := model.HatenaBookmark{
 		ExampleId: e.Id,
 		Title:     "hoge",
+		Count:     10,
 		Bookmarks: []*model.Bookmark{&b1},
 	}
 	e.HatenaBookmark = &hb

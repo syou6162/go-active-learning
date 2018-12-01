@@ -8,7 +8,7 @@ import (
 var hatenaBookmarkNotFoundError = model.NotFoundError("hatenaBookmark")
 
 func (r *repository) UpdateHatenaBookmark(e *model.Example) error {
-	if e.HatenaBookmark == nil {
+	if e.HatenaBookmark == nil || e.HatenaBookmark.Count == 0 {
 		return nil
 	}
 
