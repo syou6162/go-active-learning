@@ -5,6 +5,8 @@ import (
 
 	"time"
 
+	"strconv"
+
 	"github.com/go-redis/redis"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
@@ -14,15 +16,10 @@ type Cache interface {
 	Ping() error
 	Close() error
 
-	UpdateExampleMetadata(e model.Example) error
-	UpdateExamplesMetadata(examples model.Examples) error
-	UpdateExampleExpire(e model.Example, duration time.Duration) error
-	AttachMetadata(examples model.Examples) error
-	AttachLightMetadata(examples model.Examples) error
-	Fetch(examples model.Examples)
-
 	AddExamplesToList(listName string, examples model.Examples) error
 	GetUrlsFromList(listName string, from int64, to int64) ([]string, error)
+	IncErrorCount(url string) error
+	GetErrorCount(url string) (int, error)
 }
 
 type cache struct {
@@ -86,4 +83,45 @@ func (c *cache) GetUrlsFromList(listName string, from int64, to int64) ([]string
 		return nil, sliceCmd.Err()
 	}
 	return sliceCmd.Val(), nil
+}
+
+var errorCountPrefix = "errorCountPrefix:"
+
+func (c *cache) IncErrorCount(url string) error {
+	key := errorCountPrefix + url
+	exist, err := c.client.Exists(key).Result()
+	if err != nil {
+		return err
+	}
+	if exist == 0 {
+		hour := 24 * 10
+		c.client.Set(key, 1, time.Hour*time.Duration(hour))
+		return nil
+	} else {
+		if _, err = c.client.Incr(key).Result(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *cache) GetErrorCount(url string) (int, error) {
+	key := errorCountPrefix + url
+	ok, err := c.client.Exists(key).Result()
+	if err != nil {
+		return 0, err
+	}
+	if ok == 0 {
+		return 0, nil
+	}
+
+	cntStr, err := c.client.Get(key).Result()
+	if err != nil {
+		return 0, err
+	}
+	cnt, err := strconv.Atoi(cntStr)
+	if err != nil {
+		return 0, err
+	}
+	return cnt, nil
 }

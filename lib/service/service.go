@@ -28,7 +28,6 @@ type GoActiveLearningApp interface {
 
 	UpdateExampleMetadata(e model.Example) error
 	UpdateExamplesMetadata(examples model.Examples) error
-	UpdateExampleExpire(e model.Example, duration time.Duration) error
 	Fetch(examples model.Examples)
 
 	AttachMetadata(examples model.Examples) error

@@ -5,9 +5,19 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
+	"runtime"
 	"time"
 
+	"math"
+	"os"
+	"strconv"
+	"sync"
+
+	"github.com/syou6162/go-active-learning/lib/example"
+	"github.com/syou6162/go-active-learning/lib/fetcher"
 	"github.com/syou6162/go-active-learning/lib/model"
+	"github.com/syou6162/go-active-learning/lib/util"
 )
 
 func (app *goActiveLearningApp) InsertOrUpdateExample(e *model.Example) error {
@@ -67,9 +77,6 @@ func (app *goActiveLearningApp) DeleteAllExamples() error {
 }
 
 func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
-	if err := app.cache.UpdateExampleMetadata(e); err != nil {
-		return err
-	}
 	if err := app.repo.InsertOrUpdateExample(&e); err != nil {
 		log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 	}
@@ -86,17 +93,10 @@ func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
 }
 
 func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) error {
-	if err := app.cache.UpdateExamplesMetadata(examples); err != nil {
-		return err
-	}
 	for _, e := range examples {
 		app.UpdateExampleMetadata(*e)
 	}
 	return nil
-}
-
-func (app *goActiveLearningApp) UpdateExampleExpire(e model.Example, duration time.Duration) error {
-	return app.cache.UpdateExampleExpire(e, duration)
 }
 
 func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]*model.HatenaBookmark {
@@ -113,8 +113,11 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 		return err
 	}
 
-	for idx, e := range examples {
-		e.Fv = fvList[idx]
+	// ToDo: Rewrite
+	if len(fvList) > 0 {
+		for idx, e := range examples {
+			e.Fv = fvList[idx]
+		}
 	}
 
 	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
@@ -173,14 +176,90 @@ func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) err
 	return nil
 }
 
-func (app *goActiveLearningApp) Fetch(examples model.Examples) {
-	app.cache.Fetch(examples)
-}
-
 func (app *goActiveLearningApp) AddExamplesToList(listName string, examples model.Examples) error {
 	return app.cache.AddExamplesToList(listName, examples)
 }
 
 func (app *goActiveLearningApp) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
 	return app.cache.GetUrlsFromList(listName, from, to)
+}
+
+func (app *goActiveLearningApp) ExistMetadata(e model.Example) bool {
+	tmp, err := app.FindExampleByUlr(e.Url)
+	if err != nil {
+		return false
+	}
+
+	if tmp.StatusCode == http.StatusOK {
+		return true
+	}
+	return false
+}
+
+func fetchMetaData(e *model.Example) error {
+	article, err := fetcher.GetArticle(e.Url)
+	if err != nil {
+		return err
+	}
+
+	e.Title = article.Title
+	e.FinalUrl = article.Url
+	e.Description = article.Description
+	e.OgDescription = article.OgDescription
+	e.OgType = article.OgType
+	e.OgImage = article.OgImage
+	e.Body = article.Body
+	e.StatusCode = article.StatusCode
+	e.Favicon = article.Favicon
+	e.Fv = util.RemoveDuplicate(example.ExtractFeatures(*e))
+
+	return nil
+}
+
+func (app *goActiveLearningApp) Fetch(examples model.Examples) {
+	batchSize := 100
+	examplesList := make([]model.Examples, 0)
+	n := len(examples)
+
+	for i := 0; i < n; i += batchSize {
+		max := int(math.Min(float64(i+batchSize), float64(n)))
+		examplesList = append(examplesList, examples[i:max])
+	}
+	for _, l := range examplesList {
+		examplesWithMetaData := model.Examples{}
+		examplesWithEmptyMetaData := model.Examples{}
+		for _, e := range l {
+			if !app.ExistMetadata(*e) {
+				examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, e)
+			} else {
+				examplesWithMetaData = append(examplesWithMetaData, e)
+			}
+		}
+		app.AttachMetadata(examplesWithMetaData)
+
+		wg := &sync.WaitGroup{}
+		cpus := runtime.NumCPU()
+		runtime.GOMAXPROCS(cpus)
+		sem := make(chan struct{}, batchSize)
+		for idx, e := range examplesWithEmptyMetaData {
+			wg.Add(1)
+			sem <- struct{}{}
+			go func(e *model.Example, idx int) {
+				defer wg.Done()
+				cnt, err := app.cache.GetErrorCount(e.Url)
+				if err != nil {
+					log.Println(err.Error())
+				}
+				if cnt < 5 {
+					fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
+					if err := fetchMetaData(e); err != nil {
+						app.cache.IncErrorCount(e.Url)
+						log.Println(err.Error())
+					}
+				}
+				<-sem
+			}(e, idx)
+		}
+		wg.Wait()
+	}
 }
