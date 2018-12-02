@@ -161,7 +161,7 @@ func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator stri
 	for _, w := range keywords {
 		regexList = append(regexList, fmt.Sprintf(`.*%s.*`, w))
 	}
-	query := fmt.Sprintf(`SELECT * FROM example WHERE title ~* %s($1) AND label != -1 ORDER BY score DESC LIMIT $2;`, aggregator)
+	query := fmt.Sprintf(`SELECT * FROM example WHERE title ~* %s($1) AND label != -1 ORDER BY (label, score) DESC LIMIT $2;`, aggregator)
 	return r.readExamples(query, pq.Array(regexList), limit)
 }
 
