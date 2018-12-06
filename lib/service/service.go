@@ -21,6 +21,7 @@ type GoActiveLearningApp interface {
 	ReadPositiveExamples(limit int) (model.Examples, error)
 	ReadNegativeExamples(limit int) (model.Examples, error)
 	ReadUnlabeledExamples(limit int) (model.Examples, error)
+	SearchPositiveScoredExamples(limit int) (model.Examples, error)
 	FindExampleByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)

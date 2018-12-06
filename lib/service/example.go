@@ -60,6 +60,10 @@ func (app *goActiveLearningApp) ReadUnlabeledExamples(limit int) (model.Examples
 	return app.repo.ReadUnlabeledExamples(limit)
 }
 
+func (app *goActiveLearningApp) SearchPositiveScoredExamples(limit int) (model.Examples, error) {
+	return app.repo.SearchPositiveScoredExamples(limit)
+}
+
 func (app *goActiveLearningApp) FindExampleByUlr(url string) (*model.Example, error) {
 	return app.repo.FindExampleByUlr(url)
 }
