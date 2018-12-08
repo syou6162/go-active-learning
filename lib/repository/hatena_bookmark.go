@@ -26,7 +26,7 @@ VALUES
 (:example_id, :title, :screenshot, :entry_url, :count, :url, :eid)
 ON CONFLICT (example_id)
 DO UPDATE SET
-title = :title, screenshot = :screenshot, entry_url = :entry_url, count = :count, url = :url, eid = :eid
+title = :title, count = :count
 ;`, e.HatenaBookmark); err != nil {
 		return err
 	}
