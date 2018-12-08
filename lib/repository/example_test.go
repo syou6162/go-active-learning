@@ -158,6 +158,48 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 }
 
+func TestUpdateScore(t *testing.T) {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err = repo.DeleteAllExamples(); err != nil {
+		t.Error(err)
+	}
+
+	url := "http://hoge.com"
+	e := example.NewExample(url, model.UNLABELED)
+	e.Score = 1.0
+	err = repo.InsertOrUpdateExample(e)
+	if err != nil {
+		t.Error(err)
+	}
+
+	e, err = repo.FindExampleByUlr(url)
+	if err != nil {
+		t.Error(err)
+	}
+	if e.Score != 1.0 {
+		t.Errorf("e.Score == %f, want 1.0", e.Score)
+	}
+
+	e.Score = 100.0
+	err = repo.UpdateScore(e)
+	if err != nil {
+		t.Error(err)
+	}
+
+	e, err = repo.FindExampleByUlr(url)
+	if err != nil {
+		t.Error(err)
+	}
+	if e.Score != 100.0 {
+		t.Errorf("e.Score == %f, want 100.0", e.Score)
+	}
+}
+
 func TestReadLabeledExamples(t *testing.T) {
 	repo, err := repository.New()
 	if err != nil {

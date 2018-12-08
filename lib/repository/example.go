@@ -51,6 +51,16 @@ WHERE
 	return nil
 }
 
+func (r *repository) UpdateScore(e *model.Example) error {
+	if _, err := r.FindExampleByUlr(e.Url); err != nil {
+		return err
+	}
+	if _, err := r.db.Exec(`UPDATE example SET score = $1, updated_at = $2 WHERE url = $3;`, e.Score, time.Now(), e.Url); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *repository) UpdateFeatureVector(e *model.Example) error {
 	tmp, err := r.FindExampleByUlr(e.Url)
 	if err != nil {

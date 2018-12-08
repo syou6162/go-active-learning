@@ -24,6 +24,10 @@ func (app *goActiveLearningApp) InsertOrUpdateExample(e *model.Example) error {
 	return app.repo.InsertOrUpdateExample(e)
 }
 
+func (app *goActiveLearningApp) UpdateScore(e *model.Example) error {
+	return app.repo.UpdateScore(e)
+}
+
 func (app *goActiveLearningApp) InsertExampleFromScanner(scanner *bufio.Scanner) (*model.Example, error) {
 	return app.repo.InsertExampleFromScanner(scanner)
 }
