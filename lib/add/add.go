@@ -32,7 +32,17 @@ func doAdd(c *cli.Context) error {
 	app.Fetch(examples)
 	app.UpdateExamplesMetadata(examples)
 
+	m, err := app.FindLatestMIRAModel()
+	skipPredictScore := false
+	if err != nil {
+		log.Println(fmt.Sprintf("Error to load model %s", err.Error()))
+		skipPredictScore = true
+	}
+
 	for _, e := range examples {
+		if !skipPredictScore {
+			e.Score = m.PredictScore(e.Fv)
+		}
 		if err = app.InsertOrUpdateExample(e); err != nil {
 			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
