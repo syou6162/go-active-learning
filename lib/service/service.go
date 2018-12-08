@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/syou6162/go-active-learning/lib/cache"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/repository"
 )
@@ -27,6 +28,9 @@ type GoActiveLearningApp interface {
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)
 	DeleteAllExamples() error
+
+	InsertMIRAModel(m classifier.MIRAClassifier) error
+	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
 
 	UpdateExampleMetadata(e model.Example) error
 	UpdateExamplesMetadata(examples model.Examples) error
@@ -63,6 +67,14 @@ func NewDefaultApp() (GoActiveLearningApp, error) {
 type goActiveLearningApp struct {
 	repo  repository.Repository
 	cache cache.Cache
+}
+
+func (app *goActiveLearningApp) InsertMIRAModel(m classifier.MIRAClassifier) error {
+	return app.repo.InsertMIRAModel(m)
+}
+
+func (app *goActiveLearningApp) FindLatestMIRAModel() (*classifier.MIRAClassifier, error) {
+	return app.repo.FindLatestMIRAModel()
 }
 
 func (app *goActiveLearningApp) Ping() error {

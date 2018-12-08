@@ -16,8 +16,8 @@ import (
 )
 
 type MIRAClassifier struct {
-	weight map[string]float64
-	c      float64
+	Weight map[string]float64 `json:"Weight"`
+	C      float64            `json:"C"`
 }
 
 func newMIRAClassifier(c float64) *MIRAClassifier {
@@ -62,6 +62,14 @@ func OverSamplingPositiveExamples(examples model.Examples) model.Examples {
 	return overSampled
 }
 
+func ExtractGoldLabels(examples model.Examples) []model.LabelType {
+	golds := make([]model.LabelType, 0, 0)
+	for _, e := range examples {
+		golds = append(golds, e.Label)
+	}
+	return golds
+}
+
 type MIRAResult struct {
 	mira   MIRAClassifier
 	FValue float64
@@ -97,7 +105,7 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) *MIRAClassifier
 	wg.Wait()
 
 	for _, m := range models {
-		c := m.c
+		c := m.C
 		devPredicts := make([]model.LabelType, len(dev))
 		for i, example := range dev {
 			devPredicts[i] = m.Predict(example.Fv)
@@ -118,7 +126,7 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) *MIRAClassifier
 	bestModel := &miraResults[0].mira
 	examples = OverSamplingPositiveExamples(examples)
 	util.Shuffle(examples)
-	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.c)
+	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.C)
 }
 
 func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall float64, fvalue float64) error {
@@ -163,13 +171,13 @@ func (m *MIRAClassifier) learn(example model.Example) {
 	}
 
 	norm := float64(len(example.Fv) * len(example.Fv))
-	// tau := math.Min(m.c, loss/norm) // update by PA-I
-	tau := loss / (norm + 1.0/m.c) // update by PA-II
+	// tau := math.Min(m.C, loss/norm) // update by PA-I
+	tau := loss / (norm + 1.0/m.C) // update by PA-II
 
 	if tau != 0.0 {
 		for _, f := range example.Fv {
-			w, _ := m.weight[f]
-			m.weight[f] = w + tau*float64(example.Label)
+			w, _ := m.Weight[f]
+			m.Weight[f] = w + tau*float64(example.Label)
 		}
 	}
 }
@@ -177,7 +185,7 @@ func (m *MIRAClassifier) learn(example model.Example) {
 func (m MIRAClassifier) PredictScore(features feature.FeatureVector) float64 {
 	result := 0.0
 	for _, f := range features {
-		w, ok := m.weight[f]
+		w, ok := m.Weight[f]
 		if ok {
 			result = result + w*1.0
 		}
@@ -193,11 +201,20 @@ func (m MIRAClassifier) Predict(features feature.FeatureVector) model.LabelType 
 }
 
 func (m MIRAClassifier) SortByScore(examples model.Examples) model.Examples {
-	return SortByScore(m, examples)
+	var unlabeledExamples model.Examples
+	for _, e := range util.FilterUnlabeledExamples(examples) {
+		e.Score = m.PredictScore(e.Fv)
+		if !e.IsLabeled() && e.Score != 0.0 {
+			unlabeledExamples = append(unlabeledExamples, e)
+		}
+	}
+
+	sort.Sort(unlabeledExamples)
+	return unlabeledExamples
 }
 
 func (m MIRAClassifier) GetWeight(f string) float64 {
-	w, ok := m.weight[f]
+	w, ok := m.Weight[f]
 	if ok {
 		return w
 	}
@@ -206,7 +223,7 @@ func (m MIRAClassifier) GetWeight(f string) float64 {
 
 func (m MIRAClassifier) GetActiveFeatures() []string {
 	result := make([]string, 0)
-	for f := range m.weight {
+	for f := range m.Weight {
 		result = append(result, f)
 	}
 	return result

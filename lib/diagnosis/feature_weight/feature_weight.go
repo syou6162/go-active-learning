@@ -42,7 +42,7 @@ func DoListFeatureWeight(c *cli.Context) error {
 		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	model := classifier.NewBinaryClassifier(training)
+	model := classifier.NewMIRAClassifierByCrossValidation(examples)
 
 	tmp := make(FeatureList, 0)
 	for _, k := range model.GetActiveFeatures() {

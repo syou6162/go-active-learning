@@ -47,14 +47,14 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	m := classifier.NewBinaryClassifier(examples)
-	e := NextExampleToBeAnnotated(m, examples)
+	m := classifier.NewMIRAClassifierByCrossValidation(examples)
+	e := NextExampleToBeAnnotated(*m, examples)
 	if e == nil {
 		return errors.New("No e to annotate")
 	}
 
 	rtm.SendMessage(rtm.NewOutgoingMessage("Ready to annotate!", channelID))
-	showExample(rtm, m, e, channelID)
+	showExample(rtm, *m, e, channelID)
 	prevTimestamp := ""
 
 annotationLoop:
@@ -78,11 +78,11 @@ annotationLoop:
 				switch act {
 				case LABEL_AS_POSITIVE:
 					e.Annotate(model.POSITIVE)
-					m = classifier.NewBinaryClassifier(examples)
+					m = classifier.NewMIRAClassifierByCrossValidation(examples)
 					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
 					e.Annotate(model.NEGATIVE)
-					m = classifier.NewBinaryClassifier(examples)
+					m = classifier.NewMIRAClassifierByCrossValidation(examples)
 					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case SKIP:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Skiped this e", channelID))
@@ -96,11 +96,11 @@ annotationLoop:
 				default:
 					break annotationLoop
 				}
-				e = NextExampleToBeAnnotated(m, examples)
+				e = NextExampleToBeAnnotated(*m, examples)
 				if e == nil {
 					return errors.New("No e to annotate")
 				}
-				showExample(rtm, m, e, channelID)
+				showExample(rtm, *m, e, channelID)
 			case *slack.InvalidAuthEvent:
 				return errors.New("Invalid credentials")
 			default:
@@ -110,7 +110,7 @@ annotationLoop:
 	return nil
 }
 
-func showExample(rtm *slack.RTM, model classifier.BinaryClassifier, example *model.Example, channelID string) {
+func showExample(rtm *slack.RTM, model classifier.MIRAClassifier, example *model.Example, channelID string) {
 	activeFeaturesStr := "Active Features: "
 	for _, pair := range SortedActiveFeatures(model, *example, 5) {
 		activeFeaturesStr += fmt.Sprintf("%s(%+0.1f) ", pair.Feature, pair.Weight)
