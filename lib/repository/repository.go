@@ -10,6 +10,7 @@ import (
 	"bufio"
 
 	_ "github.com/lib/pq"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
@@ -44,6 +45,9 @@ type Repository interface {
 	UpdateReferringTweets(e *model.Example) error
 	SearchReferringTweetsList(examples model.Examples) (map[int]model.ReferringTweets, error)
 	FindReferringTweets(e *model.Example) (model.ReferringTweets, error)
+
+	InsertMIRAModel(m classifier.MIRAClassifier) error
+	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
 
 	Ping() error
 	Close() error
