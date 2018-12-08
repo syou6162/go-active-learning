@@ -62,6 +62,14 @@ func OverSamplingPositiveExamples(examples model.Examples) model.Examples {
 	return overSampled
 }
 
+func ExtractGoldLabels(examples model.Examples) []model.LabelType {
+	golds := make([]model.LabelType, 0, 0)
+	for _, e := range examples {
+		golds = append(golds, e.Label)
+	}
+	return golds
+}
+
 type MIRAResult struct {
 	mira   MIRAClassifier
 	FValue float64
@@ -193,7 +201,16 @@ func (m MIRAClassifier) Predict(features feature.FeatureVector) model.LabelType 
 }
 
 func (m MIRAClassifier) SortByScore(examples model.Examples) model.Examples {
-	return SortByScore(m, examples)
+	var unlabeledExamples model.Examples
+	for _, e := range util.FilterUnlabeledExamples(examples) {
+		e.Score = m.PredictScore(e.Fv)
+		if !e.IsLabeled() && e.Score != 0.0 {
+			unlabeledExamples = append(unlabeledExamples, e)
+		}
+	}
+
+	sort.Sort(unlabeledExamples)
+	return unlabeledExamples
 }
 
 func (m MIRAClassifier) GetWeight(f string) float64 {

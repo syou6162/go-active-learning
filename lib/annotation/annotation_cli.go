@@ -57,11 +57,11 @@ func doAnnotate(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	m := classifier.NewBinaryClassifier(examples)
+	m := classifier.NewMIRAClassifierByCrossValidation(examples)
 
 annotationLoop:
 	for {
-		e := NextExampleToBeAnnotated(m, examples)
+		e := NextExampleToBeAnnotated(*m, examples)
 		if e == nil {
 			fmt.Println("No example")
 			break annotationLoop
@@ -72,7 +72,7 @@ annotationLoop:
 			browser.OpenURL(e.Url)
 		}
 		if showActiveFeatures {
-			ShowActiveFeatures(m, *e, 5)
+			ShowActiveFeatures(*m, *e, 5)
 		}
 
 		act, err := input2ActionType()
@@ -100,7 +100,7 @@ annotationLoop:
 		default:
 			break annotationLoop
 		}
-		m = classifier.NewBinaryClassifier(examples)
+		m = classifier.NewMIRAClassifierByCrossValidation(examples)
 	}
 
 	return nil
@@ -113,7 +113,7 @@ type FeatureWeightPair struct {
 
 type FeatureWeightPairs []FeatureWeightPair
 
-func SortedActiveFeatures(model classifier.BinaryClassifier, example model.Example, n int) FeatureWeightPairs {
+func SortedActiveFeatures(model classifier.MIRAClassifier, example model.Example, n int) FeatureWeightPairs {
 	pairs := FeatureWeightPairs{}
 	for _, f := range example.Fv {
 		pairs = append(pairs, FeatureWeightPair{f, model.GetWeight(f)})
@@ -134,7 +134,7 @@ func SortedActiveFeatures(model classifier.BinaryClassifier, example model.Examp
 	return result
 }
 
-func ShowActiveFeatures(model classifier.BinaryClassifier, example model.Example, n int) {
+func ShowActiveFeatures(model classifier.MIRAClassifier, example model.Example, n int) {
 	for _, pair := range SortedActiveFeatures(model, example, n) {
 		fmt.Println(fmt.Sprintf("%+0.1f %s", pair.Weight, pair.Feature))
 	}

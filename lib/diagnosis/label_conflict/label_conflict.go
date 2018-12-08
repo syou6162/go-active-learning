@@ -36,7 +36,7 @@ func DoLabelConflict(c *cli.Context) error {
 		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	m := classifier.NewBinaryClassifier(training)
+	m := classifier.NewMIRAClassifierByCrossValidation(examples)
 
 	wrongExamples := model.Examples{}
 	correctExamples := model.Examples{}
@@ -52,12 +52,12 @@ func DoLabelConflict(c *cli.Context) error {
 
 	sort.Sort(sort.Reverse(wrongExamples))
 	sort.Sort(correctExamples)
-	printResult(m, correctExamples, wrongExamples)
+	printResult(*m, correctExamples, wrongExamples)
 
 	return nil
 }
 
-func printResult(m classifier.BinaryClassifier, correctExamples model.Examples, wrongExamples model.Examples) error {
+func printResult(m classifier.MIRAClassifier, correctExamples model.Examples, wrongExamples model.Examples) error {
 	fmt.Println("Index\tLabel\tScore\tURL\tTitle")
 	result := append(wrongExamples, correctExamples...)
 
