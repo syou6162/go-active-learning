@@ -15,9 +15,6 @@ func (r *repository) UpdateReferringTweets(e *model.Example) error {
 		return err
 	}
 	id := tmp.Id
-	if _, err = r.db.Exec(`DELETE FROM tweet WHERE example_id = $1;`, id); err != nil {
-		return err
-	}
 
 	for _, t := range *e.ReferringTweets {
 		t.ExampleId = id
@@ -26,6 +23,9 @@ INSERT INTO tweet
 ( example_id,  created_at,  id_str,  full_text,  favorite_count,  retweet_count,  lang,  screen_name,  name,  profile_image_url)
 VALUES
 (:example_id, :created_at, :id_str, :full_text, :favorite_count, :retweet_count, :lang, :screen_name, :name, :profile_image_url)
+ON CONFLICT (example_id, id_str)
+DO UPDATE SET
+favorite_count = :favorite_count,  retweet_count = :retweet_count
 ;`, t); err != nil {
 			return err
 		}
