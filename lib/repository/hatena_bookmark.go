@@ -17,9 +17,6 @@ func (r *repository) UpdateHatenaBookmark(e *model.Example) error {
 		return err
 	}
 	id := tmp.Id
-	if _, err = r.db.Exec(`DELETE FROM hatena_bookmark WHERE example_id = $1;`, id); err != nil {
-		return err
-	}
 
 	e.HatenaBookmark.ExampleId = id
 	if _, err = r.db.NamedExec(`
@@ -27,6 +24,9 @@ INSERT INTO hatena_bookmark
 ( example_id,  title,  screenshot,  entry_url,  count,  url,  eid)
 VALUES
 (:example_id, :title, :screenshot, :entry_url, :count, :url, :eid)
+ON CONFLICT (example_id)
+DO UPDATE SET
+title = :title, screenshot = :screenshot, entry_url = :entry_url, count = :count, url = :url, eid = :eid
 ;`, e.HatenaBookmark); err != nil {
 		return err
 	}
@@ -43,6 +43,7 @@ INSERT INTO bookmark
 (hatena_bookmark_id, "user", comment, timestamp, tags)
 VALUES
 (:hatena_bookmark_id, :user, :comment, :timestamp, :tags)
+ON CONFLICT (hatena_bookmark_id, "user") DO NOTHING
 ;`, b); err != nil {
 			return err
 		}
