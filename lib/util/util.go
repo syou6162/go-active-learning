@@ -68,6 +68,18 @@ func FilterStatusCodeOkExamples(examples model.Examples) model.Examples {
 	return result
 }
 
+func FilterStatusCodeNotOkExamples(examples model.Examples) model.Examples {
+	result := model.Examples{}
+
+	for _, e := range examples {
+		if e.StatusCode != 200 {
+			result = append(result, e)
+		}
+	}
+
+	return result
+}
+
 func RemoveExample(examples model.Examples, toBeRemoved model.Example) model.Examples {
 	result := model.Examples{}
 

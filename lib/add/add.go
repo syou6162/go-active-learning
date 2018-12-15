@@ -7,6 +7,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/hatena_bookmark"
 	"github.com/syou6162/go-active-learning/lib/service"
+	"github.com/syou6162/go-active-learning/lib/util"
 	"github.com/syou6162/go-active-learning/lib/util/file"
 )
 
@@ -29,8 +30,16 @@ func doAdd(c *cli.Context) error {
 		return err
 	}
 
+	if err := app.AttachLightMetadata(examples); err != nil {
+		return err
+	}
+
+	examples = util.FilterStatusCodeNotOkExamples(examples)
 	app.Fetch(examples)
-	app.UpdateExamplesMetadata(examples)
+
+	if err := app.UpdateExamplesMetadata(examples); err != nil {
+		return err
+	}
 
 	m, err := app.FindLatestMIRAModel()
 	skipPredictScore := false
