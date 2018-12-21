@@ -23,6 +23,7 @@ type Repository interface {
 	InsertExamplesFromReader(reader io.Reader) error
 	SearchExamples() (model.Examples, error)
 	SearchRecentExamples(from time.Time) (model.Examples, error)
+	SearchRecentExamplesByHost(host string, from time.Time, limit int) (model.Examples, error)
 	SearchExamplesByLabel(label model.LabelType, limit int) (model.Examples, error)
 	SearchLabeledExamples(limit int) (model.Examples, error)
 	SearchPositiveExamples(limit int) (model.Examples, error)

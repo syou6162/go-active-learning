@@ -266,6 +266,39 @@ func TestReadRecentExamples(t *testing.T) {
 	}
 }
 
+func TestReadRecentExamplesByHost(t *testing.T) {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err = repo.DeleteAllExamples(); err != nil {
+		t.Error(err)
+	}
+
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	if err != nil {
+		t.Error(err)
+	}
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	if err != nil {
+		t.Error(err)
+	}
+	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	if err != nil {
+		t.Error(err)
+	}
+
+	examples, err := repo.SearchRecentExamplesByHost("http://hoge1.com", time.Now().Add(time.Duration(-10)*time.Minute), 10)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 1 {
+		t.Errorf("len(examples) == %d, want 1", len(examples))
+	}
+}
+
 func TestSearchExamplesByUlr(t *testing.T) {
 	repo, err := repository.New()
 	if err != nil {

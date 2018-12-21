@@ -129,9 +129,14 @@ func (r *repository) SearchExamples() (model.Examples, error) {
 	return r.searchExamples(query)
 }
 
-func (r *repository) SearchRecentExamples(from time.Time) (model.Examples, error) {
-	query := `SELECT * FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
-	return r.searchExamples(query, from)
+func (r *repository) SearchRecentExamples(from time.Time, limit int) (model.Examples, error) {
+	query := `SELECT * FROM example WHERE created_at > $1 ORDER BY updated_at DESC LIMIT $2;`
+	return r.searchExamples(query, from, limit)
+}
+
+func (r *repository) SearchRecentExamplesByHost(host string, from time.Time, limit int) (model.Examples, error) {
+	query := `SELECT * FROM example WHERE final_url like $1 || '%' AND created_at > $2 ORDER BY updated_at DESC LIMIT $3;`
+	return r.searchExamples(query, host, from, limit)
 }
 
 func (r *repository) SearchExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {

@@ -44,6 +44,10 @@ func (app *goActiveLearningApp) ReadRecentExamples(from time.Time) (model.Exampl
 	return app.repo.SearchRecentExamples(from)
 }
 
+func (app *goActiveLearningApp) SearchRecentExamplesByHost(host string, from time.Time, limit int) (model.Examples, error) {
+	return app.repo.SearchRecentExamplesByHost(host, from, limit)
+}
+
 func (app *goActiveLearningApp) ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
 	return app.repo.SearchExamplesByLabel(label, limit)
 }
