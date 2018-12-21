@@ -36,11 +36,11 @@ func (app *goActiveLearningApp) InsertExamplesFromReader(reader io.Reader) error
 	return app.repo.InsertExamplesFromReader(reader)
 }
 
-func (app *goActiveLearningApp) ReadExamples() (model.Examples, error) {
+func (app *goActiveLearningApp) SearchExamples() (model.Examples, error) {
 	return app.repo.SearchExamples()
 }
 
-func (app *goActiveLearningApp) ReadRecentExamples(from time.Time, limit int) (model.Examples, error) {
+func (app *goActiveLearningApp) SearchRecentExamples(from time.Time, limit int) (model.Examples, error) {
 	return app.repo.SearchRecentExamples(from, limit)
 }
 
@@ -48,23 +48,23 @@ func (app *goActiveLearningApp) SearchRecentExamplesByHost(host string, from tim
 	return app.repo.SearchRecentExamplesByHost(host, from, limit)
 }
 
-func (app *goActiveLearningApp) ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
+func (app *goActiveLearningApp) SearchExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
 	return app.repo.SearchExamplesByLabel(label, limit)
 }
 
-func (app *goActiveLearningApp) ReadLabeledExamples(limit int) (model.Examples, error) {
+func (app *goActiveLearningApp) SearchLabeledExamples(limit int) (model.Examples, error) {
 	return app.repo.SearchLabeledExamples(limit)
 }
 
-func (app *goActiveLearningApp) ReadPositiveExamples(limit int) (model.Examples, error) {
+func (app *goActiveLearningApp) SearchPositiveExamples(limit int) (model.Examples, error) {
 	return app.repo.SearchPositiveExamples(limit)
 }
 
-func (app *goActiveLearningApp) ReadNegativeExamples(limit int) (model.Examples, error) {
+func (app *goActiveLearningApp) SearchNegativeExamples(limit int) (model.Examples, error) {
 	return app.repo.SearchNegativeExamples(limit)
 }
 
-func (app *goActiveLearningApp) ReadUnlabeledExamples(limit int) (model.Examples, error) {
+func (app *goActiveLearningApp) SearchUnlabeledExamples(limit int) (model.Examples, error) {
 	return app.repo.SearchUnlabeledExamples(limit)
 }
 

@@ -257,7 +257,7 @@ func TestReadRecentExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err := repo.SearchRecentExamples(time.Now().Add(time.Duration(-10) * time.Minute), 10)
+	examples, err := repo.SearchRecentExamples(time.Now().Add(time.Duration(-10)*time.Minute), 10)
 	if err != nil {
 		t.Error(err)
 	}

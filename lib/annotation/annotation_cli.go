@@ -44,7 +44,7 @@ func doAnnotate(c *cli.Context) error {
 	}
 	defer app.Close()
 
-	examples, err := app.ReadExamples()
+	examples, err := app.SearchExamples()
 	if err != nil {
 		return err
 	}
