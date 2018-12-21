@@ -37,31 +37,31 @@ func (app *goActiveLearningApp) InsertExamplesFromReader(reader io.Reader) error
 }
 
 func (app *goActiveLearningApp) ReadExamples() (model.Examples, error) {
-	return app.repo.ReadExamples()
+	return app.repo.SearchExamples()
 }
 
 func (app *goActiveLearningApp) ReadRecentExamples(from time.Time) (model.Examples, error) {
-	return app.repo.ReadRecentExamples(from)
+	return app.repo.SearchRecentExamples(from)
 }
 
 func (app *goActiveLearningApp) ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
-	return app.repo.ReadExamplesByLabel(label, limit)
+	return app.repo.SearchExamplesByLabel(label, limit)
 }
 
 func (app *goActiveLearningApp) ReadLabeledExamples(limit int) (model.Examples, error) {
-	return app.repo.ReadLabeledExamples(limit)
+	return app.repo.SearchLabeledExamples(limit)
 }
 
 func (app *goActiveLearningApp) ReadPositiveExamples(limit int) (model.Examples, error) {
-	return app.repo.ReadPositiveExamples(limit)
+	return app.repo.SearchPositiveExamples(limit)
 }
 
 func (app *goActiveLearningApp) ReadNegativeExamples(limit int) (model.Examples, error) {
-	return app.repo.ReadNegativeExamples(limit)
+	return app.repo.SearchNegativeExamples(limit)
 }
 
 func (app *goActiveLearningApp) ReadUnlabeledExamples(limit int) (model.Examples, error) {
-	return app.repo.ReadUnlabeledExamples(limit)
+	return app.repo.SearchUnlabeledExamples(limit)
 }
 
 func (app *goActiveLearningApp) SearchPositiveScoredExamples(limit int) (model.Examples, error) {

@@ -53,7 +53,7 @@ func TestInsertExamplesFromReader(t *testing.T) {
 	}
 	repo.InsertExamplesFromReader(fp)
 
-	examples, err := repo.ReadExamples()
+	examples, err := repo.SearchExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -78,7 +78,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err := repo.ReadExamples()
+	examples, err := repo.SearchExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -98,7 +98,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err = repo.ReadExamples()
+	examples, err = repo.SearchExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,7 +115,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err = repo.ReadExamples()
+	examples, err = repo.SearchExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -132,7 +132,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err = repo.ReadExamples()
+	examples, err = repo.SearchExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -149,7 +149,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err = repo.ReadExamples()
+	examples, err = repo.SearchExamples()
 	if err != nil {
 		t.Error(err)
 	}
@@ -224,7 +224,7 @@ func TestReadLabeledExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err := repo.ReadLabeledExamples(10)
+	examples, err := repo.SearchLabeledExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -257,7 +257,7 @@ func TestReadRecentExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err := repo.ReadRecentExamples(time.Now().Add(time.Duration(-10) * time.Minute))
+	examples, err := repo.SearchRecentExamples(time.Now().Add(time.Duration(-10) * time.Minute))
 	if err != nil {
 		t.Error(err)
 	}
@@ -361,7 +361,7 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Error(err)
 	}
 
-	examples, err := repo.ReadPositiveExamples(10)
+	examples, err := repo.SearchPositiveExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -369,7 +369,7 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
 
-	examples, err = repo.ReadNegativeExamples(10)
+	examples, err = repo.SearchNegativeExamples(10)
 	if err != nil {
 		t.Error(err)
 	}
@@ -377,7 +377,7 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
 
-	examples, err = repo.ReadUnlabeledExamples(10)
+	examples, err = repo.SearchUnlabeledExamples(10)
 	if err != nil {
 		t.Error(err)
 	}

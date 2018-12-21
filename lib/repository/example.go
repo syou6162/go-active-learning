@@ -102,7 +102,7 @@ func (r *repository) InsertExamplesFromReader(reader io.Reader) error {
 	return nil
 }
 
-func (r *repository) readExamples(query string, args ...interface{}) (model.Examples, error) {
+func (r *repository) searchExamples(query string, args ...interface{}) (model.Examples, error) {
 	examples := model.Examples{}
 	err := r.db.Select(&examples, query, args...)
 	if err != nil {
@@ -111,7 +111,7 @@ func (r *repository) readExamples(query string, args ...interface{}) (model.Exam
 	return examples, nil
 }
 
-func (r *repository) readExample(query string, args ...interface{}) (*model.Example, error) {
+func (r *repository) findExample(query string, args ...interface{}) (*model.Example, error) {
 	e := model.Example{}
 
 	err := r.db.Get(&e, query, args...)
@@ -124,52 +124,52 @@ func (r *repository) readExample(query string, args ...interface{}) (*model.Exam
 	return &e, nil
 }
 
-func (r *repository) ReadExamples() (model.Examples, error) {
+func (r *repository) SearchExamples() (model.Examples, error) {
 	query := `SELECT * FROM example;`
-	return r.readExamples(query)
+	return r.searchExamples(query)
 }
 
-func (r *repository) ReadRecentExamples(from time.Time) (model.Examples, error) {
+func (r *repository) SearchRecentExamples(from time.Time) (model.Examples, error) {
 	query := `SELECT * FROM example WHERE created_at > $1 ORDER BY updated_at DESC;`
-	return r.readExamples(query, from)
+	return r.searchExamples(query, from)
 }
 
-func (r *repository) ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
+func (r *repository) SearchExamplesByLabel(label model.LabelType, limit int) (model.Examples, error) {
 	query := `SELECT * FROM example WHERE label = $1 ORDER BY updated_at DESC LIMIT $2;`
-	return r.readExamples(query, label, limit)
+	return r.searchExamples(query, label, limit)
 }
 
-func (r *repository) ReadLabeledExamples(limit int) (model.Examples, error) {
+func (r *repository) SearchLabeledExamples(limit int) (model.Examples, error) {
 	query := `SELECT * FROM example WHERE label != 0 ORDER BY updated_at DESC LIMIT $1;`
-	return r.readExamples(query, limit)
+	return r.searchExamples(query, limit)
 }
 
-func (r *repository) ReadPositiveExamples(limit int) (model.Examples, error) {
-	return r.ReadExamplesByLabel(model.POSITIVE, limit)
+func (r *repository) SearchPositiveExamples(limit int) (model.Examples, error) {
+	return r.SearchExamplesByLabel(model.POSITIVE, limit)
 }
 
-func (r *repository) ReadNegativeExamples(limit int) (model.Examples, error) {
-	return r.ReadExamplesByLabel(model.NEGATIVE, limit)
+func (r *repository) SearchNegativeExamples(limit int) (model.Examples, error) {
+	return r.SearchExamplesByLabel(model.NEGATIVE, limit)
 }
 
-func (r *repository) ReadUnlabeledExamples(limit int) (model.Examples, error) {
-	return r.ReadExamplesByLabel(model.UNLABELED, limit)
+func (r *repository) SearchUnlabeledExamples(limit int) (model.Examples, error) {
+	return r.SearchExamplesByLabel(model.UNLABELED, limit)
 }
 
 func (r *repository) SearchPositiveScoredExamples(limit int) (model.Examples, error) {
 	query := `SELECT * FROM example WHERE score > 0 ORDER BY updated_at DESC LIMIT $1;`
-	return r.readExamples(query, limit)
+	return r.searchExamples(query, limit)
 }
 
 func (r *repository) FindExampleByUlr(url string) (*model.Example, error) {
 	query := `SELECT * FROM example WHERE url = $1;`
-	return r.readExample(query, url)
+	return r.findExample(query, url)
 }
 
 func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error) {
 	// ref: https://godoc.org/github.com/lib/pq#Array
 	query := `SELECT * FROM example WHERE url = ANY($1);`
-	return r.readExamples(query, pq.Array(urls))
+	return r.searchExamples(query, pq.Array(urls))
 }
 
 func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error) {
@@ -181,7 +181,7 @@ func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator stri
 		regexList = append(regexList, fmt.Sprintf(`.*%s.*`, w))
 	}
 	query := fmt.Sprintf(`SELECT * FROM example WHERE title ~* %s($1) AND label != -1 ORDER BY (label, score) DESC LIMIT $2;`, aggregator)
-	return r.readExamples(query, pq.Array(regexList), limit)
+	return r.searchExamples(query, pq.Array(regexList), limit)
 }
 
 func (r *repository) FindFeatureVector(e *model.Example) (feature.FeatureVector, error) {
