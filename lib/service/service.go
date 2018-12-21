@@ -17,7 +17,7 @@ type GoActiveLearningApp interface {
 	InsertExampleFromScanner(scanner *bufio.Scanner) (*model.Example, error)
 	InsertExamplesFromReader(reader io.Reader) error
 	ReadExamples() (model.Examples, error)
-	ReadRecentExamples(from time.Time) (model.Examples, error)
+	ReadRecentExamples(from time.Time, limit int) (model.Examples, error)
 	SearchRecentExamplesByHost(host string, from time.Time, limit int) (model.Examples, error)
 	ReadExamplesByLabel(label model.LabelType, limit int) (model.Examples, error)
 	ReadLabeledExamples(limit int) (model.Examples, error)

@@ -40,8 +40,8 @@ func (app *goActiveLearningApp) ReadExamples() (model.Examples, error) {
 	return app.repo.SearchExamples()
 }
 
-func (app *goActiveLearningApp) ReadRecentExamples(from time.Time) (model.Examples, error) {
-	return app.repo.SearchRecentExamples(from)
+func (app *goActiveLearningApp) ReadRecentExamples(from time.Time, limit int) (model.Examples, error) {
+	return app.repo.SearchRecentExamples(from, limit)
 }
 
 func (app *goActiveLearningApp) SearchRecentExamplesByHost(host string, from time.Time, limit int) (model.Examples, error) {
