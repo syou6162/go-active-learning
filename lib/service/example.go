@@ -104,6 +104,18 @@ func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
 	return nil
 }
 
+func (app *goActiveLearningApp) UpdateFeatureVector(e *model.Example) error {
+	return app.repo.UpdateFeatureVector(e)
+}
+
+func (app *goActiveLearningApp) UpdateHatenaBookmark(e *model.Example) error {
+	return app.repo.UpdateHatenaBookmark(e)
+}
+
+func (app *goActiveLearningApp) UpdateReferringTweets(e *model.Example) error {
+	return app.repo.UpdateReferringTweets(e)
+}
+
 func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) error {
 	for _, e := range examples {
 		app.UpdateExampleMetadata(*e)

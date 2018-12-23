@@ -35,6 +35,9 @@ type GoActiveLearningApp interface {
 
 	UpdateExampleMetadata(e model.Example) error
 	UpdateExamplesMetadata(examples model.Examples) error
+	UpdateFeatureVector(e *model.Example) error
+	UpdateHatenaBookmark(e *model.Example) error
+	UpdateReferringTweets(e *model.Example) error
 	Fetch(examples model.Examples)
 
 	AttachMetadata(examples model.Examples) error
