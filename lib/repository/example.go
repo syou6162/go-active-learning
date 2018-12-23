@@ -22,7 +22,7 @@ var exampleNotFoundError = model.NotFoundError("example")
 // データが存在する場合は、以下の場合にのみ更新する
 // - ラベルが正例か負例に変更された
 // - クロール対象のサイトが一時的に200以外のステータスで前回データが取得できなかった
-func (r *repository) InsertOrUpdateExample(e *model.Example) error {
+func (r *repository) UpdateOrCreateExample(e *model.Example) error {
 	now := time.Now()
 	e.UpdatedAt = now
 	_, err := r.db.NamedExec(`
@@ -80,7 +80,7 @@ func (r *repository) InsertExampleFromScanner(scanner *bufio.Scanner) (*model.Ex
 	if err != nil {
 		return nil, err
 	}
-	err = r.InsertOrUpdateExample(e)
+	err = r.UpdateOrCreateExample(e)
 	if err != nil {
 		return nil, err
 	}

@@ -21,7 +21,7 @@ func TestUpdateReferringTweets(t *testing.T) {
 	}
 
 	e := example.NewExample("http://hoge.com", model.UNLABELED)
-	err = repo.InsertOrUpdateExample(e)
+	err = repo.UpdateOrCreateExample(e)
 	if err != nil {
 		t.Error(err)
 	}

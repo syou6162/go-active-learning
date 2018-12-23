@@ -21,7 +21,7 @@ import (
 )
 
 func (app *goActiveLearningApp) InsertOrUpdateExample(e *model.Example) error {
-	return app.repo.InsertOrUpdateExample(e)
+	return app.repo.UpdateOrCreateExample(e)
 }
 
 func (app *goActiveLearningApp) UpdateScore(e *model.Example) error {
@@ -89,7 +89,7 @@ func (app *goActiveLearningApp) DeleteAllExamples() error {
 }
 
 func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
-	if err := app.repo.InsertOrUpdateExample(&e); err != nil {
+	if err := app.repo.UpdateOrCreateExample(&e); err != nil {
 		log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 	}
 	if err := app.repo.UpdateFeatureVector(&e); err != nil {

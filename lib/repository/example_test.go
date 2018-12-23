@@ -73,7 +73,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -93,7 +93,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -110,7 +110,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// same url but different label
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.POSITIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -127,7 +127,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// cannot update to unlabeled
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -144,7 +144,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 	}
 
 	// different url
-	err = repo.InsertOrUpdateExample(example.NewExample("http://another.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://another.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
@@ -172,7 +172,7 @@ func TestUpdateScore(t *testing.T) {
 	url := "http://hoge.com"
 	e := example.NewExample(url, model.UNLABELED)
 	e.Score = 1.0
-	err = repo.InsertOrUpdateExample(e)
+	err = repo.UpdateOrCreateExample(e)
 	if err != nil {
 		t.Error(err)
 	}
@@ -211,15 +211,15 @@ func TestReadLabeledExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -244,15 +244,15 @@ func TestReadRecentExamples(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -277,15 +277,15 @@ func TestReadRecentExamplesByHost(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -310,15 +310,15 @@ func TestSearchExamplesByUlr(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -348,15 +348,15 @@ func TestSearchExamplesByUlrs(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge1.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -381,15 +381,15 @@ func TestSearchExamplesByLabels(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
 	if err != nil {
 		t.Error(err)
 	}
-	err = repo.InsertOrUpdateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
 	if err != nil {
 		t.Error(err)
 	}
@@ -431,7 +431,7 @@ func TestFeatureVectorReadWrite(t *testing.T) {
 	}
 
 	e1 := example.NewExample("http://hoge.com", model.UNLABELED)
-	err = repo.InsertOrUpdateExample(e1)
+	err = repo.UpdateOrCreateExample(e1)
 	if err != nil {
 		t.Error(err)
 	}
@@ -450,7 +450,7 @@ func TestFeatureVectorReadWrite(t *testing.T) {
 	}
 
 	e2 := example.NewExample("http://fuga.com", model.UNLABELED)
-	err = repo.InsertOrUpdateExample(e2)
+	err = repo.UpdateOrCreateExample(e2)
 	if err != nil {
 		t.Error(err)
 	}
@@ -483,14 +483,14 @@ func TestSearchExamplesByWords(t *testing.T) {
 
 	e1 := example.NewExample("http://hoge.com", model.UNLABELED)
 	e1.Title = "日本語"
-	err = repo.InsertOrUpdateExample(e1)
+	err = repo.UpdateOrCreateExample(e1)
 	if err != nil {
 		t.Error(err)
 	}
 
 	e2 := example.NewExample("http://fuga.com", model.UNLABELED)
 	e2.Title = "英語"
-	err = repo.InsertOrUpdateExample(e2)
+	err = repo.UpdateOrCreateExample(e2)
 	if err != nil {
 		t.Error(err)
 	}
