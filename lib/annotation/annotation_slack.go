@@ -43,7 +43,9 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	rtm.SendMessage(msg)
 
 	app.Fetch(examples)
-	app.UpdateExamplesMetadata(examples)
+	for _, e := range examples {
+		app.UpdateFeatureVector(e)
+	}
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}

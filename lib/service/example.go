@@ -88,22 +88,6 @@ func (app *goActiveLearningApp) DeleteAllExamples() error {
 	return app.repo.DeleteAllExamples()
 }
 
-func (app *goActiveLearningApp) UpdateExampleMetadata(e model.Example) error {
-	if err := app.repo.UpdateOrCreateExample(&e); err != nil {
-		log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
-	}
-	if err := app.repo.UpdateFeatureVector(&e); err != nil {
-		log.Println(fmt.Sprintf("Error occured updating feature vector %s %s", e.Url, err.Error()))
-	}
-	if err := app.repo.UpdateHatenaBookmark(&e); err != nil {
-		log.Println(fmt.Sprintf("Error occured updating bookmark info %s %s", e.Url, err.Error()))
-	}
-	if err := app.repo.UpdateReferringTweets(&e); err != nil {
-		log.Println(fmt.Sprintf("Error occured updating twitter info %s %s", e.Url, err.Error()))
-	}
-	return nil
-}
-
 func (app *goActiveLearningApp) UpdateFeatureVector(e *model.Example) error {
 	return app.repo.UpdateFeatureVector(e)
 }
@@ -114,13 +98,6 @@ func (app *goActiveLearningApp) UpdateHatenaBookmark(e *model.Example) error {
 
 func (app *goActiveLearningApp) UpdateReferringTweets(e *model.Example) error {
 	return app.repo.UpdateReferringTweets(e)
-}
-
-func (app *goActiveLearningApp) UpdateExamplesMetadata(examples model.Examples) error {
-	for _, e := range examples {
-		app.UpdateExampleMetadata(*e)
-	}
-	return nil
 }
 
 func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]*model.HatenaBookmark {

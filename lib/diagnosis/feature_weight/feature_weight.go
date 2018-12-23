@@ -35,7 +35,9 @@ func DoListFeatureWeight(c *cli.Context) error {
 		return err
 	}
 	app.Fetch(examples)
-	app.UpdateExamplesMetadata(examples)
+	for _, e := range examples {
+		app.UpdateFeatureVector(e)
+	}
 	training := util.FilterLabeledExamples(examples)
 
 	if filterStatusCodeOk {

@@ -43,9 +43,15 @@ func TestAttachMetaData(t *testing.T) {
 	}
 
 	app.Fetch(examples)
-	err = app.UpdateExamplesMetadata(examples)
-	if err != nil {
-		t.Error(err)
+	for _, e := range examples {
+		err = app.UpdateOrCreateExample(e)
+		if err != nil {
+			t.Error(err)
+		}
+		err = app.UpdateFeatureVector(e)
+		if err != nil {
+			t.Error(err)
+		}
 	}
 	if examples[0].Title == "" {
 		t.Errorf("Title must not be empty for %s", examples[0].Url)

@@ -36,10 +36,7 @@ func doAdd(c *cli.Context) error {
 
 	examples = util.FilterStatusCodeNotOkExamples(examples)
 	app.Fetch(examples)
-
-	if err := app.UpdateExamplesMetadata(examples); err != nil {
-		return err
-	}
+	examples = util.FilterStatusCodeOkExamples(examples)
 
 	m, err := app.FindLatestMIRAModel()
 	skipPredictScore := false
@@ -54,10 +51,15 @@ func doAdd(c *cli.Context) error {
 		}
 		if err = app.UpdateOrCreateExample(e); err != nil {
 			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
+			continue
+		}
+		if err = app.UpdateFeatureVector(e); err != nil {
+			log.Println(fmt.Sprintf("Error occured proccessing %s feature vector %s", e.Url, err.Error()))
+			continue
 		}
 		if bookmark, err := hatena_bookmark.GetHatenaBookmark(e.FinalUrl); err == nil {
 			e.HatenaBookmark = bookmark
-			app.UpdateExampleMetadata(*e)
+			app.UpdateHatenaBookmark(e)
 		}
 	}
 

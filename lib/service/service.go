@@ -33,8 +33,6 @@ type GoActiveLearningApp interface {
 	InsertMIRAModel(m classifier.MIRAClassifier) error
 	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
 
-	UpdateExampleMetadata(e model.Example) error
-	UpdateExamplesMetadata(examples model.Examples) error
 	UpdateFeatureVector(e *model.Example) error
 	UpdateHatenaBookmark(e *model.Example) error
 	UpdateReferringTweets(e *model.Example) error
