@@ -52,7 +52,7 @@ func doAdd(c *cli.Context) error {
 		if !skipPredictScore {
 			e.Score = m.PredictScore(e.Fv)
 		}
-		if err = app.InsertOrUpdateExample(e); err != nil {
+		if err = app.UpdateOrCreateExample(e); err != nil {
 			log.Println(fmt.Sprintf("Error occured proccessing %s %s", e.Url, err.Error()))
 		}
 		if bookmark, err := hatena_bookmark.GetHatenaBookmark(e.FinalUrl); err == nil {

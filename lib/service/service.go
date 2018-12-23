@@ -12,7 +12,7 @@ import (
 )
 
 type GoActiveLearningApp interface {
-	InsertOrUpdateExample(e *model.Example) error
+	UpdateOrCreateExample(e *model.Example) error
 	UpdateScore(e *model.Example) error
 	InsertExampleFromScanner(scanner *bufio.Scanner) (*model.Example, error)
 	InsertExamplesFromReader(reader io.Reader) error

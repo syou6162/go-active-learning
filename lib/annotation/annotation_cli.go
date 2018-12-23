@@ -83,11 +83,11 @@ annotationLoop:
 		case LABEL_AS_POSITIVE:
 			fmt.Println("Labeled as positive")
 			e.Annotate(model.POSITIVE)
-			app.InsertOrUpdateExample(e)
+			app.UpdateOrCreateExample(e)
 		case LABEL_AS_NEGATIVE:
 			fmt.Println("Labeled as negative")
 			e.Annotate(model.NEGATIVE)
-			app.InsertOrUpdateExample(e)
+			app.UpdateOrCreateExample(e)
 		case SKIP:
 			fmt.Println("Skiped this example")
 			examples = util.RemoveExample(examples, *e)

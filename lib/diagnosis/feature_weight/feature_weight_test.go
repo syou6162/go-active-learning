@@ -27,7 +27,7 @@ func TestDoListFeatureWeight(t *testing.T) {
 	}
 
 	for _, example := range train {
-		if err = a.InsertOrUpdateExample(example); err != nil {
+		if err = a.UpdateOrCreateExample(example); err != nil {
 			t.Error(err)
 		}
 	}

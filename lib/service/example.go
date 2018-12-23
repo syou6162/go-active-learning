@@ -20,7 +20,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
-func (app *goActiveLearningApp) InsertOrUpdateExample(e *model.Example) error {
+func (app *goActiveLearningApp) UpdateOrCreateExample(e *model.Example) error {
 	return app.repo.UpdateOrCreateExample(e)
 }
 
