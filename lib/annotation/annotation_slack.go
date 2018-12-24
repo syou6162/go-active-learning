@@ -49,7 +49,10 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	m := classifier.NewMIRAClassifierByCrossValidation(examples)
+	m, err := classifier.NewMIRAClassifierByCrossValidation(examples)
+	if err != nil {
+		return err
+	}
 	e := NextExampleToBeAnnotated(*m, examples)
 	if e == nil {
 		return errors.New("No e to annotate")
@@ -80,11 +83,17 @@ annotationLoop:
 				switch act {
 				case LABEL_AS_POSITIVE:
 					e.Annotate(model.POSITIVE)
-					m = classifier.NewMIRAClassifierByCrossValidation(examples)
+					m, err = classifier.NewMIRAClassifierByCrossValidation(examples)
+					if err != nil {
+						return err
+					}
 					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
 					e.Annotate(model.NEGATIVE)
-					m = classifier.NewMIRAClassifierByCrossValidation(examples)
+					m, err = classifier.NewMIRAClassifierByCrossValidation(examples)
+					if err != nil {
+						return err
+					}
 					rtm.AddReaction("heavy_minus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case SKIP:
 					rtm.SendMessage(rtm.NewOutgoingMessage("Skiped this e", channelID))

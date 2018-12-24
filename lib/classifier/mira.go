@@ -2,6 +2,7 @@ package classifier
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"runtime"
 	"sort"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	mkr "github.com/mackerelio/mackerel-client-go"
+	"github.com/pkg/errors"
 	"github.com/syou6162/go-active-learning/lib/evaluation"
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
@@ -81,7 +83,7 @@ func (l MIRAResultList) Len() int           { return len(l) }
 func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
-func NewMIRAClassifierByCrossValidation(examples model.Examples) *MIRAClassifier {
+func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifier, error) {
 	util.Shuffle(examples)
 	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
 	train = OverSamplingPositiveExamples(train)
@@ -119,14 +121,19 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) *MIRAClassifier
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		miraResults = append(miraResults, MIRAResult{*m, f})
+		if !math.IsNaN(f) {
+			miraResults = append(miraResults, MIRAResult{*m, f})
+		}
 	}
 
+	if len(miraResults) == 0 {
+		return nil, errors.New("Failed to learn MIRA")
+	}
 	sort.Sort(sort.Reverse(miraResults))
 	bestModel := &miraResults[0].mira
 	examples = OverSamplingPositiveExamples(examples)
 	util.Shuffle(examples)
-	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.C)
+	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.C), nil
 }
 
 func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall float64, fvalue float64) error {
