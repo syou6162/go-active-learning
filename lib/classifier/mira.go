@@ -106,6 +106,10 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifie
 	}
 	wg.Wait()
 
+	maxAccuracy := 0.0
+	maxPrecision := 0.0
+	maxRecall := 0.0
+	maxFvalue := math.Inf(-1)
 	for _, m := range models {
 		c := m.C
 		devPredicts := make([]model.LabelType, len(dev))
@@ -116,19 +120,27 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifie
 		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
 		recall := evaluation.GetRecall(ExtractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
-		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", c, accuracy, precision, recall, f))
-		err := postEvaluatedMetricsToMackerel(accuracy, precision, recall, f)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
+
 		if !math.IsNaN(f) {
 			miraResults = append(miraResults, MIRAResult{*m, f})
+			continue
+		}
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", c, accuracy, precision, recall, f))
+		if f >= maxFvalue {
+			maxAccuracy = accuracy
+			maxPrecision = precision
+			maxRecall = recall
+			maxFvalue = f
 		}
 	}
-
 	if len(miraResults) == 0 {
 		return nil, errors.New("Failed to learn MIRA")
 	}
+	err := postEvaluatedMetricsToMackerel(maxAccuracy, maxPrecision, maxRecall, maxFvalue)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	sort.Sort(sort.Reverse(miraResults))
 	bestModel := &miraResults[0].mira
 	examples = OverSamplingPositiveExamples(examples)
