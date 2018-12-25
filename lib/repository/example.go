@@ -177,6 +177,11 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	return r.searchExamples(query, pq.Array(urls))
 }
 
+func (r *repository) SearchExamplesByIds(ids []int) (model.Examples, error) {
+	query := `SELECT * FROM example WHERE id = ANY($1);`
+	return r.searchExamples(query, pq.Array(ids))
+}
+
 func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error) {
 	if len(keywords) == 0 {
 		return model.Examples{}, nil

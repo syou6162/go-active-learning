@@ -32,6 +32,7 @@ type Repository interface {
 	SearchPositiveScoredExamples(limit int) (model.Examples, error)
 	FindExampleByUlr(url string) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
+	SearchExamplesByIds(ids []int) (model.Examples, error)
 	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)
 	DeleteAllExamples() error
 
@@ -49,6 +50,9 @@ type Repository interface {
 
 	InsertMIRAModel(m classifier.MIRAClassifier) error
 	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
+
+	UpdateRecommendation(rec model.Recommendation) error
+	FindRecommendation(t model.RecommendationListType) (*model.Recommendation, error)
 
 	Ping() error
 	Close() error
