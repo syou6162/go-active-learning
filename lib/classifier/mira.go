@@ -120,11 +120,10 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifie
 		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
 		recall := evaluation.GetRecall(ExtractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
-
-		if !math.IsNaN(f) {
-			miraResults = append(miraResults, MIRAResult{*m, f})
+		if math.IsNaN(f) {
 			continue
 		}
+		miraResults = append(miraResults, MIRAResult{*m, f})
 		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", c, accuracy, precision, recall, f))
 		if f >= maxFvalue {
 			maxAccuracy = accuracy
