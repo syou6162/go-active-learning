@@ -42,7 +42,7 @@ type GoActiveLearningApp interface {
 	AttachLightMetadata(examples model.Examples) error
 
 	AddExamplesToList(listName string, examples model.Examples) error
-	GetUrlsFromList(listName string, from int64, to int64) ([]string, error)
+	GetExamplesFromListName(listName string, from int64, to int64) (model.Examples, error)
 
 	Ping() error
 	Close() error

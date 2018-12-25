@@ -166,8 +166,13 @@ func (app *goActiveLearningApp) AddExamplesToList(listName string, examples mode
 	return app.cache.AddExamplesToList(listName, examples)
 }
 
-func (app *goActiveLearningApp) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
-	return app.cache.GetUrlsFromList(listName, from, to)
+func (app *goActiveLearningApp) GetExamplesFromListName(listName string, from int64, to int64) (model.Examples, error) {
+	listType, err := model.GetRecommendationListType(listName)
+	if err != nil {
+		return nil, err
+	}
+	rec, err := app.repo.FindRecommendation(listType)
+	return app.repo.SearchExamplesByIds(rec.ExampleIds)
 }
 
 func (app *goActiveLearningApp) ExistMetadata(e model.Example) bool {
