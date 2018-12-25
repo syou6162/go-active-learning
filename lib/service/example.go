@@ -177,7 +177,7 @@ func (app *goActiveLearningApp) UpdateRecommendation(listName string, examples m
 	return app.repo.UpdateRecommendation(rec)
 }
 
-func (app *goActiveLearningApp) GetRecommendation(listName string, from int64, to int64) (model.Examples, error) {
+func (app *goActiveLearningApp) GetRecommendation(listName string) (model.Examples, error) {
 	listType, err := model.GetRecommendationListType(listName)
 	if err != nil {
 		return nil, err

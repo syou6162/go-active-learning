@@ -42,7 +42,7 @@ type GoActiveLearningApp interface {
 	AttachLightMetadata(examples model.Examples) error
 
 	UpdateRecommendation(listName string, examples model.Examples) error
-	GetRecommendation(listName string, from int64, to int64) (model.Examples, error)
+	GetRecommendation(listName string) (model.Examples, error)
 
 	Ping() error
 	Close() error
