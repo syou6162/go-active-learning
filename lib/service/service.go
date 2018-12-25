@@ -41,8 +41,8 @@ type GoActiveLearningApp interface {
 	AttachMetadata(examples model.Examples) error
 	AttachLightMetadata(examples model.Examples) error
 
-	AddExamplesToList(listName string, examples model.Examples) error
-	GetExamplesFromListName(listName string, from int64, to int64) (model.Examples, error)
+	UpdateRecommendation(listName string, examples model.Examples) error
+	GetRecommendation(listName string, from int64, to int64) (model.Examples, error)
 
 	Ping() error
 	Close() error

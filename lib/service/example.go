@@ -162,11 +162,22 @@ func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) err
 	return nil
 }
 
-func (app *goActiveLearningApp) AddExamplesToList(listName string, examples model.Examples) error {
-	return app.cache.AddExamplesToList(listName, examples)
+func (app *goActiveLearningApp) UpdateRecommendation(listName string, examples model.Examples) error {
+	listType, err := model.GetRecommendationListType(listName)
+	if err != nil {
+		return err
+	}
+
+	exampleIds := make([]int, 0)
+	for _, e := range examples {
+		exampleIds = append(exampleIds, e.Id)
+	}
+
+	rec := model.Recommendation{RecommendationListType: listType, ExampleIds: exampleIds}
+	return app.repo.UpdateRecommendation(rec)
 }
 
-func (app *goActiveLearningApp) GetExamplesFromListName(listName string, from int64, to int64) (model.Examples, error) {
+func (app *goActiveLearningApp) GetRecommendation(listName string, from int64, to int64) (model.Examples, error) {
 	listType, err := model.GetRecommendationListType(listName)
 	if err != nil {
 		return nil, err
