@@ -253,14 +253,14 @@ func (app *goActiveLearningApp) Fetch(examples model.Examples) {
 			sem <- struct{}{}
 			go func(e *model.Example, idx int) {
 				defer wg.Done()
-				cnt, err := app.cache.GetErrorCount(e.Url)
+				cnt, err := app.repo.GetErrorCount(e)
 				if err != nil {
 					log.Println(err.Error())
 				}
 				if cnt < 5 {
 					fmt.Fprintln(os.Stderr, "Fetching("+strconv.Itoa(idx)+"): "+e.Url)
 					if err := fetchMetaData(e); err != nil {
-						app.cache.IncErrorCount(e.Url)
+						app.repo.IncErrorCount(e)
 						log.Println(err.Error())
 					}
 				}

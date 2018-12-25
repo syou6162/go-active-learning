@@ -5,7 +5,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/syou6162/go-active-learning/lib/cache"
 	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/repository"
@@ -48,8 +47,8 @@ type GoActiveLearningApp interface {
 	Close() error
 }
 
-func NewApp(repo repository.Repository, c cache.Cache) GoActiveLearningApp {
-	return &goActiveLearningApp{repo: repo, cache: c}
+func NewApp(repo repository.Repository) GoActiveLearningApp {
+	return &goActiveLearningApp{repo: repo}
 }
 
 func NewDefaultApp() (GoActiveLearningApp, error) {
@@ -57,18 +56,11 @@ func NewDefaultApp() (GoActiveLearningApp, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	c, err := cache.New()
-	if err != nil {
-		return nil, err
-	}
-
-	return &goActiveLearningApp{repo: repo, cache: c}, nil
+	return &goActiveLearningApp{repo: repo}, nil
 }
 
 type goActiveLearningApp struct {
-	repo  repository.Repository
-	cache cache.Cache
+	repo repository.Repository
 }
 
 func (app *goActiveLearningApp) InsertMIRAModel(m classifier.MIRAClassifier) error {
@@ -83,17 +75,11 @@ func (app *goActiveLearningApp) Ping() error {
 	if err := app.repo.Ping(); err != nil {
 		return err
 	}
-	if err := app.cache.Ping(); err != nil {
-		return err
-	}
 	return nil
 }
 
 func (app *goActiveLearningApp) Close() error {
 	if err := app.repo.Close(); err != nil {
-		return err
-	}
-	if err := app.cache.Close(); err != nil {
 		return err
 	}
 	return nil

@@ -36,6 +36,9 @@ type Repository interface {
 	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)
 	DeleteAllExamples() error
 
+	IncErrorCount(e *model.Example) error
+	GetErrorCount(e *model.Example) (int, error)
+
 	UpdateFeatureVector(e *model.Example) error
 	FindFeatureVector(e *model.Example) (feature.FeatureVector, error)
 	SearchFeatureVector(examples model.Examples) (map[int]feature.FeatureVector, error)

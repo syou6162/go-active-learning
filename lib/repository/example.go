@@ -61,6 +61,25 @@ func (r *repository) UpdateScore(e *model.Example) error {
 	return nil
 }
 
+func (r *repository) IncErrorCount(e *model.Example) error {
+	errorCount, err := r.GetErrorCount(e)
+	if err != nil {
+		return err
+	}
+	if _, err := r.db.Exec(`UPDATE example SET error_count = $1, updated_at = $2 WHERE url = $3;`, errorCount+1, time.Now(), e.Url); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *repository) GetErrorCount(e *model.Example) (int, error) {
+	example, err := r.FindExampleByUlr(e.Url)
+	if err != nil {
+		return 0, err
+	}
+	return example.ErrorCount, nil
+}
+
 func (r *repository) UpdateFeatureVector(e *model.Example) error {
 	tmp, err := r.FindExampleByUlr(e.Url)
 	if err != nil {

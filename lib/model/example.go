@@ -44,6 +44,7 @@ type Example struct {
 	IsNew           bool             `db:"is_new"`
 	StatusCode      int              `json:"StatusCode" db:"status_code"`
 	Favicon         string           `json:"Favicon" db:"favicon"`
+	ErrorCount      int              `json:"ErrorCount" db:"error_count"`
 	CreatedAt       time.Time        `json:"CreatedAt" db:"created_at"`
 	UpdatedAt       time.Time        `json:"UpdatedAt" db:"updated_at"`
 	ReferringTweets *ReferringTweets `json:"ReferringTweets"`
