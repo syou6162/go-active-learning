@@ -28,6 +28,7 @@ func NewExample(url string, label model.LabelType) *model.Example {
 		IsNew:           IsNew,
 		StatusCode:      0,
 		Favicon:         "",
+		ErrorCount:      0,
 		CreatedAt:       now,
 		UpdatedAt:       now,
 		ReferringTweets: &model.ReferringTweets{},

@@ -200,6 +200,53 @@ func TestUpdateScore(t *testing.T) {
 	}
 }
 
+func TestErrorCount(t *testing.T) {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err = repo.DeleteAllExamples(); err != nil {
+		t.Error(err)
+	}
+
+	existingUrl := example.NewExample("https://github.com", model.POSITIVE)
+	nonExistingUrl := example.NewExample("http://hoge.fuga", model.NEGATIVE)
+	examples := model.Examples{existingUrl, nonExistingUrl}
+
+	for _, e := range examples {
+		if err := repo.UpdateOrCreateExample(e); err != nil {
+			t.Error(err)
+		}
+
+		cnt, err := repo.GetErrorCount(e)
+		if err != nil {
+			t.Errorf("Cannot get error count: %s", err.Error())
+		}
+		if cnt != 0 {
+			t.Errorf("Error count must be 0 for %s", e.Url)
+		}
+	}
+
+	for _, e := range examples {
+		err := repo.IncErrorCount(e)
+		if err != nil {
+			t.Errorf("Cannot get error count: %s", err.Error())
+		}
+	}
+
+	for _, e := range examples {
+		cnt, err := repo.GetErrorCount(e)
+		if err != nil {
+			t.Errorf("Cannot get error count: %s", err.Error())
+		}
+		if cnt != 1 {
+			t.Errorf("Error count must be 1 for %s", e.Url)
+		}
+	}
+}
+
 func TestReadLabeledExamples(t *testing.T) {
 	repo, err := repository.New()
 	if err != nil {
