@@ -51,6 +51,9 @@ type Repository interface {
 	InsertMIRAModel(m classifier.MIRAClassifier) error
 	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
 
+	UpdateRecommendation(rec model.Recommendation) error
+	FindRecommendation(t model.RecommendationListType) (*model.Recommendation, error)
+
 	Ping() error
 	Close() error
 }
