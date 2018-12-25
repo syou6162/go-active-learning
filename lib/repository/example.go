@@ -178,7 +178,7 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 }
 
 func (r *repository) SearchExamplesByIds(ids []int) (model.Examples, error) {
-	query := `SELECT * FROM example WHERE url = ANY($1);`
+	query := `SELECT * FROM example WHERE id = ANY($1);`
 	return r.searchExamples(query, pq.Array(ids))
 }
 
