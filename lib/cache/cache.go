@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/go-redis/redis"
-	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
@@ -16,8 +15,6 @@ type Cache interface {
 	Ping() error
 	Close() error
 
-	AddExamplesToList(listName string, examples model.Examples) error
-	GetUrlsFromList(listName string, from int64, to int64) ([]string, error)
 	IncErrorCount(url string) error
 	GetErrorCount(url string) (int, error)
 }
@@ -52,37 +49,6 @@ func (c *cache) Close() error {
 	} else {
 		return nil
 	}
-}
-
-var listPrefix = "list:"
-
-func (c *cache) AddExamplesToList(listName string, examples model.Examples) error {
-	if err := c.client.Del(listPrefix + listName).Err(); err != nil {
-		return err
-	}
-
-	result := make([]redis.Z, 0)
-	for _, e := range examples {
-		url := e.Url
-		if e.FinalUrl != "" {
-			url = e.FinalUrl
-		}
-		result = append(result, redis.Z{Score: e.Score, Member: url})
-	}
-	// ToDo: take care the case when result is empty
-	err := c.client.ZAdd(listPrefix+listName, result...).Err()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c *cache) GetUrlsFromList(listName string, from int64, to int64) ([]string, error) {
-	sliceCmd := c.client.ZRevRange(listPrefix+listName, from, to)
-	if sliceCmd.Err() != nil {
-		return nil, sliceCmd.Err()
-	}
-	return sliceCmd.Val(), nil
 }
 
 var errorCountPrefix = "errorCountPrefix:"
