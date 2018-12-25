@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS recommendation (
    CONSTRAINT recommendation_example_id_fkey FOREIGN KEY ("example_id") REFERENCES example("id") ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS "example_id_idx_recommendation" ON recommendation ("example_id");
+CREATE INDEX IF NOT EXISTS "list_type_idx_recommendation" ON recommendation ("list_type");
 
 -- +migrate Down
-DROP INDEX "created_at_model";
+DROP INDEX "list_type_idx_recommendation";
 
 DROP TABLE recommendation;
