@@ -88,3 +88,38 @@ func TestAttachMetaData(t *testing.T) {
 		t.Errorf("OgType must be blog for %s", examples[1].Url)
 	}
 }
+
+func TestGetRecommendation(t *testing.T) {
+	app, err := service.NewDefaultApp()
+	if err != nil {
+		t.Error(err)
+	}
+	defer app.Close()
+	if err := app.DeleteAllExamples(); err != nil {
+		t.Error("Cannot delete examples")
+	}
+
+	e1 := example.NewExample("http://hoge1.com", model.POSITIVE)
+	e2 := example.NewExample("http://hoge2.com", model.NEGATIVE)
+	e3 := example.NewExample("http://hoge3.com", model.UNLABELED)
+	examples := model.Examples{e1, e2, e3}
+	for _, e := range examples {
+		err = app.UpdateOrCreateExample(e)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+
+	listName := "general"
+	err = app.UpdateRecommendation(listName, examples)
+	if err != nil {
+		t.Error(err)
+	}
+	examples, err = app.GetRecommendation(listName)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(examples) != 3 {
+		t.Errorf("len(examples) should be 3, but %d", len(examples))
+	}
+}
