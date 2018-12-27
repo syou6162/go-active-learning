@@ -88,7 +88,7 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifie
 	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
 	train = OverSamplingPositiveExamples(train)
 
-	params := []float64{100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01}
+	params := []float64{1000, 500, 100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001}
 	miraResults := MIRAResultList{}
 
 	wg := &sync.WaitGroup{}
