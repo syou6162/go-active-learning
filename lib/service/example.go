@@ -80,6 +80,10 @@ func (app *goActiveLearningApp) SearchExamplesByUlrs(urls []string) (model.Examp
 	return app.repo.SearchExamplesByUlrs(urls)
 }
 
+func (app *goActiveLearningApp) SearchExamplesByIds(ids []int) (model.Examples, error) {
+	return app.repo.SearchExamplesByIds(ids)
+}
+
 func (app *goActiveLearningApp) SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error) {
 	return app.repo.SearchExamplesByKeywords(keywords, aggregator, limit)
 }
