@@ -75,6 +75,9 @@ func (r *repository) IncErrorCount(e *model.Example) error {
 func (r *repository) GetErrorCount(e *model.Example) (int, error) {
 	example, err := r.FindExampleByUlr(e.Url)
 	if err != nil {
+		if err == exampleNotFoundError {
+			return 0, nil
+		}
 		return 0, err
 	}
 	return example.ErrorCount, nil
