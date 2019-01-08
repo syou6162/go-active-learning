@@ -207,11 +207,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ae55fc0785fa0738743c33ff0da6b9d1645c764154ba8e2958d0fb33061495d7"
+  digest = "1:b84e370a2127b8f5241016f32c7df16fc60e2864960c70086178f74afc70be83"
   name = "github.com/syou6162/GoOse"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0ba8803bc78f671ed246bcd2ae9c11eca1b176ab"
+  revision = "09969ebeb09f257ca049efcd418ac7eaab82158a"
 
 [[projects]]
   branch = "master"
@@ -223,7 +223,7 @@
     "html/charset",
   ]
   pruneopts = "UT"
-  revision = "be88a9aa50a10f9e7a47479f127468a474701f09"
+  revision = "395948e2f546cb82afa9e1f6d1a6e87849b9af1d"
 
 [[projects]]
   branch = "master"
