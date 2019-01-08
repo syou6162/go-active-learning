@@ -25,6 +25,7 @@ type Article struct {
 	Body          string
 	StatusCode    int
 	Favicon       string
+	PublishDate   *time.Time
 }
 
 var articleFetcher = http.Client{
@@ -130,5 +131,6 @@ func GetArticle(origUrl string) (*Article, error) {
 		Body:          article.CleanedText,
 		StatusCode:    resp.StatusCode,
 		Favicon:       favicon,
+		PublishDate:   article.PublishDate,
 	}, nil
 }

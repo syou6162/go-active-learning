@@ -42,14 +42,6 @@
   version = "v0.2.1"
 
 [[projects]]
-  digest = "1:989f95fd2780c77595ed51631ff4c678266d3b5c809d07294d0f684b1739bf31"
-  name = "github.com/fzzy/radix"
-  packages = ["redis/resp"]
-  pruneopts = "UT"
-  revision = "031cc11e9800a2626ee2ae629655a922b630a07d"
-  version = "v0.5.6"
-
-[[projects]]
   branch = "master"
   digest = "1:131e93e8b8f318c52b1666e5a8f3af7d236af62f5a477a11973e46af59bca7da"
   name = "github.com/gigawattio/window"
@@ -215,11 +207,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7c257a930be3a60001196345b679565a03049af62203c14992f593bddf97a9bb"
+  digest = "1:ae55fc0785fa0738743c33ff0da6b9d1645c764154ba8e2958d0fb33061495d7"
   name = "github.com/syou6162/GoOse"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5c4af218adfcb42cc31bcd2169d68dc1f3c31bb9"
+  revision = "0ba8803bc78f671ed246bcd2ae9c11eca1b176ab"
 
 [[projects]]
   branch = "master"
@@ -231,7 +223,7 @@
     "html/charset",
   ]
   pruneopts = "UT"
-  revision = "45ffb0cd1ba084b73e26dee67e667e1be5acce83"
+  revision = "be88a9aa50a10f9e7a47479f127468a474701f09"
 
 [[projects]]
   branch = "master"
@@ -284,7 +276,6 @@
   input-imports = [
     "github.com/PuerkitoBio/goquery",
     "github.com/codegangsta/cli",
-    "github.com/fzzy/radix/redis/resp",
     "github.com/ikawaha/kagome/tokenizer",
     "github.com/jdkato/prose/tag",
     "github.com/jdkato/prose/tokenize",

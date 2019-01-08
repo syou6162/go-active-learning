@@ -117,3 +117,13 @@ func TestFavicon(t *testing.T) {
 		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
 	}
 }
+
+func TestGetPublishDate(t *testing.T) {
+	a, err := GetArticle("https://chezou.hatenablog.com/entry/2016/10/15/162047")
+	if err != nil {
+		t.Error("Error should not occur")
+	}
+	if a.PublishDate == nil {
+		t.Error("PublishDate must not be nil")
+	}
+}
