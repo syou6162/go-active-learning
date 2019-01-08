@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:a62f6ed230a8cd138a9efbe718e7d0b0294f139266f5f55cd942769a9aac8de2"
+  digest = "1:573fa46f8d413d4bc3f7cc5e86b2c43cb21559f4fb0a19d9874d228e28fdc07c"
   name = "github.com/PuerkitoBio/goquery"
   packages = ["."]
   pruneopts = "UT"
-  revision = "dc2ec5c7ca4d9aae063b79b9f581dd3ea6afd2b2"
-  version = "v1.4.1"
+  revision = "2d2796f41742ece03e8086188fa4db16a3a0b458"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:66b3310cf22cdc96c35ef84ede4f7b9b370971c4025f394c89a2638729653b11"
@@ -19,11 +19,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0f893aeaa870f517664d80ac7be7fa85c4b04ce984ae3eeb0dac7687c8fd34d1"
+  digest = "1:f9bb4fba309ed75573053608ea00f16c6b5764d2accbad0ce27189b8edcba934"
   name = "github.com/araddon/dateparse"
   packages = ["."]
   pruneopts = "UT"
-  revision = "00e168d34895ce6682b546bc3914bcea611a6dbd"
+  revision = "21df004e09ca46e07ce99bbba1e8c2422ba4ecf9"
 
 [[projects]]
   digest = "1:b24d38b282bacf9791408a080f606370efa3d364e4b5fd9ba0f7b87786d3b679"
@@ -42,29 +42,20 @@
   version = "v0.2.1"
 
 [[projects]]
+  digest = "1:989f95fd2780c77595ed51631ff4c678266d3b5c809d07294d0f684b1739bf31"
+  name = "github.com/fzzy/radix"
+  packages = ["redis/resp"]
+  pruneopts = "UT"
+  revision = "031cc11e9800a2626ee2ae629655a922b630a07d"
+  version = "v0.5.6"
+
+[[projects]]
   branch = "master"
   digest = "1:131e93e8b8f318c52b1666e5a8f3af7d236af62f5a477a11973e46af59bca7da"
   name = "github.com/gigawattio/window"
   packages = ["."]
   pruneopts = "UT"
   revision = "0f5467e35573c4ffebddd992935e1f7ceeac0696"
-
-[[projects]]
-  branch = "master"
-  digest = "1:62e9e5a4de4090f87648cbeac5724e07c2f4ce6d2db1db5134ff1f0c182586fd"
-  name = "github.com/go-redis/redis"
-  packages = [
-    ".",
-    "internal",
-    "internal/consistenthash",
-    "internal/hashtag",
-    "internal/pool",
-    "internal/proto",
-    "internal/singleflight",
-    "internal/util",
-  ]
-  pruneopts = "UT"
-  revision = "effc0c507aa2cfe5b7ea45cc8be07de048a19cc3"
 
 [[projects]]
   digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
@@ -148,20 +139,20 @@
   version = "v0.0.4"
 
 [[projects]]
-  digest = "1:cdb899c199f907ac9fb50495ec71212c95cb5b0e0a8ee0800da0238036091033"
+  digest = "1:0356f3312c9bd1cbeda81505b7fd437501d8e778ab66998ef69f00d7f9b3a0d7"
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb"
-  version = "v0.0.3"
+  revision = "3ee7d812e62a0804a7d0a324e0249ca2db3476d3"
+  version = "v0.0.4"
 
 [[projects]]
   branch = "master"
-  digest = "1:325f68c3bd3044dcf51d46e802136cd239817e1fb130b5f3466a4cec4dd427d3"
+  digest = "1:11bcfda807929a34ceb3738c9b0145358d1c58ed00acecb25b27fe432b404135"
   name = "github.com/mattn/go-tty"
   packages = ["."]
   pruneopts = "UT"
-  revision = "13ff1204f104d52c3f7645ec027ecbcf9026429e"
+  revision = "e4f871175a2f903ed2e6353334fdccb507c1d09e"
 
 [[projects]]
   digest = "1:246ab598a22ea9d50f46e65f655f78161a19822f6597268b02f04af998684807"
@@ -199,12 +190,12 @@
   revision = "0a3d74bf9ce488f035cf5bc36f753a711bc74334"
 
 [[projects]]
-  digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = "UT"
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   branch = "master"
@@ -224,11 +215,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5314962c7ce47123740c553897a4a5f3917a1ec4dab34ba0bcbd0965c52f381e"
+  digest = "1:7c257a930be3a60001196345b679565a03049af62203c14992f593bddf97a9bb"
   name = "github.com/syou6162/GoOse"
   packages = ["."]
   pruneopts = "UT"
-  revision = "a33014d1b7f31cb69de7a6bdc2e509dda0d26b3d"
+  revision = "5c4af218adfcb42cc31bcd2169d68dc1f3c31bb9"
 
 [[projects]]
   branch = "master"
@@ -240,15 +231,15 @@
     "html/charset",
   ]
   pruneopts = "UT"
-  revision = "88d92db4c548972d942ac2a3531a8a9a34c82ca6"
+  revision = "45ffb0cd1ba084b73e26dee67e667e1be5acce83"
 
 [[projects]]
   branch = "master"
-  digest = "1:7ba061af4131fb44b30448572acd0d6fefbf63a61b97b7ef1dea0be5871c2742"
+  digest = "1:f106a08663d0031b576f61ab81ffd80124da17096eab36aceb25b1b0d847da9a"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "66b7b1311ac80bbafcd2daeef9a5e6e2cd1e2399"
+  revision = "7fbe1cd0fcc20051e1fcb87fbabec4a1bacaaeba"
 
 [[projects]]
   digest = "1:aa4d6967a3237f8367b6bf91503964a77183ecf696f1273e8ad3551bb4412b5f"
@@ -293,7 +284,7 @@
   input-imports = [
     "github.com/PuerkitoBio/goquery",
     "github.com/codegangsta/cli",
-    "github.com/go-redis/redis",
+    "github.com/fzzy/radix/redis/resp",
     "github.com/ikawaha/kagome/tokenizer",
     "github.com/jdkato/prose/tag",
     "github.com/jdkato/prose/tokenize",

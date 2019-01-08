@@ -35,10 +35,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/go-redis/redis"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/ikawaha/kagome"
 
 [[constraint]]
