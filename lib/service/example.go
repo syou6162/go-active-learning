@@ -218,6 +218,12 @@ func fetchMetaData(e *model.Example) error {
 	e.StatusCode = article.StatusCode
 	e.Favicon = article.Favicon
 
+	now := time.Now()
+	if article.PublishDate != nil && now.After(*article.PublishDate) {
+		e.CreatedAt = *article.PublishDate
+		e.UpdatedAt = *article.PublishDate
+	}
+
 	fv := util.RemoveDuplicate(example.ExtractFeatures(*e))
 	if len(fv) > 100000 {
 		return fmt.Errorf("too large features (N = %d) for %s", len(fv), e.FinalUrl)
