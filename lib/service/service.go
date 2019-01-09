@@ -25,6 +25,7 @@ type GoActiveLearningApp interface {
 	SearchUnlabeledExamples(limit int) (model.Examples, error)
 	SearchPositiveScoredExamples(limit int) (model.Examples, error)
 	FindExampleByUlr(url string) (*model.Example, error)
+	FindExampleById(id int) (*model.Example, error)
 	SearchExamplesByUlrs(urls []string) (model.Examples, error)
 	SearchExamplesByIds(ids []int) (model.Examples, error)
 	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)

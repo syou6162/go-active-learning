@@ -76,6 +76,10 @@ func (app *goActiveLearningApp) FindExampleByUlr(url string) (*model.Example, er
 	return app.repo.FindExampleByUlr(url)
 }
 
+func (app *goActiveLearningApp) FindExampleById(id int) (*model.Example, error) {
+	return app.repo.FindExampleById(id)
+}
+
 func (app *goActiveLearningApp) SearchExamplesByUlrs(urls []string) (model.Examples, error) {
 	return app.repo.SearchExamplesByUlrs(urls)
 }
