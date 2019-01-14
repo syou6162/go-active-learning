@@ -10,6 +10,8 @@ const (
 	GITHUB  RecommendationListType = 2
 	SLIDE   RecommendationListType = 3
 	ARXIV   RecommendationListType = 4
+	VIDEO   RecommendationListType = 5
+	EVENT   RecommendationListType = 6
 )
 
 func GetRecommendationListType(listname string) (RecommendationListType, error) {
@@ -24,6 +26,10 @@ func GetRecommendationListType(listname string) (RecommendationListType, error) 
 		return SLIDE, nil
 	case "arxiv":
 		return ARXIV, nil
+	case "video":
+		return VIDEO, nil
+	case "event":
+		return EVENT, nil
 	default:
 		return -1, fmt.Errorf("no such RecommendationListType for '%s'", listname)
 	}
