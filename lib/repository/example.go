@@ -221,6 +221,27 @@ func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator stri
 	return r.searchExamples(query, pq.Array(regexList), limit)
 }
 
+func (r *repository) countExamplesByLabel(label model.LabelType) (int, error) {
+	cnt := 0
+	err := r.db.Get(&cnt, `SELECT COUNT(*) FROM example WHERE label = $1`, label)
+	if err != nil {
+		return 0, err
+	}
+	return cnt, nil
+}
+
+func (r *repository) CountPositiveExamples() (int, error) {
+	return r.countExamplesByLabel(model.POSITIVE)
+}
+
+func (r *repository) CountNegativeExamples() (int, error) {
+	return r.countExamplesByLabel(model.NEGATIVE)
+}
+
+func (r *repository) CountUnlabeledExamples() (int, error) {
+	return r.countExamplesByLabel(model.UNLABELED)
+}
+
 func (r *repository) FindFeatureVector(e *model.Example) (feature.FeatureVector, error) {
 	fv := feature.FeatureVector{}
 	tmp, err := r.FindExampleByUlr(e.Url)

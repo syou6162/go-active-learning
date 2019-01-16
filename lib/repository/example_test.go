@@ -466,6 +466,55 @@ func TestSearchExamplesByLabels(t *testing.T) {
 	}
 }
 
+func TestCountExamplesByLabels(t *testing.T) {
+	repo, err := repository.New()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	defer repo.Close()
+
+	if err = repo.DeleteAllExamples(); err != nil {
+		t.Error(err)
+	}
+
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge1.com", model.POSITIVE))
+	if err != nil {
+		t.Error(err)
+	}
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge2.com", model.NEGATIVE))
+	if err != nil {
+		t.Error(err)
+	}
+	err = repo.UpdateOrCreateExample(example.NewExample("http://hoge3.com", model.UNLABELED))
+	if err != nil {
+		t.Error(err)
+	}
+
+	cnt, err := repo.CountPositiveExamples()
+	if err != nil {
+		t.Error(err)
+	}
+	if cnt != 1 {
+		t.Errorf("len(posExamples) == %d, want 1", cnt)
+	}
+
+	cnt, err = repo.CountNegativeExamples()
+	if err != nil {
+		t.Error(err)
+	}
+	if cnt != 1 {
+		t.Errorf("len(negExamples) == %d, want 1", cnt)
+	}
+
+	cnt, err = repo.CountUnlabeledExamples()
+	if err != nil {
+		t.Error(err)
+	}
+	if cnt != 1 {
+		t.Errorf("len(unlabeledExamples) == %d, want 1", cnt)
+	}
+}
+
 func TestFeatureVectorReadWrite(t *testing.T) {
 	repo, err := repository.New()
 	if err != nil {

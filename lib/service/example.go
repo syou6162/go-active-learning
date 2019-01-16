@@ -96,6 +96,18 @@ func (app *goActiveLearningApp) DeleteAllExamples() error {
 	return app.repo.DeleteAllExamples()
 }
 
+func (app *goActiveLearningApp) CountPositiveExamples() (int, error) {
+	return app.repo.CountPositiveExamples()
+}
+
+func (app *goActiveLearningApp) CountNegativeExamples() (int, error) {
+	return app.repo.CountNegativeExamples()
+}
+
+func (app *goActiveLearningApp) CountUnlabeledExamples() (int, error) {
+	return app.repo.CountUnlabeledExamples()
+}
+
 func (app *goActiveLearningApp) UpdateFeatureVector(e *model.Example) error {
 	return app.repo.UpdateFeatureVector(e)
 }
