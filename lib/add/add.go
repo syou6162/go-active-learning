@@ -3,8 +3,12 @@ package add
 import (
 	"fmt"
 	"log"
+	"time"
+
+	"os"
 
 	"github.com/codegangsta/cli"
+	mkr "github.com/mackerelio/mackerel-client-go"
 	"github.com/syou6162/go-active-learning/lib/hatena_bookmark"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
@@ -63,7 +67,57 @@ func doAdd(c *cli.Context) error {
 		}
 	}
 
+	if err := postNumOfExamplesToMackerel(app); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func postNumOfExamplesToMackerel(app service.GoActiveLearningApp) error {
+	cnt, err := app.CountPositiveExamples()
+	if err != nil {
+		return err
+	}
+	if err := postNumOfExamplesByLabelToMackerel("count.positive", cnt); err != nil {
+		return err
+	}
+
+	cnt, err = app.CountNegativeExamples()
+	if err != nil {
+		return err
+	}
+	if err := postNumOfExamplesByLabelToMackerel("count.negative", cnt); err != nil {
+		return err
+	}
+
+	cnt, err = app.CountUnlabeledExamples()
+	if err != nil {
+		return err
+	}
+	if err := postNumOfExamplesByLabelToMackerel("count.unlabeled", cnt); err != nil {
+		return err
+	}
+	return nil
+}
+
+func postNumOfExamplesByLabelToMackerel(label string, cnt int) error {
+	apiKey := os.Getenv("MACKEREL_API_KEY")
+	serviceName := os.Getenv("MACKEREL_SERVICE_NAME")
+	if apiKey == "" || serviceName == "" {
+		return nil
+	}
+
+	client := mkr.NewClient(apiKey)
+	now := time.Now().Unix()
+	err := client.PostServiceMetricValues(serviceName, []*mkr.MetricValue{
+		{
+			Name:  label,
+			Time:  now,
+			Value: cnt,
+		},
+	})
+	return err
 }
 
 var CommandAdd = cli.Command{

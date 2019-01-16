@@ -30,6 +30,9 @@ type GoActiveLearningApp interface {
 	SearchExamplesByIds(ids []int) (model.Examples, error)
 	SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error)
 	DeleteAllExamples() error
+	CountPositiveExamples() (int, error)
+	CountNegativeExamples() (int, error)
+	CountUnlabeledExamples() (int, error)
 
 	InsertMIRAModel(m classifier.MIRAClassifier) error
 	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
