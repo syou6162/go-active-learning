@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/syou6162/go-active-learning/lib/model"
+	"gopkg.in/vmarkovtsev/go-lcss.v1"
 )
 
 func FilterLabeledExamples(examples model.Examples) model.Examples {
@@ -138,4 +139,24 @@ func GetEnv(key, fallback string) string {
 		value = fallback
 	}
 	return value
+}
+
+func SortByCommentUsefulness(e model.Example, tweets model.ReferringTweets) model.ReferringTweets {
+	usefulTweets := model.ReferringTweets{}
+	otherwise := model.ReferringTweets{}
+
+	for _, t := range tweets {
+		origLen := len(t.FullText)
+		commonLen := len(string(lcss.LongestCommonSubstring([]byte(e.Title), []byte(t.FullText))))
+		if float64(commonLen)/float64(origLen) < 0.5 {
+			usefulTweets = append(usefulTweets, t)
+		} else {
+			otherwise = append(otherwise, t)
+		}
+	}
+
+	result := model.ReferringTweets{}
+	result = append(result, usefulTweets...)
+	result = append(result, otherwise...)
+	return result
 }

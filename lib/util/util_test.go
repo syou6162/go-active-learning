@@ -84,3 +84,21 @@ func TestSplitTrainAndDev(t *testing.T) {
 		t.Error("Number of dev examples should be 2")
 	}
 }
+
+func TestSortByCommentUsefulness(t *testing.T) {
+	e1 := example.NewExample("https://ai.googleblog.com/2019/01/looking-back-at-googles-research.html", model.POSITIVE)
+	e1.Title = "Google AI Blog: Looking Back at Google’s Research Efforts in 2018"
+
+	tweets := model.ReferringTweets{
+		&model.Tweet{ScreenName: "aaa", FullText: "Google AI Blog: Looking Back at Google’s Research Efforts in 2018 https://t.co/YhzgxeTAft"},
+		&model.Tweet{ScreenName: "bbb", FullText: "Googleすごい https://t.co/YhzgxeTAft"},
+	}
+
+	result := SortByCommentUsefulness(*e1, tweets)
+	if len(result) != 2 {
+		t.Error("Number of dev examples should be 2")
+	}
+	if result[0].ScreenName != "bbb" {
+		t.Error("result must not be sorted")
+	}
+}
