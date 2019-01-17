@@ -270,6 +270,14 @@
   revision = "a7f18ead1433a139742a8b42ce7a059cfb484d60"
   version = "v1.0.6"
 
+[[projects]]
+  digest = "1:0fd1344405134ae4a7c9a9251ec6f2948a4f6cc41d4523d4e33a42ec360c698f"
+  name = "gopkg.in/vmarkovtsev/go-lcss.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dfc501d07ea060ee377ee237fa3dd3d5292b2021"
+  version = "v1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -287,6 +295,7 @@
     "github.com/pkg/browser",
     "github.com/pkg/errors",
     "github.com/syou6162/GoOse",
+    "gopkg.in/vmarkovtsev/go-lcss.v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
