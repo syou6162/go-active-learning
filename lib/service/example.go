@@ -173,8 +173,8 @@ func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) err
 		return err
 	}
 	for _, e := range examples {
-		if t, ok := referringTweetsById[e.Id]; ok {
-			e.ReferringTweets = &t
+		if tweets, ok := referringTweetsById[e.Id]; ok {
+			e.ReferringTweets = &tweets
 		} else {
 			e.ReferringTweets = &model.ReferringTweets{}
 		}
