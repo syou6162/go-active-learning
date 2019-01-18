@@ -39,7 +39,8 @@ type GoActiveLearningApp interface {
 
 	UpdateFeatureVector(e *model.Example) error
 	UpdateHatenaBookmark(e *model.Example) error
-	UpdateReferringTweets(e *model.Example) error
+	UpdateOrCreateReferringTweets(e *model.Example) error
+	UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error
 	Fetch(examples model.Examples)
 
 	AttachMetadata(examples model.Examples) error
