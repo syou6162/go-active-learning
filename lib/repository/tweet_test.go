@@ -40,7 +40,7 @@ func TestUpdateReferringTweets(t *testing.T) {
 
 	tweets := model.ReferringTweets{&t1}
 	e.ReferringTweets = &tweets
-	if err = repo.UpdateReferringTweets(e); err != nil {
+	if err = repo.UpdateOrCreateReferringTweets(e); err != nil {
 		t.Error(err)
 	}
 

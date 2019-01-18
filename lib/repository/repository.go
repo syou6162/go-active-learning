@@ -52,7 +52,7 @@ type Repository interface {
 	SearchHatenaBookmarks(examples model.Examples) ([]*model.HatenaBookmark, error)
 	FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark, error)
 
-	UpdateReferringTweets(e *model.Example) error
+	UpdateOrCreateReferringTweets(e *model.Example) error
 	SearchReferringTweetsList(examples model.Examples) (map[int]model.ReferringTweets, error)
 	FindReferringTweets(e *model.Example) (model.ReferringTweets, error)
 

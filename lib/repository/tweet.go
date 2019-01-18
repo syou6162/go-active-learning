@@ -5,7 +5,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/model"
 )
 
-func (r *repository) UpdateReferringTweets(e *model.Example) error {
+func (r *repository) UpdateOrCreateReferringTweets(e *model.Example) error {
 	if e.ReferringTweets == nil || len(*e.ReferringTweets) == 0 {
 		return nil
 	}
