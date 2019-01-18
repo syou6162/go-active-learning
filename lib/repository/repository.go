@@ -53,6 +53,7 @@ type Repository interface {
 	FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark, error)
 
 	UpdateOrCreateReferringTweets(e *model.Example) error
+	UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error
 	SearchReferringTweetsList(examples model.Examples) (map[int]model.ReferringTweets, error)
 	FindReferringTweets(e *model.Example) (model.ReferringTweets, error)
 
