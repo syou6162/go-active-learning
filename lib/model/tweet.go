@@ -15,9 +15,10 @@ type Tweet struct {
 	RetweetCount  int       `json:"RetweetCount" db:"retweet_count"`
 	Lang          string    `json:"Lang" db:"lang"`
 
-	ScreenName      string `json:"ScreenName" db:"screen_name"`
-	Name            string `json:"Name" db:"name"`
-	ProfileImageUrl string `json:"ProfileImageUrl" db:"profile_image_url"`
+	ScreenName      string    `json:"ScreenName" db:"screen_name"`
+	Name            string    `json:"Name" db:"name"`
+	ProfileImageUrl string    `json:"ProfileImageUrl" db:"profile_image_url"`
+	Label           LabelType `json:"Label" db:"label"`
 }
 
 type ReferringTweets []*Tweet

@@ -117,7 +117,7 @@ func (app *goActiveLearningApp) UpdateHatenaBookmark(e *model.Example) error {
 }
 
 func (app *goActiveLearningApp) UpdateReferringTweets(e *model.Example) error {
-	return app.repo.UpdateReferringTweets(e)
+	return app.repo.UpdateOrCreateReferringTweets(e)
 }
 
 func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]*model.HatenaBookmark {

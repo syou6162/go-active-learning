@@ -5,7 +5,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/model"
 )
 
-func (r *repository) UpdateReferringTweets(e *model.Example) error {
+func (r *repository) UpdateOrCreateReferringTweets(e *model.Example) error {
 	if e.ReferringTweets == nil || len(*e.ReferringTweets) == 0 {
 		return nil
 	}
@@ -20,15 +20,22 @@ func (r *repository) UpdateReferringTweets(e *model.Example) error {
 		t.ExampleId = id
 		if _, err = r.db.NamedExec(`
 INSERT INTO tweet
-( example_id,  created_at,  id_str,  full_text,  favorite_count,  retweet_count,  lang,  screen_name,  name,  profile_image_url)
+( example_id,  created_at,  id_str,  full_text,  favorite_count,  retweet_count,  lang,  screen_name,  name,  profile_image_url,  label)
 VALUES
-(:example_id, :created_at, :id_str, :full_text, :favorite_count, :retweet_count, :lang, :screen_name, :name, :profile_image_url)
+(:example_id, :created_at, :id_str, :full_text, :favorite_count, :retweet_count, :lang, :screen_name, :name, :profile_image_url, :label)
 ON CONFLICT (example_id, id_str)
 DO UPDATE SET
-favorite_count = :favorite_count,  retweet_count = :retweet_count
+favorite_count = :favorite_count,  retweet_count = :retweet_count, label = :label
 ;`, t); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (r *repository) UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error {
+	if _, err := r.db.Exec(`UPDATE tweet SET label = $1 WHERE example_id = $2 AND id_str = $3;`, label, exampleId, idStr); err != nil {
+		return err
 	}
 	return nil
 }
@@ -42,7 +49,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 		exampleIds = append(exampleIds, e.Id)
 	}
 
-	query := `SELECT * FROM tweet WHERE example_id = ANY($1) ORDER BY favorite_count DESC;`
+	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND label != -1 ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, pq.Array(exampleIds))
 	if err != nil {
 		return referringTweetsByExampleId, err
@@ -57,7 +64,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 
-	query := `SELECT * FROM tweet WHERE example_id = $1 ORDER BY favorite_count DESC;`
+	query := `SELECT * FROM tweet WHERE example_id = $1 AND label != -1 ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, e.Id)
 	if err != nil {
 		return referringTweets, err

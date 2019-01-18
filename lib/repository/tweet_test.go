@@ -26,9 +26,10 @@ func TestUpdateReferringTweets(t *testing.T) {
 		t.Error(err)
 	}
 	now := time.Now()
+	idStr := "1111111"
 	t1 := model.Tweet{
 		CreatedAt:       now,
-		IdStr:           "1111111",
+		IdStr:           idStr,
 		FullText:        "hello world!!!",
 		FavoriteCount:   10,
 		RetweetCount:    10,
@@ -40,7 +41,7 @@ func TestUpdateReferringTweets(t *testing.T) {
 
 	tweets := model.ReferringTweets{&t1}
 	e.ReferringTweets = &tweets
-	if err = repo.UpdateReferringTweets(e); err != nil {
+	if err = repo.UpdateOrCreateReferringTweets(e); err != nil {
 		t.Error(err)
 	}
 
@@ -70,6 +71,19 @@ func TestUpdateReferringTweets(t *testing.T) {
 		}
 		if result[0].Name != "syou6162" {
 			t.Error("Name must be syou6162")
+		}
+	}
+
+	{
+		if err := repo.UpdateTweetLabel(e.Id, idStr, model.NEGATIVE); err != nil {
+			t.Error(err)
+		}
+		result, err := repo.FindReferringTweets(e)
+		if err != nil {
+			t.Error(err)
+		}
+		if len(result) != 0 {
+			t.Error("result must be empty")
 		}
 	}
 }
