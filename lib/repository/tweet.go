@@ -20,12 +20,12 @@ func (r *repository) UpdateReferringTweets(e *model.Example) error {
 		t.ExampleId = id
 		if _, err = r.db.NamedExec(`
 INSERT INTO tweet
-( example_id,  created_at,  id_str,  full_text,  favorite_count,  retweet_count,  lang,  screen_name,  name,  profile_image_url)
+( example_id,  created_at,  id_str,  full_text,  favorite_count,  retweet_count,  lang,  screen_name,  name,  profile_image_url,  label)
 VALUES
-(:example_id, :created_at, :id_str, :full_text, :favorite_count, :retweet_count, :lang, :screen_name, :name, :profile_image_url)
+(:example_id, :created_at, :id_str, :full_text, :favorite_count, :retweet_count, :lang, :screen_name, :name, :profile_image_url, :label)
 ON CONFLICT (example_id, id_str)
 DO UPDATE SET
-favorite_count = :favorite_count,  retweet_count = :retweet_count
+favorite_count = :favorite_count,  retweet_count = :retweet_count, label = :label
 ;`, t); err != nil {
 			return err
 		}
