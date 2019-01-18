@@ -26,6 +26,8 @@ VALUES
 ON CONFLICT (example_id, id_str)
 DO UPDATE SET
 favorite_count = :favorite_count,  retweet_count = :retweet_count, label = :label
+WHERE
+EXCLUDED.label != 0 AND tweet.label != EXCLUDED.label
 ;`, t); err != nil {
 			return err
 		}
