@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/model"
 )
@@ -36,7 +34,7 @@ favorite_count = :favorite_count,  retweet_count = :retweet_count, label = :labe
 }
 
 func (r *repository) UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error {
-	if _, err := r.db.Exec(`UPDATE tweet SET label = $1, updated_at = $2 WHERE example_id = $3 AND id_str = $4;`, label, time.Now(), exampleId, idStr); err != nil {
+	if _, err := r.db.Exec(`UPDATE tweet SET label = $1 WHERE example_id = $2 AND id_str = $3;`, label, exampleId, idStr); err != nil {
 		return err
 	}
 	return nil
