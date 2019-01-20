@@ -17,7 +17,8 @@ func TestExtractHostFeature(t *testing.T) {
 	tweet.FavoriteCount = 7
 	tweet.RetweetCount = 7
 
-	fv := GetTweetFeature(&e, &tweet)
+	et := GetExampleAndTweet(&e, &tweet)
+	fv := GetTweetFeature(et)
 	expect := feature.FeatureVector{
 		"BIAS",
 		"LCSLenFeature:25",
