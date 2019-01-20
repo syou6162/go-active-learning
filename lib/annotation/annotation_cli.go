@@ -61,7 +61,7 @@ func doAnnotate(c *cli.Context) error {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
 
-	m, err := classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
+	m, err := classifier.NewMIRAClassifierByCrossValidation(classifier.EXAMPLE, converter.ConvertExamplesToLearningInstances(examples))
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ annotationLoop:
 			break annotationLoop
 		}
 
-		m, err = classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
+		m, err = classifier.NewMIRAClassifierByCrossValidation(classifier.EXAMPLE, converter.ConvertExamplesToLearningInstances(examples))
 		if err != nil {
 			return err
 		}

@@ -18,7 +18,15 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
+type ModelType int
+
+const (
+	EXAMPLE ModelType = 0
+	TWITTER ModelType = 1
+)
+
 type MIRAClassifier struct {
+	ModelType ModelType          `json:"ModelType"`
 	Weight    map[string]float64 `json:"Weight"`
 	C         float64            `json:"C"`
 	Accuracy  float64            `json:"Accuracy"`
@@ -34,8 +42,9 @@ type LearningInstance interface {
 
 type LearningInstances []LearningInstance
 
-func newMIRAClassifier(c float64) *MIRAClassifier {
+func newMIRAClassifier(modelType ModelType, c float64) *MIRAClassifier {
 	return &MIRAClassifier{
+		ModelType: modelType,
 		Weight:    make(map[string]float64),
 		C:         c,
 		Accuracy:  0.0,
@@ -69,9 +78,9 @@ func splitTrainAndDev(instances LearningInstances) (train LearningInstances, dev
 	return instances[0:n], instances[n:]
 }
 
-func NewMIRAClassifier(instances LearningInstances, c float64) *MIRAClassifier {
+func NewMIRAClassifier(modelType ModelType, instances LearningInstances, c float64) *MIRAClassifier {
 	train := filterLabeledInstances(instances)
-	model := newMIRAClassifier(c)
+	model := newMIRAClassifier(modelType, c)
 	for iter := 0; iter < 30; iter++ {
 		shuffle(train)
 		for _, example := range train {
@@ -126,7 +135,7 @@ func (l MIRAResultList) Len() int           { return len(l) }
 func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
-func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClassifier, error) {
+func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningInstances) (*MIRAClassifier, error) {
 	shuffle(instances)
 	train, dev := splitTrainAndDev(filterLabeledInstances(instances))
 	train = overSamplingPositiveExamples(train)
@@ -143,7 +152,7 @@ func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClass
 		wg.Add(1)
 		go func(idx int, c float64) {
 			defer wg.Done()
-			model := NewMIRAClassifier(train, c)
+			model := NewMIRAClassifier(modelType, train, c)
 			models[idx] = model
 		}(idx, c)
 	}
@@ -187,7 +196,7 @@ func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClass
 	bestModel := &miraResults[0].mira
 	instances = overSamplingPositiveExamples(instances)
 	shuffle(instances)
-	return NewMIRAClassifier(filterLabeledInstances(instances), bestModel.C), nil
+	return NewMIRAClassifier(modelType, filterLabeledInstances(instances), bestModel.C), nil
 }
 
 func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall float64, fvalue float64) error {
