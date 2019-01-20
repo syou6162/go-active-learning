@@ -10,45 +10,69 @@ import (
 )
 
 type ExampleAndTweet struct {
-	example     *model.Example
-	tweet       *model.Tweet
-	lcsLen      int
-	atMarksCnt  int
-	hashTagsCnt int
-	cleanedText string
+	example       *model.Example
+	tweet         *model.Tweet
+	lcsLen        int
+	atMarksCnt    int
+	hashTagsCnt   int
+	cleanedText   string
+	cleanedLcsLen int
 }
 
 func GetExampleAndTweet(e *model.Example, t *model.Tweet) ExampleAndTweet {
 	result := ExampleAndTweet{example: e, tweet: t}
-	result.lcsLen = GetLCSLen(result)
+	result.lcsLen = GetLCSLen(e.Title, t.FullText)
 
-	atRegexp := regexp.MustCompile(`@[^/]+`)
+	atRegexp := regexp.MustCompile(`@[^ ]+`)
 	result.atMarksCnt = len(atRegexp.FindAllStringSubmatch(t.FullText, -1))
-	str := atRegexp.ReplaceAllString(t.FullText, " ")
-	hashRegexp := regexp.MustCompile(`#[^/]+`)
+	str := atRegexp.ReplaceAllString(t.FullText, "")
+	hashRegexp := regexp.MustCompile(`#[^ ]+`)
 	result.hashTagsCnt = len(hashRegexp.FindAllStringSubmatch(t.FullText, -1))
-	result.cleanedText = hashRegexp.ReplaceAllString(str, " ")
+	result.cleanedText = hashRegexp.ReplaceAllString(str, "")
+	result.cleanedLcsLen = GetLCSLen(e.Title, result.cleanedText)
 	return result
 }
 
-func GetLCSLen(et ExampleAndTweet) int {
-	return len(string(lcss.LongestCommonSubstring([]byte(et.example.Title), []byte(et.tweet.FullText))))
+func GetLCSLen(str1 string, str2 string) int {
+	return len(string(lcss.LongestCommonSubstring([]byte(str1), []byte(str2))))
 }
 
 func LCSLenFeature(et ExampleAndTweet) string {
 	prefix := "LCSLenFeature"
+	len := et.lcsLen
 	switch {
-	case et.lcsLen == 0:
+	case len == 0:
 		return fmt.Sprintf("%s:0", prefix)
-	case et.lcsLen < 5:
+	case len < 5:
 		return fmt.Sprintf("%s:5", prefix)
-	case et.lcsLen < 10:
+	case len < 10:
 		return fmt.Sprintf("%s:10", prefix)
-	case et.lcsLen < 25:
+	case len < 25:
 		return fmt.Sprintf("%s:25", prefix)
-	case et.lcsLen < 50:
+	case len < 50:
 		return fmt.Sprintf("%s:50", prefix)
-	case et.lcsLen < 100:
+	case len < 100:
+		return fmt.Sprintf("%s:100", prefix)
+	default:
+		return fmt.Sprintf("%s:INF", prefix)
+	}
+}
+
+func CleanedLCSLenFeature(et ExampleAndTweet) string {
+	prefix := "CleanedLCSLenFeature"
+	len := et.cleanedLcsLen
+	switch {
+	case len == 0:
+		return fmt.Sprintf("%s:0", prefix)
+	case len < 5:
+		return fmt.Sprintf("%s:5", prefix)
+	case len < 10:
+		return fmt.Sprintf("%s:10", prefix)
+	case len < 25:
+		return fmt.Sprintf("%s:25", prefix)
+	case len < 50:
+		return fmt.Sprintf("%s:50", prefix)
+	case len < 100:
 		return fmt.Sprintf("%s:100", prefix)
 	default:
 		return fmt.Sprintf("%s:INF", prefix)
@@ -76,6 +100,27 @@ func LCSRatioFeature(et ExampleAndTweet) string {
 	}
 }
 
+func CleanedLCSRatioFeature(et ExampleAndTweet) string {
+	prefix := "CleanedLCSRatioFeature"
+	ratio := float64(et.cleanedLcsLen) / float64(len(et.tweet.FullText))
+	switch {
+	case ratio == 0.0:
+		return fmt.Sprintf("%s:0.0", prefix)
+	case ratio < 0.1:
+		return fmt.Sprintf("%s:0.1", prefix)
+	case ratio < 0.25:
+		return fmt.Sprintf("%s:0.25", prefix)
+	case ratio < 0.5:
+		return fmt.Sprintf("%s:0.5", prefix)
+	case ratio < 0.75:
+		return fmt.Sprintf("%s:0.75", prefix)
+	case ratio < 0.9:
+		return fmt.Sprintf("%s:0.0", prefix)
+	default:
+		return fmt.Sprintf("%s:1.0", prefix)
+	}
+}
+
 func FavoriteCountFeature(et ExampleAndTweet) string {
 	prefix := "FavoriteCountFeature"
 	cnt := et.tweet.FavoriteCount
@@ -84,17 +129,17 @@ func FavoriteCountFeature(et ExampleAndTweet) string {
 		return fmt.Sprintf("%s:0", prefix)
 	case cnt == 1:
 		return fmt.Sprintf("%s:1", prefix)
-	case cnt == 3:
+	case cnt <= 3:
 		return fmt.Sprintf("%s:3", prefix)
-	case cnt < 5:
+	case cnt <= 5:
 		return fmt.Sprintf("%s:5", prefix)
-	case cnt < 10:
+	case cnt <= 10:
 		return fmt.Sprintf("%s:10", prefix)
-	case cnt < 25:
+	case cnt <= 25:
 		return fmt.Sprintf("%s:25", prefix)
-	case cnt < 50:
+	case cnt <= 50:
 		return fmt.Sprintf("%s:50", prefix)
-	case cnt < 100:
+	case cnt <= 100:
 		return fmt.Sprintf("%s:100", prefix)
 	default:
 		return fmt.Sprintf("%s:INF", prefix)
@@ -109,6 +154,69 @@ func RetweetCountFeature(et ExampleAndTweet) string {
 		return fmt.Sprintf("%s:0", prefix)
 	case cnt == 1:
 		return fmt.Sprintf("%s:1", prefix)
+	case cnt <= 3:
+		return fmt.Sprintf("%s:3", prefix)
+	case cnt <= 5:
+		return fmt.Sprintf("%s:5", prefix)
+	case cnt <= 10:
+		return fmt.Sprintf("%s:10", prefix)
+	case cnt <= 25:
+		return fmt.Sprintf("%s:25", prefix)
+	case cnt <= 50:
+		return fmt.Sprintf("%s:50", prefix)
+	case cnt <= 100:
+		return fmt.Sprintf("%s:100", prefix)
+	default:
+		return fmt.Sprintf("%s:INF", prefix)
+	}
+}
+
+func AtMarksCountFeature(et ExampleAndTweet) string {
+	prefix := "AtMarksCountFeature"
+	cnt := et.atMarksCnt
+	switch {
+	case cnt == 0:
+		return fmt.Sprintf("%s:0", prefix)
+	case cnt == 1:
+		return fmt.Sprintf("%s:1", prefix)
+	case cnt <= 3:
+		return fmt.Sprintf("%s:3", prefix)
+	case cnt <= 5:
+		return fmt.Sprintf("%s:5", prefix)
+	case cnt <= 10:
+		return fmt.Sprintf("%s:10", prefix)
+	default:
+		return fmt.Sprintf("%s:INF", prefix)
+	}
+}
+
+func HashTagsCountFeature(et ExampleAndTweet) string {
+	prefix := "HashTagsCountFeature"
+	cnt := et.atMarksCnt
+	switch {
+	case cnt == 0:
+		return fmt.Sprintf("%s:0", prefix)
+	case cnt == 1:
+		return fmt.Sprintf("%s:1", prefix)
+	case cnt <= 3:
+		return fmt.Sprintf("%s:3", prefix)
+	case cnt <= 5:
+		return fmt.Sprintf("%s:5", prefix)
+	case cnt <= 10:
+		return fmt.Sprintf("%s:10", prefix)
+	default:
+		return fmt.Sprintf("%s:INF", prefix)
+	}
+}
+
+func TextLengthFeature(et ExampleAndTweet) string {
+	prefix := "TextLengthFeature"
+	cnt := len(et.tweet.FullText)
+	switch {
+	case cnt == 0:
+		return fmt.Sprintf("%s:0", prefix)
+	case cnt == 1:
+		return fmt.Sprintf("%s:1", prefix)
 	case cnt == 3:
 		return fmt.Sprintf("%s:3", prefix)
 	case cnt < 5:
@@ -126,9 +234,9 @@ func RetweetCountFeature(et ExampleAndTweet) string {
 	}
 }
 
-func AtMarksCountFeature(et ExampleAndTweet) string {
-	prefix := "AtMarksCountFeature"
-	cnt := et.atMarksCnt
+func CleanedTextLengthFeature(et ExampleAndTweet) string {
+	prefix := "CleanedTextLengthFeature"
+	cnt := len(et.cleanedText)
 	switch {
 	case cnt == 0:
 		return fmt.Sprintf("%s:0", prefix)
@@ -140,25 +248,12 @@ func AtMarksCountFeature(et ExampleAndTweet) string {
 		return fmt.Sprintf("%s:5", prefix)
 	case cnt < 10:
 		return fmt.Sprintf("%s:10", prefix)
-	default:
-		return fmt.Sprintf("%s:INF", prefix)
-	}
-}
-
-func HashTagsCountFeature(et ExampleAndTweet) string {
-	prefix := "HashTagsCountFeature"
-	cnt := et.atMarksCnt
-	switch {
-	case cnt == 0:
-		return fmt.Sprintf("%s:0", prefix)
-	case cnt == 1:
-		return fmt.Sprintf("%s:1", prefix)
-	case cnt == 3:
-		return fmt.Sprintf("%s:3", prefix)
-	case cnt < 5:
-		return fmt.Sprintf("%s:5", prefix)
-	case cnt < 10:
-		return fmt.Sprintf("%s:10", prefix)
+	case cnt < 25:
+		return fmt.Sprintf("%s:25", prefix)
+	case cnt < 50:
+		return fmt.Sprintf("%s:50", prefix)
+	case cnt < 100:
+		return fmt.Sprintf("%s:100", prefix)
 	default:
 		return fmt.Sprintf("%s:INF", prefix)
 	}
@@ -175,7 +270,12 @@ func GetTweetFeature(e *model.Example, t *model.Tweet) feature.FeatureVector {
 
 	fv = append(fv, "BIAS")
 	fv = append(fv, LCSLenFeature(et))
+	fv = append(fv, CleanedLCSLenFeature(et))
 	fv = append(fv, LCSRatioFeature(et))
+	fv = append(fv, CleanedLCSRatioFeature(et))
+	fv = append(fv, TextLengthFeature(et))
+	fv = append(fv, CleanedTextLengthFeature(et))
+
 	fv = append(fv, ScreenNameFeature(et))
 	fv = append(fv, FavoriteCountFeature(et))
 	fv = append(fv, RetweetCountFeature(et))
