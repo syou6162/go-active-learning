@@ -19,6 +19,7 @@ type Tweet struct {
 	Name            string    `json:"Name" db:"name"`
 	ProfileImageUrl string    `json:"ProfileImageUrl" db:"profile_image_url"`
 	Label           LabelType `json:"Label" db:"label"`
+	Score           float64   `json:"Score" db:"score"`
 }
 
 type ReferringTweets []*Tweet
