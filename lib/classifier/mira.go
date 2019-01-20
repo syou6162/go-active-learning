@@ -178,7 +178,12 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 	bestModel := &miraResults[0]
 	instances = overSamplingPositiveExamples(instances)
 	shuffle(instances)
-	return NewMIRAClassifier(modelType, filterLabeledInstances(instances), bestModel.C), nil
+	result := NewMIRAClassifier(modelType, filterLabeledInstances(instances), bestModel.C)
+	result.Accuracy = bestModel.Accuracy
+	result.Precision = bestModel.Precision
+	result.Recall = bestModel.Recall
+	result.Fvalue = bestModel.Fvalue
+	return result, nil
 }
 
 func (m *MIRAClassifier) learn(instance LearningInstance) {
