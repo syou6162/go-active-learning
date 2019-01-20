@@ -6,8 +6,7 @@ import "github.com/syou6162/go-active-learning/lib/classifier"
 func ConvertExamplesToLearningInstances(examples model.Examples) classifier.LearningInstances {
 	instances := classifier.LearningInstances{}
 	for _, e := range examples {
-	instances = append(instances, e)
+		instances = append(instances, e)
 	}
 	return instances
 }
-
