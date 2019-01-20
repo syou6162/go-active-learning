@@ -124,6 +124,10 @@ func (app *goActiveLearningApp) UpdateTweetLabel(exampleId int, idStr string, la
 	return app.repo.UpdateTweetLabel(exampleId, idStr, label)
 }
 
+func (app *goActiveLearningApp) SearchReferringTweets(limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchReferringTweets(limit)
+}
+
 func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]*model.HatenaBookmark {
 	result := make(map[int]*model.HatenaBookmark)
 	for _, hb := range hatenaBookmarks {

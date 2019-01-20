@@ -63,6 +63,16 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 	return referringTweetsByExampleId, nil
 }
 
+func (r *repository) SearchReferringTweets(limit int) (model.ReferringTweets, error) {
+	referringTweets := model.ReferringTweets{}
+	query := `SELECT * FROM tweet ORDER BY created_at DESC LIMIT $1;`
+	err := r.db.Select(&referringTweets, query, limit)
+	if err != nil {
+		return referringTweets, err
+	}
+	return referringTweets, nil
+}
+
 func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 

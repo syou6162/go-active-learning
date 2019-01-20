@@ -41,6 +41,7 @@ type GoActiveLearningApp interface {
 	UpdateHatenaBookmark(e *model.Example) error
 	UpdateOrCreateReferringTweets(e *model.Example) error
 	UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error
+	SearchReferringTweets(limit int) (model.ReferringTweets, error)
 	Fetch(examples model.Examples)
 
 	AttachMetadata(examples model.Examples) error
