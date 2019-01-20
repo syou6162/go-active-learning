@@ -24,7 +24,7 @@ func TestInsertMIRAModel(t *testing.T) {
 	}
 
 	{
-		clf, err := repo.FindLatestMIRAModel()
+		clf, err := repo.FindLatestMIRAModel(classifier.EXAMPLE)
 		if err != nil {
 			t.Error(err)
 		}
