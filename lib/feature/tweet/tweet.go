@@ -23,10 +23,6 @@ func (et *ExampleAndTweet) GetLabel() model.LabelType {
 	return et.tweet.Label
 }
 
-func (et *ExampleAndTweet) GetFeatureVector() feature.FeatureVector {
-	return et.GetFeatureVector()
-}
-
 func GetExampleAndTweet(e *model.Example, t *model.Tweet) ExampleAndTweet {
 	result := ExampleAndTweet{example: e, tweet: t}
 	result.lcsLen = GetLCSLen(e.Title, t.FullText)
@@ -272,21 +268,21 @@ func ScreenNameFeature(et ExampleAndTweet) string {
 	return fmt.Sprintf("%s:%s", prefix, et.tweet.ScreenName)
 }
 
-func GetTweetFeature(et ExampleAndTweet) feature.FeatureVector {
+func (et *ExampleAndTweet) GetFeatureVector() feature.FeatureVector {
 	var fv feature.FeatureVector
 
 	fv = append(fv, "BIAS")
-	fv = append(fv, LCSLenFeature(et))
-	fv = append(fv, CleanedLCSLenFeature(et))
-	fv = append(fv, LCSRatioFeature(et))
-	fv = append(fv, CleanedLCSRatioFeature(et))
-	fv = append(fv, TextLengthFeature(et))
-	fv = append(fv, CleanedTextLengthFeature(et))
+	fv = append(fv, LCSLenFeature(*et))
+	fv = append(fv, CleanedLCSLenFeature(*et))
+	fv = append(fv, LCSRatioFeature(*et))
+	fv = append(fv, CleanedLCSRatioFeature(*et))
+	fv = append(fv, TextLengthFeature(*et))
+	fv = append(fv, CleanedTextLengthFeature(*et))
 
-	fv = append(fv, ScreenNameFeature(et))
-	fv = append(fv, FavoriteCountFeature(et))
-	fv = append(fv, RetweetCountFeature(et))
-	fv = append(fv, AtMarksCountFeature(et))
-	fv = append(fv, HashTagsCountFeature(et))
+	fv = append(fv, ScreenNameFeature(*et))
+	fv = append(fv, FavoriteCountFeature(*et))
+	fv = append(fv, RetweetCountFeature(*et))
+	fv = append(fv, AtMarksCountFeature(*et))
+	fv = append(fv, HashTagsCountFeature(*et))
 	return fv
 }
