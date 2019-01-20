@@ -35,7 +35,7 @@ type GoActiveLearningApp interface {
 	CountUnlabeledExamples() (int, error)
 
 	InsertMIRAModel(m classifier.MIRAClassifier) error
-	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
+	FindLatestMIRAModel(modelType classifier.ModelType) (*classifier.MIRAClassifier, error)
 
 	UpdateFeatureVector(e *model.Example) error
 	UpdateHatenaBookmark(e *model.Example) error
@@ -73,8 +73,8 @@ func (app *goActiveLearningApp) InsertMIRAModel(m classifier.MIRAClassifier) err
 	return app.repo.InsertMIRAModel(m)
 }
 
-func (app *goActiveLearningApp) FindLatestMIRAModel() (*classifier.MIRAClassifier, error) {
-	return app.repo.FindLatestMIRAModel()
+func (app *goActiveLearningApp) FindLatestMIRAModel(modelType classifier.ModelType) (*classifier.MIRAClassifier, error) {
+	return app.repo.FindLatestMIRAModel(modelType)
 }
 
 func (app *goActiveLearningApp) Ping() error {
