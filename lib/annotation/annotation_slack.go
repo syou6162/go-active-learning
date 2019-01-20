@@ -49,10 +49,10 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
+
 	instances := classifier.LearningInstances{}
 	for _, e := range examples {
-		i := classifier.LearningInstance{FeatureVector: e.Fv, Label: e.Label}
-		instances = append(instances, &i)
+		instances = append(instances, e)
 	}
 	m, err := classifier.NewMIRAClassifierByCrossValidation(instances)
 	if err != nil {
@@ -90,8 +90,7 @@ annotationLoop:
 					e.Annotate(model.POSITIVE)
 					instances := classifier.LearningInstances{}
 					for _, e := range examples {
-						i := classifier.LearningInstance{FeatureVector: e.Fv, Label: e.Label}
-						instances = append(instances, &i)
+						instances = append(instances, e)
 					}
 					m, err = classifier.NewMIRAClassifierByCrossValidation(instances)
 					if err != nil {
@@ -102,8 +101,7 @@ annotationLoop:
 					e.Annotate(model.NEGATIVE)
 					instances := classifier.LearningInstances{}
 					for _, e := range examples {
-						i := classifier.LearningInstance{FeatureVector: e.Fv, Label: e.Label}
-						instances = append(instances, &i)
+						instances = append(instances, e)
 					}
 					m, err = classifier.NewMIRAClassifierByCrossValidation(instances)
 					if err != nil {

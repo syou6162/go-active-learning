@@ -33,6 +33,14 @@ type Example struct {
 
 type Examples []*Example
 
+func (example *Example) GetLabel() LabelType {
+	return example.Label
+}
+
+func (example *Example) GetFeatureVector() feature.FeatureVector {
+	return example.Fv
+}
+
 func (example *Example) Annotate(label LabelType) {
 	example.Label = label
 }

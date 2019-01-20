@@ -23,12 +23,12 @@ type MIRAClassifier struct {
 	C      float64            `json:"C"`
 }
 
-type LearningInstance struct {
-	FeatureVector feature.FeatureVector
-	Label model.LabelType
+type LearningInstance interface {
+	GetFeatureVector() feature.FeatureVector
+	GetLabel() model.LabelType
 }
 
-type LearningInstances []*LearningInstance
+type LearningInstances []LearningInstance
 
 func newMIRAClassifier(c float64) *MIRAClassifier {
 	return &MIRAClassifier{make(map[string]float64), c}
@@ -37,7 +37,7 @@ func newMIRAClassifier(c float64) *MIRAClassifier {
 func filterLabeledInstances(instances LearningInstances) LearningInstances {
 	var result LearningInstances
 	for _, i := range instances {
-		if i.Label != 0 {
+		if i.GetLabel() != 0 {
 			result = append(result, i)
 		}
 	}
@@ -64,7 +64,7 @@ func NewMIRAClassifier(instances LearningInstances, c float64) *MIRAClassifier {
 	for iter := 0; iter < 30; iter++ {
 		Shuffle(train)
 		for _, example := range train {
-			model.learn(*example)
+			model.learn(example)
 		}
 	}
 	return model
@@ -78,10 +78,10 @@ func OverSamplingPositiveExamples(instances LearningInstances) LearningInstances
 	numNeg := 0
 
 	for _, i := range instances {
-		if i.Label == model.NEGATIVE {
+		if i.GetLabel() == model.NEGATIVE {
 			numNeg += 1
 			negInstances = append(negInstances, i)
-		} else if i.Label == model.POSITIVE {
+		} else if i.GetLabel() == model.POSITIVE {
 			posInstances = append(posInstances, i)
 		}
 	}
@@ -99,7 +99,7 @@ func OverSamplingPositiveExamples(instances LearningInstances) LearningInstances
 func ExtractGoldLabels(instances LearningInstances) []model.LabelType {
 	golds := make([]model.LabelType, 0, 0)
 	for _, i := range instances {
-		golds = append(golds, i.Label)
+		golds = append(golds, i.GetLabel())
 	}
 	return golds
 }
@@ -146,7 +146,7 @@ func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClass
 		c := m.C
 		devPredicts := make([]model.LabelType, len(dev))
 		for i, instance := range dev {
-			devPredicts[i] = m.Predict(instance.FeatureVector)
+			devPredicts[i] = m.Predict(instance.GetFeatureVector())
 		}
 		accuracy := evaluation.GetAccuracy(ExtractGoldLabels(dev), devPredicts)
 		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
@@ -214,20 +214,20 @@ func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall 
 }
 
 func (m *MIRAClassifier) learn(instance LearningInstance) {
-	tmp := float64(instance.Label) * m.PredictScore(instance.FeatureVector) // y w^T x
+	tmp := float64(instance.GetLabel()) * m.PredictScore(instance.GetFeatureVector()) // y w^T x
 	loss := 0.0
 	if tmp < 1.0 {
 		loss = 1 - tmp
 	}
 
-	norm := float64(len(instance.FeatureVector) * len(instance.FeatureVector))
+	norm := float64(len(instance.GetFeatureVector()) * len(instance.GetFeatureVector()))
 	// tau := math.Min(m.C, loss/norm) // update by PA-I
 	tau := loss / (norm + 1.0/m.C) // update by PA-II
 
 	if tau != 0.0 {
-		for _, f := range instance.FeatureVector {
+		for _, f := range instance.GetFeatureVector() {
 			w, _ := m.Weight[f]
-			m.Weight[f] = w + tau*float64(instance.Label)
+			m.Weight[f] = w + tau*float64(instance.GetLabel())
 		}
 	}
 }

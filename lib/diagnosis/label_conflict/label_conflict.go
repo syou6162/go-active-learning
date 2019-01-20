@@ -40,10 +40,8 @@ func DoLabelConflict(c *cli.Context) error {
 
 	instances := classifier.LearningInstances{}
 	for _, e := range examples {
-		i := classifier.LearningInstance{FeatureVector: e.Fv, Label: e.Label}
-		instances = append(instances, &i)
+		instances = append(instances, e)
 	}
-
 	m, err := classifier.NewMIRAClassifierByCrossValidation(instances)
 	if err != nil {
 		return err
