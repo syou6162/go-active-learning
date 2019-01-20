@@ -12,6 +12,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/converter"
 )
 
 func doAnnotateWithSlack(c *cli.Context) error {
@@ -50,11 +51,7 @@ func doAnnotateWithSlack(c *cli.Context) error {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
 
-	instances := classifier.LearningInstances{}
-	for _, e := range examples {
-		instances = append(instances, e)
-	}
-	m, err := classifier.NewMIRAClassifierByCrossValidation(instances)
+	m, err := classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
 	if err != nil {
 		return err
 	}
@@ -88,22 +85,14 @@ annotationLoop:
 				switch act {
 				case LABEL_AS_POSITIVE:
 					e.Annotate(model.POSITIVE)
-					instances := classifier.LearningInstances{}
-					for _, e := range examples {
-						instances = append(instances, e)
-					}
-					m, err = classifier.NewMIRAClassifierByCrossValidation(instances)
+					m, err = classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
 					if err != nil {
 						return err
 					}
 					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
 					e.Annotate(model.NEGATIVE)
-					instances := classifier.LearningInstances{}
-					for _, e := range examples {
-						instances = append(instances, e)
-					}
-					m, err = classifier.NewMIRAClassifierByCrossValidation(instances)
+					m, err = classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
 					if err != nil {
 						return err
 					}
