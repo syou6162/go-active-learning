@@ -124,16 +124,11 @@ func extractGoldLabels(instances LearningInstances) []model.LabelType {
 	return golds
 }
 
-type MIRAResult struct {
-	mira   MIRAClassifier
-	FValue float64
-}
+type MIRAClassifierList []MIRAClassifier
 
-type MIRAResultList []MIRAResult
-
-func (l MIRAResultList) Len() int           { return len(l) }
-func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
-func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
+func (l MIRAClassifierList) Len() int           { return len(l) }
+func (l MIRAClassifierList) Less(i, j int) bool { return l[i].Fvalue < l[j].Fvalue }
+func (l MIRAClassifierList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningInstances) (*MIRAClassifier, error) {
 	shuffle(instances)
@@ -141,7 +136,7 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 	train = overSamplingPositiveExamples(train)
 
 	params := []float64{1000, 500, 100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001}
-	miraResults := MIRAResultList{}
+	miraResults := MIRAClassifierList{}
 
 	wg := &sync.WaitGroup{}
 	cpus := runtime.NumCPU()
@@ -163,25 +158,24 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 	maxRecall := 0.0
 	maxFvalue := math.Inf(-1)
 	for _, m := range models {
-		c := m.C
 		devPredicts := make([]model.LabelType, len(dev))
 		for i, instance := range dev {
 			devPredicts[i] = m.Predict(instance.GetFeatureVector())
 		}
-		accuracy := evaluation.GetAccuracy(extractGoldLabels(dev), devPredicts)
-		precision := evaluation.GetPrecision(extractGoldLabels(dev), devPredicts)
-		recall := evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
-		f := (2 * recall * precision) / (recall + precision)
-		if math.IsNaN(f) {
+		m.Accuracy = evaluation.GetAccuracy(extractGoldLabels(dev), devPredicts)
+		m.Precision = evaluation.GetPrecision(extractGoldLabels(dev), devPredicts)
+		m.Recall = evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
+		m.Fvalue = (2 * m.Recall * m.Precision) / (m.Recall + m.Precision)
+		if math.IsNaN(m.Fvalue) {
 			continue
 		}
-		miraResults = append(miraResults, MIRAResult{*m, f})
-		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", c, accuracy, precision, recall, f))
-		if f >= maxFvalue {
-			maxAccuracy = accuracy
-			maxPrecision = precision
-			maxRecall = recall
-			maxFvalue = f
+		miraResults = append(miraResults, *m)
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", m.C, m.Accuracy, m.Precision, m.Recall, m.Fvalue))
+		if m.Fvalue >= maxFvalue {
+			maxAccuracy = m.Accuracy
+			maxPrecision = m.Precision
+			maxRecall = m.Recall
+			maxFvalue = m.Fvalue
 		}
 	}
 	if len(miraResults) == 0 {
@@ -193,7 +187,7 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 	}
 
 	sort.Sort(sort.Reverse(miraResults))
-	bestModel := &miraResults[0].mira
+	bestModel := &miraResults[0]
 	instances = overSamplingPositiveExamples(instances)
 	shuffle(instances)
 	return NewMIRAClassifier(modelType, filterLabeledInstances(instances), bestModel.C), nil
