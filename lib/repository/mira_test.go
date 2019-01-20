@@ -17,14 +17,14 @@ func TestInsertMIRAModel(t *testing.T) {
 	weight := make(map[string]float64)
 	weight["hoge"] = 1.0
 	weight["fuga"] = 1.0
-	clf := classifier.MIRAClassifier{weight, 10.0}
+	clf := classifier.MIRAClassifier{classifier.EXAMPLE, weight, 10.0, 0.0, 0.0, 0.0, 0.0}
 	err = repo.InsertMIRAModel(clf)
 	if err != nil {
 		t.Error(err)
 	}
 
 	{
-		clf, err := repo.FindLatestMIRAModel()
+		clf, err := repo.FindLatestMIRAModel(classifier.EXAMPLE)
 		if err != nil {
 			t.Error(err)
 		}

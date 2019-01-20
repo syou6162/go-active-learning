@@ -58,7 +58,7 @@ type Repository interface {
 	FindReferringTweets(e *model.Example) (model.ReferringTweets, error)
 
 	InsertMIRAModel(m classifier.MIRAClassifier) error
-	FindLatestMIRAModel() (*classifier.MIRAClassifier, error)
+	FindLatestMIRAModel(modelType classifier.ModelType) (*classifier.MIRAClassifier, error)
 
 	UpdateRecommendation(rec model.Recommendation) error
 	FindRecommendation(t model.RecommendationListType) (*model.Recommendation, error)

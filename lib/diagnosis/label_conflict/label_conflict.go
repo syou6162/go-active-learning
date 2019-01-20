@@ -39,7 +39,7 @@ func DoLabelConflict(c *cli.Context) error {
 		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	m, err := classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
+	m, err := classifier.NewMIRAClassifierByCrossValidation(classifier.EXAMPLE, converter.ConvertExamplesToLearningInstances(examples))
 	if err != nil {
 		return err
 	}

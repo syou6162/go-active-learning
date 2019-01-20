@@ -9,6 +9,7 @@ import (
 
 	"github.com/codegangsta/cli"
 	mkr "github.com/mackerelio/mackerel-client-go"
+	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/hatena_bookmark"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
@@ -42,7 +43,7 @@ func doAdd(c *cli.Context) error {
 	app.Fetch(examples)
 	examples = util.FilterStatusCodeOkExamples(examples)
 
-	m, err := app.FindLatestMIRAModel()
+	m, err := app.FindLatestMIRAModel(classifier.EXAMPLE)
 	skipPredictScore := false
 	if err != nil {
 		log.Println(fmt.Sprintf("Error to load model %s", err.Error()))

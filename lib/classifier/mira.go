@@ -8,9 +8,7 @@ import (
 	"runtime"
 	"sort"
 	"sync"
-	"time"
 
-	mkr "github.com/mackerelio/mackerel-client-go"
 	"github.com/pkg/errors"
 	"github.com/syou6162/go-active-learning/lib/evaluation"
 	"github.com/syou6162/go-active-learning/lib/feature"
@@ -18,9 +16,21 @@ import (
 	"github.com/syou6162/go-active-learning/lib/util"
 )
 
+type ModelType int
+
+const (
+	EXAMPLE ModelType = 0
+	TWITTER ModelType = 1
+)
+
 type MIRAClassifier struct {
-	Weight map[string]float64 `json:"Weight"`
-	C      float64            `json:"C"`
+	ModelType ModelType          `json:"ModelType"`
+	Weight    map[string]float64 `json:"Weight"`
+	C         float64            `json:"C"`
+	Accuracy  float64            `json:"Accuracy"`
+	Precision float64            `json:"Precision"`
+	Recall    float64            `json:"Recall"`
+	Fvalue    float64            `json:"Fvalue"`
 }
 
 type LearningInstance interface {
@@ -30,8 +40,16 @@ type LearningInstance interface {
 
 type LearningInstances []LearningInstance
 
-func newMIRAClassifier(c float64) *MIRAClassifier {
-	return &MIRAClassifier{make(map[string]float64), c}
+func newMIRAClassifier(modelType ModelType, c float64) *MIRAClassifier {
+	return &MIRAClassifier{
+		ModelType: modelType,
+		Weight:    make(map[string]float64),
+		C:         c,
+		Accuracy:  0.0,
+		Precision: 0.0,
+		Recall:    0.0,
+		Fvalue:    0.0,
+	}
 }
 
 func filterLabeledInstances(instances LearningInstances) LearningInstances {
@@ -58,9 +76,9 @@ func splitTrainAndDev(instances LearningInstances) (train LearningInstances, dev
 	return instances[0:n], instances[n:]
 }
 
-func NewMIRAClassifier(instances LearningInstances, c float64) *MIRAClassifier {
+func NewMIRAClassifier(modelType ModelType, instances LearningInstances, c float64) *MIRAClassifier {
 	train := filterLabeledInstances(instances)
-	model := newMIRAClassifier(c)
+	model := newMIRAClassifier(modelType, c)
 	for iter := 0; iter < 30; iter++ {
 		shuffle(train)
 		for _, example := range train {
@@ -104,24 +122,19 @@ func extractGoldLabels(instances LearningInstances) []model.LabelType {
 	return golds
 }
 
-type MIRAResult struct {
-	mira   MIRAClassifier
-	FValue float64
-}
+type MIRAClassifierList []MIRAClassifier
 
-type MIRAResultList []MIRAResult
+func (l MIRAClassifierList) Len() int           { return len(l) }
+func (l MIRAClassifierList) Less(i, j int) bool { return l[i].Fvalue < l[j].Fvalue }
+func (l MIRAClassifierList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
-func (l MIRAResultList) Len() int           { return len(l) }
-func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
-func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
-
-func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClassifier, error) {
+func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningInstances) (*MIRAClassifier, error) {
 	shuffle(instances)
 	train, dev := splitTrainAndDev(filterLabeledInstances(instances))
 	train = overSamplingPositiveExamples(train)
 
 	params := []float64{1000, 500, 100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001}
-	miraResults := MIRAResultList{}
+	miraResults := MIRAClassifierList{}
 
 	wg := &sync.WaitGroup{}
 	cpus := runtime.NumCPU()
@@ -132,85 +145,40 @@ func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClass
 		wg.Add(1)
 		go func(idx int, c float64) {
 			defer wg.Done()
-			model := NewMIRAClassifier(train, c)
+			model := NewMIRAClassifier(modelType, train, c)
 			models[idx] = model
 		}(idx, c)
 	}
 	wg.Wait()
 
-	maxAccuracy := 0.0
-	maxPrecision := 0.0
-	maxRecall := 0.0
 	maxFvalue := math.Inf(-1)
 	for _, m := range models {
-		c := m.C
 		devPredicts := make([]model.LabelType, len(dev))
 		for i, instance := range dev {
 			devPredicts[i] = m.Predict(instance.GetFeatureVector())
 		}
-		accuracy := evaluation.GetAccuracy(extractGoldLabels(dev), devPredicts)
-		precision := evaluation.GetPrecision(extractGoldLabels(dev), devPredicts)
-		recall := evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
-		f := (2 * recall * precision) / (recall + precision)
-		if math.IsNaN(f) {
+		m.Accuracy = evaluation.GetAccuracy(extractGoldLabels(dev), devPredicts)
+		m.Precision = evaluation.GetPrecision(extractGoldLabels(dev), devPredicts)
+		m.Recall = evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
+		m.Fvalue = (2 * m.Recall * m.Precision) / (m.Recall + m.Precision)
+		if math.IsNaN(m.Fvalue) {
 			continue
 		}
-		miraResults = append(miraResults, MIRAResult{*m, f})
-		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", c, accuracy, precision, recall, f))
-		if f >= maxFvalue {
-			maxAccuracy = accuracy
-			maxPrecision = precision
-			maxRecall = recall
-			maxFvalue = f
+		miraResults = append(miraResults, *m)
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", m.C, m.Accuracy, m.Precision, m.Recall, m.Fvalue))
+		if m.Fvalue >= maxFvalue {
+			maxFvalue = m.Fvalue
 		}
 	}
 	if len(miraResults) == 0 {
 		return nil, errors.New("Failed to learn MIRA")
 	}
-	err := postEvaluatedMetricsToMackerel(maxAccuracy, maxPrecision, maxRecall, maxFvalue)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
 
 	sort.Sort(sort.Reverse(miraResults))
-	bestModel := &miraResults[0].mira
+	bestModel := &miraResults[0]
 	instances = overSamplingPositiveExamples(instances)
 	shuffle(instances)
-	return NewMIRAClassifier(filterLabeledInstances(instances), bestModel.C), nil
-}
-
-func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall float64, fvalue float64) error {
-	apiKey := os.Getenv("MACKEREL_API_KEY")
-	serviceName := os.Getenv("MACKEREL_SERVICE_NAME")
-	if apiKey == "" || serviceName == "" {
-		return nil
-	}
-
-	client := mkr.NewClient(apiKey)
-	now := time.Now().Unix()
-	err := client.PostServiceMetricValues(serviceName, []*mkr.MetricValue{
-		{
-			Name:  "evaluation.accuracy",
-			Time:  now,
-			Value: accuracy,
-		},
-		{
-			Name:  "evaluation.precision",
-			Time:  now,
-			Value: precision,
-		},
-		{
-			Name:  "evaluation.recall",
-			Time:  now,
-			Value: recall,
-		},
-		{
-			Name:  "evaluation.fvalue",
-			Time:  now,
-			Value: fvalue,
-		},
-	})
-	return err
+	return NewMIRAClassifier(modelType, filterLabeledInstances(instances), bestModel.C), nil
 }
 
 func (m *MIRAClassifier) learn(instance LearningInstance) {
