@@ -44,7 +44,7 @@ func filterLabeledInstances(instances LearningInstances) LearningInstances {
 	return result
 }
 
-func Shuffle(instances LearningInstances) {
+func shuffle(instances LearningInstances) {
 	n := len(instances)
 	for i := n - 1; i >= 0; i-- {
 		j := rand.Intn(i + 1)
@@ -52,8 +52,8 @@ func Shuffle(instances LearningInstances) {
 	}
 }
 
-func SplitTrainAndDev(instances LearningInstances) (train LearningInstances, dev LearningInstances) {
-	Shuffle(instances)
+func splitTrainAndDev(instances LearningInstances) (train LearningInstances, dev LearningInstances) {
+	shuffle(instances)
 	n := int(0.8 * float64(len(instances)))
 	return instances[0:n], instances[n:]
 }
@@ -62,7 +62,7 @@ func NewMIRAClassifier(instances LearningInstances, c float64) *MIRAClassifier {
 	train := filterLabeledInstances(instances)
 	model := newMIRAClassifier(c)
 	for iter := 0; iter < 30; iter++ {
-		Shuffle(train)
+		shuffle(train)
 		for _, example := range train {
 			model.learn(example)
 		}
@@ -70,7 +70,7 @@ func NewMIRAClassifier(instances LearningInstances, c float64) *MIRAClassifier {
 	return model
 }
 
-func OverSamplingPositiveExamples(instances LearningInstances) LearningInstances {
+func overSamplingPositiveExamples(instances LearningInstances) LearningInstances {
 	overSampled := LearningInstances{}
 	posInstances := LearningInstances{}
 	negInstances := LearningInstances{}
@@ -87,16 +87,16 @@ func OverSamplingPositiveExamples(instances LearningInstances) LearningInstances
 	}
 
 	for len(overSampled) <= numNeg {
-		Shuffle(posInstances)
+		shuffle(posInstances)
 		overSampled = append(overSampled, posInstances[0])
 	}
 	overSampled = append(overSampled, negInstances...)
-	Shuffle(overSampled)
+	shuffle(overSampled)
 
 	return overSampled
 }
 
-func ExtractGoldLabels(instances LearningInstances) []model.LabelType {
+func extractGoldLabels(instances LearningInstances) []model.LabelType {
 	golds := make([]model.LabelType, 0, 0)
 	for _, i := range instances {
 		golds = append(golds, i.GetLabel())
@@ -116,9 +116,9 @@ func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClassifier, error) {
-	Shuffle(instances)
-	train, dev := SplitTrainAndDev(filterLabeledInstances(instances))
-	train = OverSamplingPositiveExamples(train)
+	shuffle(instances)
+	train, dev := splitTrainAndDev(filterLabeledInstances(instances))
+	train = overSamplingPositiveExamples(train)
 
 	params := []float64{1000, 500, 100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001}
 	miraResults := MIRAResultList{}
@@ -148,9 +148,9 @@ func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClass
 		for i, instance := range dev {
 			devPredicts[i] = m.Predict(instance.GetFeatureVector())
 		}
-		accuracy := evaluation.GetAccuracy(ExtractGoldLabels(dev), devPredicts)
-		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
-		recall := evaluation.GetRecall(ExtractGoldLabels(dev), devPredicts)
+		accuracy := evaluation.GetAccuracy(extractGoldLabels(dev), devPredicts)
+		precision := evaluation.GetPrecision(extractGoldLabels(dev), devPredicts)
+		recall := evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
 		if math.IsNaN(f) {
 			continue
@@ -174,8 +174,8 @@ func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClass
 
 	sort.Sort(sort.Reverse(miraResults))
 	bestModel := &miraResults[0].mira
-	instances = OverSamplingPositiveExamples(instances)
-	Shuffle(instances)
+	instances = overSamplingPositiveExamples(instances)
+	shuffle(instances)
 	return NewMIRAClassifier(filterLabeledInstances(instances), bestModel.C), nil
 }
 
