@@ -1,4 +1,4 @@
-package feature
+package example_feature
 
 import (
 	"fmt"

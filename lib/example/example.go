@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/syou6162/go-active-learning/lib/feature"
+	"github.com/syou6162/go-active-learning/lib/feature/example"
 	"github.com/syou6162/go-active-learning/lib/model"
 )
 
@@ -54,10 +55,10 @@ func GetStat(examples model.Examples) map[string]int {
 func ExtractFeatures(e model.Example) feature.FeatureVector {
 	var fv feature.FeatureVector
 	fv = append(fv, "BIAS")
-	fv = append(fv, feature.ExtractHostFeature(e.FinalUrl))
-	fv = append(fv, feature.ExtractJpnNounFeatures(feature.ExtractPath(e.FinalUrl), "URL")...)
-	fv = append(fv, feature.ExtractNounFeatures(e.Title, "TITLE")...)
-	fv = append(fv, feature.ExtractNounFeatures(e.Description, "DESCRIPTION")...)
-	fv = append(fv, feature.ExtractNounFeatures(e.Body, "BODY")...)
+	fv = append(fv, example_feature.ExtractHostFeature(e.FinalUrl))
+	fv = append(fv, example_feature.ExtractJpnNounFeatures(example_feature.ExtractPath(e.FinalUrl), "URL")...)
+	fv = append(fv, example_feature.ExtractNounFeatures(e.Title, "TITLE")...)
+	fv = append(fv, example_feature.ExtractNounFeatures(e.Description, "DESCRIPTION")...)
+	fv = append(fv, example_feature.ExtractNounFeatures(e.Body, "BODY")...)
 	return fv
 }
