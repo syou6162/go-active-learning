@@ -49,7 +49,12 @@ func doAnnotateWithSlack(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	m, err := classifier.NewMIRAClassifierByCrossValidation(examples)
+	instances := classifier.LearningInstances{}
+	for _, e := range examples {
+		i := classifier.LearningInstance{FeatureVector: e.Fv, Label: e.Label}
+		instances = append(instances, &i)
+	}
+	m, err := classifier.NewMIRAClassifierByCrossValidation(instances)
 	if err != nil {
 		return err
 	}
@@ -83,14 +88,24 @@ annotationLoop:
 				switch act {
 				case LABEL_AS_POSITIVE:
 					e.Annotate(model.POSITIVE)
-					m, err = classifier.NewMIRAClassifierByCrossValidation(examples)
+					instances := classifier.LearningInstances{}
+					for _, e := range examples {
+						i := classifier.LearningInstance{FeatureVector: e.Fv, Label: e.Label}
+						instances = append(instances, &i)
+					}
+					m, err = classifier.NewMIRAClassifierByCrossValidation(instances)
 					if err != nil {
 						return err
 					}
 					rtm.AddReaction("heavy_plus_sign", slack.NewRefToMessage(channelID, prevTimestamp))
 				case LABEL_AS_NEGATIVE:
 					e.Annotate(model.NEGATIVE)
-					m, err = classifier.NewMIRAClassifierByCrossValidation(examples)
+					instances := classifier.LearningInstances{}
+					for _, e := range examples {
+						i := classifier.LearningInstance{FeatureVector: e.Fv, Label: e.Label}
+						instances = append(instances, &i)
+					}
+					m, err = classifier.NewMIRAClassifierByCrossValidation(instances)
 					if err != nil {
 						return err
 					}
