@@ -14,6 +14,7 @@ ALTER TABLE "model" DROP COLUMN "model_type";
 ALTER TABLE "model" DROP COLUMN "c";
 ALTER TABLE "model" DROP COLUMN "accuracy";
 ALTER TABLE "model" DROP COLUMN "precision";
+ALTER TABLE "model" DROP COLUMN "recall";
 ALTER TABLE "model" DROP COLUMN "fvalue";
 
 CREATE INDEX IF NOT EXISTS "created_at_model" ON model ("created_at");
