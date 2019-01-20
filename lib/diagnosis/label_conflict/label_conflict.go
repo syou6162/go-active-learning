@@ -13,6 +13,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/converter"
 )
 
 func DoLabelConflict(c *cli.Context) error {
@@ -38,7 +39,7 @@ func DoLabelConflict(c *cli.Context) error {
 		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	m, err := classifier.NewMIRAClassifierByCrossValidation(examples)
+	m, err := classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
 	if err != nil {
 		return err
 	}

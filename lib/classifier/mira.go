@@ -3,6 +3,7 @@ package classifier
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 	"runtime"
 	"sort"
@@ -22,52 +23,83 @@ type MIRAClassifier struct {
 	C      float64            `json:"C"`
 }
 
+type LearningInstance interface {
+	GetFeatureVector() feature.FeatureVector
+	GetLabel() model.LabelType
+}
+
+type LearningInstances []LearningInstance
+
 func newMIRAClassifier(c float64) *MIRAClassifier {
 	return &MIRAClassifier{make(map[string]float64), c}
 }
 
-func NewMIRAClassifier(examples model.Examples, c float64) *MIRAClassifier {
-	train := util.FilterLabeledExamples(examples)
+func filterLabeledInstances(instances LearningInstances) LearningInstances {
+	var result LearningInstances
+	for _, i := range instances {
+		if i.GetLabel() != 0 {
+			result = append(result, i)
+		}
+	}
+	return result
+}
+
+func shuffle(instances LearningInstances) {
+	n := len(instances)
+	for i := n - 1; i >= 0; i-- {
+		j := rand.Intn(i + 1)
+		instances[i], instances[j] = instances[j], instances[i]
+	}
+}
+
+func splitTrainAndDev(instances LearningInstances) (train LearningInstances, dev LearningInstances) {
+	shuffle(instances)
+	n := int(0.8 * float64(len(instances)))
+	return instances[0:n], instances[n:]
+}
+
+func NewMIRAClassifier(instances LearningInstances, c float64) *MIRAClassifier {
+	train := filterLabeledInstances(instances)
 	model := newMIRAClassifier(c)
 	for iter := 0; iter < 30; iter++ {
-		util.Shuffle(train)
+		shuffle(train)
 		for _, example := range train {
-			model.learn(*example)
+			model.learn(example)
 		}
 	}
 	return model
 }
 
-func OverSamplingPositiveExamples(examples model.Examples) model.Examples {
-	overSampled := model.Examples{}
-	posExamples := model.Examples{}
-	negExamples := model.Examples{}
+func overSamplingPositiveExamples(instances LearningInstances) LearningInstances {
+	overSampled := LearningInstances{}
+	posInstances := LearningInstances{}
+	negInstances := LearningInstances{}
 
 	numNeg := 0
 
-	for _, e := range examples {
-		if e.Label == model.NEGATIVE {
+	for _, i := range instances {
+		if i.GetLabel() == model.NEGATIVE {
 			numNeg += 1
-			negExamples = append(negExamples, e)
-		} else if e.Label == model.POSITIVE {
-			posExamples = append(posExamples, e)
+			negInstances = append(negInstances, i)
+		} else if i.GetLabel() == model.POSITIVE {
+			posInstances = append(posInstances, i)
 		}
 	}
 
 	for len(overSampled) <= numNeg {
-		util.Shuffle(posExamples)
-		overSampled = append(overSampled, posExamples[0])
+		shuffle(posInstances)
+		overSampled = append(overSampled, posInstances[0])
 	}
-	overSampled = append(overSampled, negExamples...)
-	util.Shuffle(overSampled)
+	overSampled = append(overSampled, negInstances...)
+	shuffle(overSampled)
 
 	return overSampled
 }
 
-func ExtractGoldLabels(examples model.Examples) []model.LabelType {
+func extractGoldLabels(instances LearningInstances) []model.LabelType {
 	golds := make([]model.LabelType, 0, 0)
-	for _, e := range examples {
-		golds = append(golds, e.Label)
+	for _, i := range instances {
+		golds = append(golds, i.GetLabel())
 	}
 	return golds
 }
@@ -83,10 +115,10 @@ func (l MIRAResultList) Len() int           { return len(l) }
 func (l MIRAResultList) Less(i, j int) bool { return l[i].FValue < l[j].FValue }
 func (l MIRAResultList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
-func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifier, error) {
-	util.Shuffle(examples)
-	train, dev := util.SplitTrainAndDev(util.FilterLabeledExamples(examples))
-	train = OverSamplingPositiveExamples(train)
+func NewMIRAClassifierByCrossValidation(instances LearningInstances) (*MIRAClassifier, error) {
+	shuffle(instances)
+	train, dev := splitTrainAndDev(filterLabeledInstances(instances))
+	train = overSamplingPositiveExamples(train)
 
 	params := []float64{1000, 500, 100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001}
 	miraResults := MIRAResultList{}
@@ -113,12 +145,12 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifie
 	for _, m := range models {
 		c := m.C
 		devPredicts := make([]model.LabelType, len(dev))
-		for i, example := range dev {
-			devPredicts[i] = m.Predict(example.Fv)
+		for i, instance := range dev {
+			devPredicts[i] = m.Predict(instance.GetFeatureVector())
 		}
-		accuracy := evaluation.GetAccuracy(ExtractGoldLabels(dev), devPredicts)
-		precision := evaluation.GetPrecision(ExtractGoldLabels(dev), devPredicts)
-		recall := evaluation.GetRecall(ExtractGoldLabels(dev), devPredicts)
+		accuracy := evaluation.GetAccuracy(extractGoldLabels(dev), devPredicts)
+		precision := evaluation.GetPrecision(extractGoldLabels(dev), devPredicts)
+		recall := evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
 		f := (2 * recall * precision) / (recall + precision)
 		if math.IsNaN(f) {
 			continue
@@ -142,9 +174,9 @@ func NewMIRAClassifierByCrossValidation(examples model.Examples) (*MIRAClassifie
 
 	sort.Sort(sort.Reverse(miraResults))
 	bestModel := &miraResults[0].mira
-	examples = OverSamplingPositiveExamples(examples)
-	util.Shuffle(examples)
-	return NewMIRAClassifier(util.FilterLabeledExamples(examples), bestModel.C), nil
+	instances = overSamplingPositiveExamples(instances)
+	shuffle(instances)
+	return NewMIRAClassifier(filterLabeledInstances(instances), bestModel.C), nil
 }
 
 func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall float64, fvalue float64) error {
@@ -181,21 +213,21 @@ func postEvaluatedMetricsToMackerel(accuracy float64, precision float64, recall 
 	return err
 }
 
-func (m *MIRAClassifier) learn(example model.Example) {
-	tmp := float64(example.Label) * m.PredictScore(example.Fv) // y w^T x
+func (m *MIRAClassifier) learn(instance LearningInstance) {
+	tmp := float64(instance.GetLabel()) * m.PredictScore(instance.GetFeatureVector()) // y w^T x
 	loss := 0.0
 	if tmp < 1.0 {
 		loss = 1 - tmp
 	}
 
-	norm := float64(len(example.Fv) * len(example.Fv))
+	norm := float64(len(instance.GetFeatureVector()) * len(instance.GetFeatureVector()))
 	// tau := math.Min(m.C, loss/norm) // update by PA-I
 	tau := loss / (norm + 1.0/m.C) // update by PA-II
 
 	if tau != 0.0 {
-		for _, f := range example.Fv {
+		for _, f := range instance.GetFeatureVector() {
 			w, _ := m.Weight[f]
-			m.Weight[f] = w + tau*float64(example.Label)
+			m.Weight[f] = w + tau*float64(instance.GetLabel())
 		}
 	}
 }

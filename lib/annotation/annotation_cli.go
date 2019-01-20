@@ -15,6 +15,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/converter"
 )
 
 func input2ActionType() (ActionType, error) {
@@ -59,7 +60,8 @@ func doAnnotate(c *cli.Context) error {
 	if filterStatusCodeOk {
 		examples = util.FilterStatusCodeOkExamples(examples)
 	}
-	m, err := classifier.NewMIRAClassifierByCrossValidation(examples)
+
+	m, err := classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
 	if err != nil {
 		return err
 	}
@@ -105,7 +107,8 @@ annotationLoop:
 		default:
 			break annotationLoop
 		}
-		m, err = classifier.NewMIRAClassifierByCrossValidation(examples)
+
+		m, err = classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
 		if err != nil {
 			return err
 		}

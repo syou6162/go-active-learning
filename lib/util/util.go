@@ -126,12 +126,6 @@ func UniqueByTitle(examples model.Examples) model.Examples {
 	return result
 }
 
-func SplitTrainAndDev(examples model.Examples) (train model.Examples, dev model.Examples) {
-	Shuffle(examples)
-	n := int(0.8 * float64(len(examples)))
-	return examples[0:n], examples[n:]
-}
-
 func GetEnv(key, fallback string) string {
 	value, ok := os.LookupEnv(key)
 	if !ok {

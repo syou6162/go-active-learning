@@ -8,6 +8,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/classifier"
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
+	"github.com/syou6162/go-active-learning/lib/util/converter"
 )
 
 type Feature struct {
@@ -44,7 +45,7 @@ func DoListFeatureWeight(c *cli.Context) error {
 		training = util.FilterStatusCodeOkExamples(training)
 	}
 
-	model, err := classifier.NewMIRAClassifierByCrossValidation(examples)
+	model, err := classifier.NewMIRAClassifierByCrossValidation(converter.ConvertExamplesToLearningInstances(examples))
 	if err != nil {
 		return err
 	}
