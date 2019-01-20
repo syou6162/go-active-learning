@@ -2,6 +2,7 @@ package tweet_feature
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
@@ -9,14 +10,24 @@ import (
 )
 
 type ExampleAndTweet struct {
-	example *model.Example
-	tweet   *model.Tweet
-	lcsLen  int
+	example     *model.Example
+	tweet       *model.Tweet
+	lcsLen      int
+	atMarksCnt  int
+	hashTagsCnt int
+	cleanedText string
 }
 
 func GetExampleAndTweet(e *model.Example, t *model.Tweet) ExampleAndTweet {
 	result := ExampleAndTweet{example: e, tweet: t}
 	result.lcsLen = GetLCSLen(result)
+
+	atRegexp := regexp.MustCompile(`@[^/]+`)
+	result.atMarksCnt = len(atRegexp.FindAllStringSubmatch(t.FullText, -1))
+	str := atRegexp.ReplaceAllString(t.FullText, " ")
+	hashRegexp := regexp.MustCompile(`#[^/]+`)
+	result.hashTagsCnt = len(hashRegexp.FindAllStringSubmatch(t.FullText, -1))
+	result.cleanedText = hashRegexp.ReplaceAllString(str, " ")
 	return result
 }
 
@@ -115,6 +126,44 @@ func RetweetCountFeature(et ExampleAndTweet) string {
 	}
 }
 
+func AtMarksCountFeature(et ExampleAndTweet) string {
+	prefix := "AtMarksCountFeature"
+	cnt := et.atMarksCnt
+	switch {
+	case cnt == 0:
+		return fmt.Sprintf("%s:0", prefix)
+	case cnt == 1:
+		return fmt.Sprintf("%s:1", prefix)
+	case cnt == 3:
+		return fmt.Sprintf("%s:3", prefix)
+	case cnt < 5:
+		return fmt.Sprintf("%s:5", prefix)
+	case cnt < 10:
+		return fmt.Sprintf("%s:10", prefix)
+	default:
+		return fmt.Sprintf("%s:INF", prefix)
+	}
+}
+
+func HashTagsCountFeature(et ExampleAndTweet) string {
+	prefix := "HashTagsCountFeature"
+	cnt := et.atMarksCnt
+	switch {
+	case cnt == 0:
+		return fmt.Sprintf("%s:0", prefix)
+	case cnt == 1:
+		return fmt.Sprintf("%s:1", prefix)
+	case cnt == 3:
+		return fmt.Sprintf("%s:3", prefix)
+	case cnt < 5:
+		return fmt.Sprintf("%s:5", prefix)
+	case cnt < 10:
+		return fmt.Sprintf("%s:10", prefix)
+	default:
+		return fmt.Sprintf("%s:INF", prefix)
+	}
+}
+
 func ScreenNameFeature(et ExampleAndTweet) string {
 	prefix := "ScreenNameFeature"
 	return fmt.Sprintf("%s:%s", prefix, et.tweet.ScreenName)
@@ -130,5 +179,7 @@ func GetTweetFeature(e *model.Example, t *model.Tweet) feature.FeatureVector {
 	fv = append(fv, ScreenNameFeature(et))
 	fv = append(fv, FavoriteCountFeature(et))
 	fv = append(fv, RetweetCountFeature(et))
+	fv = append(fv, AtMarksCountFeature(et))
+	fv = append(fv, HashTagsCountFeature(et))
 	return fv
 }
