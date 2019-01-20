@@ -19,8 +19,12 @@ import (
 )
 
 type MIRAClassifier struct {
-	Weight map[string]float64 `json:"Weight"`
-	C      float64            `json:"C"`
+	Weight    map[string]float64 `json:"Weight"`
+	C         float64            `json:"C"`
+	Accuracy  float64            `json:"Accuracy"`
+	Precision float64            `json:"Precision"`
+	Recall    float64            `json:"Recall"`
+	Fvalue    float64            `json:"Fvalue"`
 }
 
 type LearningInstance interface {
@@ -31,7 +35,14 @@ type LearningInstance interface {
 type LearningInstances []LearningInstance
 
 func newMIRAClassifier(c float64) *MIRAClassifier {
-	return &MIRAClassifier{make(map[string]float64), c}
+	return &MIRAClassifier{
+		Weight:    make(map[string]float64),
+		C:         c,
+		Accuracy:  0.0,
+		Precision: 0.0,
+		Recall:    0.0,
+		Fvalue:    0.0,
+	}
 }
 
 func filterLabeledInstances(instances LearningInstances) LearningInstances {
