@@ -128,6 +128,18 @@ func (app *goActiveLearningApp) SearchReferringTweets(limit int) (model.Referrin
 	return app.repo.SearchReferringTweets(limit)
 }
 
+func (app *goActiveLearningApp) SearchPositiveReferringTweets(limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchPositiveReferringTweets(limit)
+}
+
+func (app *goActiveLearningApp) SearchNegativeReferringTweets(limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchNegativeReferringTweets(limit)
+}
+
+func (app *goActiveLearningApp) SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchUnlabeledReferringTweets(limit)
+}
+
 func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]*model.HatenaBookmark {
 	result := make(map[int]*model.HatenaBookmark)
 	for _, hb := range hatenaBookmarks {

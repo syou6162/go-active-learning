@@ -73,6 +73,28 @@ func (r *repository) SearchReferringTweets(limit int) (model.ReferringTweets, er
 	return referringTweets, nil
 }
 
+func (r *repository) searchReferringTweetsByLabel(label model.LabelType, limit int) (model.ReferringTweets, error) {
+	referringTweets := model.ReferringTweets{}
+	query := `SELECT * FROM tweet WHERE label = $1 ORDER BY created_at DESC LIMIT $2;`
+	err := r.db.Select(&referringTweets, query, label, limit)
+	if err != nil {
+		return referringTweets, err
+	}
+	return referringTweets, nil
+}
+
+func (r *repository) SearchPositiveReferringTweets(limit int) (model.ReferringTweets, error) {
+	return r.searchReferringTweetsByLabel(model.POSITIVE, limit)
+}
+
+func (r *repository) SearchNegativeReferringTweets(limit int) (model.ReferringTweets, error) {
+	return r.searchReferringTweetsByLabel(model.NEGATIVE, limit)
+}
+
+func (r *repository) SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error) {
+	return r.searchReferringTweetsByLabel(model.UNLABELED, limit)
+}
+
 func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 
