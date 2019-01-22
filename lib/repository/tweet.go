@@ -51,7 +51,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 		exampleIds = append(exampleIds, e.Id)
 	}
 
-	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND label != -1 AND score > -1.0 ORDER BY favorite_count DESC;`
+	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND label != -1 AND score > -1.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, pq.Array(exampleIds))
 	if err != nil {
 		return referringTweetsByExampleId, err
@@ -65,7 +65,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 
 func (r *repository) SearchReferringTweets(limit int) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
-	query := `SELECT * FROM tweet ORDER BY created_at DESC LIMIT $1;`
+	query := `SELECT * FROM tweet lang = 'en' OR lang = 'ja' ORDER BY created_at DESC LIMIT $1;`
 	err := r.db.Select(&referringTweets, query, limit)
 	if err != nil {
 		return referringTweets, err
@@ -75,7 +75,7 @@ func (r *repository) SearchReferringTweets(limit int) (model.ReferringTweets, er
 
 func (r *repository) searchReferringTweetsByLabel(label model.LabelType, limit int) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
-	query := `SELECT * FROM tweet WHERE label = $1 ORDER BY created_at DESC LIMIT $2;`
+	query := `SELECT * FROM tweet WHERE label = $1 AND (lang = 'en' OR lang = 'ja') ORDER BY created_at DESC LIMIT $2;`
 	err := r.db.Select(&referringTweets, query, label, limit)
 	if err != nil {
 		return referringTweets, err
@@ -98,7 +98,7 @@ func (r *repository) SearchUnlabeledReferringTweets(limit int) (model.ReferringT
 func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 
-	query := `SELECT * FROM tweet WHERE example_id = $1 AND label != -1 AND score > -1.0 ORDER BY favorite_count DESC;`
+	query := `SELECT * FROM tweet WHERE example_id = $1 AND label != -1 AND score > -1.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC;`
 	err := r.db.Select(&referringTweets, query, e.Id)
 	if err != nil {
 		return referringTweets, err
