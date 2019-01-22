@@ -65,7 +65,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 
 func (r *repository) SearchReferringTweets(limit int) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
-	query := `SELECT * FROM WHERE tweet lang = 'en' OR lang = 'ja' ORDER BY created_at DESC LIMIT $1;`
+	query := `SELECT * FROM tweet WHERE lang = 'en' OR lang = 'ja' ORDER BY created_at DESC LIMIT $1;`
 	err := r.db.Select(&referringTweets, query, limit)
 	if err != nil {
 		return referringTweets, err
