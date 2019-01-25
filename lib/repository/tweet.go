@@ -81,7 +81,7 @@ SELECT * FROM tweet WHERE id IN
     (SELECT tweet.id, ROW_NUMBER() OVER(partition BY example_id ORDER BY favorite_count DESC) AS rank
     FROM tweet
     INNER JOIN example ON tweet.example_id = example.id
-    WHERE tweet.label = $1 AND (lang = 'en' OR lang = 'ja') AND example.label = 1
+    WHERE tweet.label = $1 AND (lang = 'en' OR lang = 'ja') AND (example.label = 1 OR example.label = 0)
   ) AS t WHERE rank < 5)
 ORDER BY created_at DESC LIMIT $2
 ;`
