@@ -82,7 +82,7 @@ SELECT * FROM tweet WHERE id IN
     FROM tweet
     INNER JOIN example ON tweet.example_id = example.id
     WHERE tweet.label = $1 AND (lang = 'en' OR lang = 'ja') AND (example.label = 1 OR example.label = 0)
-  ) AS t WHERE rank < 5)
+  ) AS t WHERE rank < 4)
 ORDER BY created_at DESC LIMIT $2
 ;`
 	err := r.db.Select(&referringTweets, query, label, limit)
