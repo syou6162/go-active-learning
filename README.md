@@ -16,6 +16,10 @@ go-active-learning is a command line annotation tool for binary classification p
 ```console
 % git clone https://github.com/syou6162/go-active-learning.git
 % cd go-active-learning
+% createdb go-active-learning
+% createdb go-active-learning-test
+% sql-migrate up -env=local
+% sql-migrate up -env=test
 % make build
 ```
 
