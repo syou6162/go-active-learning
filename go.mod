@@ -28,7 +28,7 @@ require (
 	github.com/mitchellh/cli v1.0.0 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/neurosnap/sentences v1.0.6 // indirect
-	github.com/nlopes/slack v0.4.0
+	github.com/nlopes/slack v0.5.0
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
 	github.com/pkg/errors v0.8.1
