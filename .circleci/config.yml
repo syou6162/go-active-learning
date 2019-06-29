@@ -6,12 +6,29 @@ jobs:
       - GOPATH: /home/circleci/go
     docker:
       - image: circleci/golang:1.12.4
+        user: root
         environment:
           PGHOST: 127.0.0.1
+          GOPATH: /
+          GOCACHE: /.cache/go-build
+          GO111MODULE: "on"
       - image: circleci/postgres:9.6-alpine
     steps:
       - run: echo 'export PATH=${GOPATH}/bin/:${PATH}' >> $BASH_ENV
       - checkout
+      - restore_cache:
+          keys:
+            - go-module-cache-v1-{{ checksum "/workspace/go.sum" }}
+            - go-module-cache-v1-
+      - run: make deps
+      - save_cache:
+          key: go-module-cache-v1-{{ checksum "/workspace/go.sum" }}
+          paths:
+            - /pkg/mod/cache
+      - save_cache:
+          key: workspace-v1-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - /workspace
       - run: sudo apt-get update
       - run: sudo apt-get install -y postgresql-client-9.6
       - run:
@@ -24,14 +41,23 @@ jobs:
               sleep 1
             done
             echo Failed waiting for Postgres && exit 1
-      - run: make deps
-      - run: go get -t -d -v ./...
       - run: make build
-      - run: go get -t -d -v ./...
-      - run: go build -v
       - run: psql -U postgres -f script/create_database.sql
       - run: sql-migrate up -env=test
       # Test
       - run: test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
       - run: make cover COVERAGE='/home/circleci/coverage.out'
       - run: goveralls -coverprofile=/home/circleci/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+
+workflows:
+  version: 2
+  nightly_workflow:
+    triggers:
+      - schedule:
+          cron: "0 6 * * *" # UTCで記述。この場合は15時
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
