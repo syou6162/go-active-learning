@@ -48,3 +48,16 @@ jobs:
       - run: test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
       - run: make cover COVERAGE='/home/circleci/coverage.out'
       - run: goveralls -coverprofile=/home/circleci/coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+
+workflows:
+  version: 2
+  nightly_workflow:
+    triggers:
+      - schedule:
+          cron: "0 6 * * *" # UTCで記述。この場合は15時
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
