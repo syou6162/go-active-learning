@@ -8,7 +8,7 @@ deps:
 	go mod download
 	go get github.com/mattn/goveralls
 	go get github.com/haya14busa/goverage
-	go get -v github.com/rubenv/sql-migrate/...
+	go get github.com/rubenv/sql-migrate/sql-migrate
 
 .PHONY: build
 build:
