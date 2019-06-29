@@ -5,7 +5,7 @@ jobs:
     environment:
       - GOPATH: /home/circleci/go
     docker:
-      - image: circleci/golang:1.9
+      - image: circleci/golang:1.12.4
         environment:
           PGHOST: 127.0.0.1
       - image: circleci/postgres:9.6-alpine
@@ -24,7 +24,6 @@ jobs:
               sleep 1
             done
             echo Failed waiting for Postgres && exit 1
-      - run: make deps-cmd
       - run: make deps
       - run: go get -t -d -v ./...
       - run: make build

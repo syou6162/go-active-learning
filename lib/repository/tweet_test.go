@@ -37,6 +37,7 @@ func TestUpdateReferringTweets(t *testing.T) {
 		ScreenName:      "syou6162",
 		Name:            "syou6162",
 		ProfileImageUrl: "http://hogehoge.com/profile.png",
+		Score:           1.0,
 	}
 
 	tweets := model.ReferringTweets{&t1}
