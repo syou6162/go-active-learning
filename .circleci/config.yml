@@ -9,6 +9,9 @@ jobs:
         user: root
         environment:
           PGHOST: 127.0.0.1
+          GOPATH: /
+          GOCACHE: /.cache/go-build
+          GO111MODULE: "on"
       - image: circleci/postgres:9.6-alpine
     steps:
       - run: echo 'export PATH=${GOPATH}/bin/:${PATH}' >> $BASH_ENV
