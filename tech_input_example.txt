@@ -1,5 +1,5 @@
 https://www.yasuhisay.info/	1
-http://www.songmu.jp/riji/	1
+https://songmu.jp/riji/	1
 https://blog.yuuk.io/	1
 https://hakobe932.hatenablog.com/	1
 https://motemen.hatenablog.com/	1
@@ -13,3 +13,10 @@ http://otiai10.hatenablog.com/entry/2017/05/24/163701
 https://www.yasuhisay.info/entry/2016/11/23/000000
 https://www.yasuhisay.info/entry/20090516/1242480413
 https://www.yasuhisay.info/entry/2017/05/18/080000
+https://arxiv.org/abs/1906.03776	1
+https://tech-blog.optim.co.jp/entry/2019/07/04/173000	1
+http://www.ai-gakkai.or.jp/my-bookmark_vol34-no4/	1
+https://data.gunosy.io/entry/poincare_embedding_for_recommendations	1
+http://englishforhackers.com/	-1
+https://www.youtube.com/watch?v=5ZwknHMf1yo	-1
+https://speakerdeck.com/livesense/shi-ye-heng-duan-zu-zhi-defalsemlsisutemukai-fa-yun-yong-toji-pan-she-ji	1
