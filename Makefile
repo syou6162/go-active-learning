@@ -21,7 +21,7 @@ fmt:
 
 .PHONY: test
 test:
-	DB_NAME=go-active-learning-test go test -v ./...
+	DB_NAME=go-active-learning-test go test -v ./... -p 1 -count 1
 
 .PHONY: vet
 vet:
