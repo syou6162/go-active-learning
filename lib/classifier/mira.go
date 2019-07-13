@@ -42,6 +42,8 @@ type LearningInstances []LearningInstance
 
 var errNoTrainingInstances = errors.New("Empty training set")
 var errNoDevelopmentInstances = errors.New("Empty development set")
+var errNoMIRAModelLearned = errors.New("Fail to learn MIRA models")
+var errModelEvaluationFailure = errors.New("Failed to evaluate best MIRA")
 
 func newMIRAClassifier(modelType ModelType, c float64) *MIRAClassifier {
 	return &MIRAClassifier{
@@ -168,6 +170,10 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 	}
 	wg.Wait()
 
+	if len(models) == 0 {
+		return nil, errNoMIRAModelLearned
+	}
+
 	maxFvalue := math.Inf(-1)
 	for _, m := range models {
 		devPredicts := make([]model.LabelType, len(dev))
@@ -188,7 +194,7 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 		}
 	}
 	if len(miraResults) == 0 {
-		return nil, errors.New("Failed to learn MIRA")
+		return nil, errModelEvaluationFailure
 	}
 
 	sort.Sort(sort.Reverse(miraResults))
