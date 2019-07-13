@@ -40,6 +40,9 @@ type LearningInstance interface {
 
 type LearningInstances []LearningInstance
 
+var errNoTrainingInstances = errors.New("Empty training set")
+var errNoDevelopmentInstances = errors.New("Empty development set")
+
 func newMIRAClassifier(modelType ModelType, c float64) *MIRAClassifier {
 	return &MIRAClassifier{
 		ModelType: modelType,
@@ -128,14 +131,21 @@ func (l MIRAClassifierList) Len() int           { return len(l) }
 func (l MIRAClassifierList) Less(i, j int) bool { return l[i].Fvalue < l[j].Fvalue }
 func (l MIRAClassifierList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
+func isValidTrainAndDevelopmentInstances(train LearningInstances, dev LearningInstances) (bool, error) {
+	if len(train) == 0 {
+		return false, errNoTrainingInstances
+	}
+	if len(dev) == 0 {
+		return false, errNoDevelopmentInstances
+	}
+	return true, nil
+}
+
 func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningInstances) (*MIRAClassifier, error) {
 	shuffle(instances)
 	train, dev := splitTrainAndDev(filterLabeledInstances(instances))
-	if len(train) == 0 {
-		return nil, errors.New("Empty training set")
-	}
-	if len(dev) == 0 {
-		return nil, errors.New("Empty development set")
+	if valid, err := isValidTrainAndDevelopmentInstances(train, dev); !valid {
+		return nil, err
 	}
 
 	train = overSamplingPositiveExamples(train)
