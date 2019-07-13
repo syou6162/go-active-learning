@@ -12,7 +12,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/syou6162/GoOse"
+	goose "github.com/syou6162/GoOse"
 )
 
 type Article struct {

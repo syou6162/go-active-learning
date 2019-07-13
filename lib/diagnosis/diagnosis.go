@@ -2,8 +2,8 @@ package diagnosis
 
 import (
 	"github.com/codegangsta/cli"
-	"github.com/syou6162/go-active-learning/lib/diagnosis/feature_weight"
-	"github.com/syou6162/go-active-learning/lib/diagnosis/label_conflict"
+	featureweight "github.com/syou6162/go-active-learning/lib/diagnosis/feature_weight"
+	labelconflict "github.com/syou6162/go-active-learning/lib/diagnosis/label_conflict"
 )
 
 var CommandDiagnose = cli.Command{

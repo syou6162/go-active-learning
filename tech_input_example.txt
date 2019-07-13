@@ -1,5 +1,5 @@
 https://www.yasuhisay.info/	1
-http://www.songmu.jp/riji/	1
+https://songmu.jp/riji/	1
 https://blog.yuuk.io/	1
 https://hakobe932.hatenablog.com/	1
 https://motemen.hatenablog.com/	1
@@ -13,3 +13,38 @@ http://otiai10.hatenablog.com/entry/2017/05/24/163701
 https://www.yasuhisay.info/entry/2016/11/23/000000
 https://www.yasuhisay.info/entry/20090516/1242480413
 https://www.yasuhisay.info/entry/2017/05/18/080000
+https://arxiv.org/abs/1906.03776	1
+https://tech-blog.optim.co.jp/entry/2019/07/04/173000	1
+http://www.ai-gakkai.or.jp/my-bookmark_vol34-no4/	1
+https://data.gunosy.io/entry/poincare_embedding_for_recommendations	1
+http://englishforhackers.com/	-1
+https://www.youtube.com/watch?v=5ZwknHMf1yo	-1
+https://speakerdeck.com/livesense/shi-ye-heng-duan-zu-zhi-defalsemlsisutemukai-fa-yun-yong-toji-pan-she-ji	1
+https://www.yasuhisay.info/entry/splatoon2_udemae_x	-1
+https://www.yasuhisay.info/entry/2018/11/13/090000	-1
+https://www.yasuhisay.info/entry/2016/09/26/080000	-1
+https://www.yasuhisay.info/entry/2016/03/27/215344	-1
+https://www.yasuhisay.info/entry/20110714/1310622171	-1
+https://anond.hatelabo.jp/20190713043218	-1
+https://cybozushiki.cybozu.co.jp/articles/m005412.html	-1
+https://sorazine.soracom.jp/entry/2019/07/12/celestehair	-1
+https://www.yasuhisay.info/entry/20090516/1242480413	1
+https://www.yasuhisay.info/entry/kaggle_avazu_ctr_prediction	1
+https://www.yasuhisay.info/entry/mlct_mackerel_anomaly_detection	1
+https://www.yasuhisay.info/entry/2018/10/04/201000	1
+https://honz.jp/articles/-/45278	-1
+https://www.megamouth.info/entry/2019/07/12/175250	-1
+https://www.lifehacker.jp/2019/07/193679_higedanshaku.html	-1
+https://teineini.net/20190711-evernote-dokusyonote/	-1
+https://dev.classmethod.jp/tool/be-vimmer-by-trainings/	1
+https://www.clear-code.com/blog/2019/7/12.html	1
+https://techlife.cookpad.com/entry/2019/07/13/055601	1
+https://future-architect.github.io/articles/20190713/	1
+https://blog.craftz.dog/my-dev-workflow-using-tmux-vim-48f73cc4f39e	1
+https://junkyard.song.mu/slides/gocon2019-fukuoka/	1
+https://nykergoto.hatenablog.jp/entry/2019/07/09/FFT_を使った時系列データ解析	1
+http://memorability.csail.mit.edu/index.html	1
+https://ynd.co/blog/tensorflow-vs-pytorch/	1
+https://cloudplatform-jp.googleblog.com/2019/07/analyze-bigquery-data-with-kaggle-kernels-notebooks.html	1
+https://omedstu.jimdo.com/2019/07/05/force法によるrecurrent-spiking-neural-networksの教師あり学習/	1
+https://buildersbox.corp-sansan.com/entry/2019/07/12/110000	1

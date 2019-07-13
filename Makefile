@@ -21,7 +21,7 @@ fmt:
 
 .PHONY: test
 test:
-	DB_NAME=go-active-learning-test go test -v ./...
+	DB_NAME=go-active-learning-test go test -v ./... -p 1 -count 1
 
 .PHONY: vet
 vet:
@@ -32,4 +32,4 @@ test-all: vet test
 
 .PHONY: cover
 cover:
-	DB_NAME=go-active-learning-test goverage -v -coverprofile=${COVERAGE} ./...
+	DB_NAME=go-active-learning-test goverage -parallel 1 -v -coverprofile=${COVERAGE} ./...

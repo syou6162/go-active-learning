@@ -3,14 +3,11 @@ package repository
 import (
 	"bufio"
 	"database/sql"
+	"fmt"
+	"io"
 	"time"
 
-	"io"
-
-	"fmt"
-
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util/file"
@@ -292,6 +289,6 @@ func (r *repository) SearchFeatureVector(examples model.Examples) (map[int]featu
 }
 
 func (r *repository) DeleteAllExamples() error {
-	_, err := r.db.Exec(`DELETE FROM example`)
+	_, err := r.db.Exec(`DELETE FROM example;`)
 	return err
 }

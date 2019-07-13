@@ -40,6 +40,15 @@ type LearningInstance interface {
 
 type LearningInstances []LearningInstance
 
+var errNoTrainingInstances = errors.New("Empty training set")
+var errNoDevelopmentInstances = errors.New("Empty development set")
+var errNoMIRAModelLearned = errors.New("Fail to learn MIRA models")
+var errModelEvaluationFailure = errors.New("Failed to evaluate best MIRA")
+var errTrainingInstancesAllPositive = errors.New("Labels of training instances are all positive")
+var errTrainingInstancesAllNegative = errors.New("Labels of training instances are all negative")
+var errDevelopmentInstancesAllPositive = errors.New("Labels of development instances are all positive")
+var errDevelopmentInstancesAllNegative = errors.New("Labels of development instances are all negative")
+
 func newMIRAClassifier(modelType ModelType, c float64) *MIRAClassifier {
 	return &MIRAClassifier{
 		ModelType: modelType,
@@ -128,9 +137,46 @@ func (l MIRAClassifierList) Len() int           { return len(l) }
 func (l MIRAClassifierList) Less(i, j int) bool { return l[i].Fvalue < l[j].Fvalue }
 func (l MIRAClassifierList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
+func allSameLabel(instances LearningInstances, label model.LabelType) bool {
+	for _, instance := range instances {
+		if instance.GetLabel() != label {
+			return false
+		}
+	}
+	return true
+}
+
+func isValidTrainAndDevelopmentInstances(train LearningInstances, dev LearningInstances) (bool, error) {
+	if len(train) == 0 {
+		return false, errNoTrainingInstances
+	}
+	if len(dev) == 0 {
+		return false, errNoDevelopmentInstances
+	}
+
+	if allSameLabel(train, model.POSITIVE) {
+		return false, errTrainingInstancesAllPositive
+	}
+	if allSameLabel(train, model.NEGATIVE) {
+		return false, errTrainingInstancesAllNegative
+	}
+	if allSameLabel(dev, model.POSITIVE) {
+		return false, errDevelopmentInstancesAllPositive
+	}
+	if allSameLabel(dev, model.NEGATIVE) {
+		return false, errDevelopmentInstancesAllNegative
+	}
+
+	return true, nil
+}
+
 func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningInstances) (*MIRAClassifier, error) {
 	shuffle(instances)
 	train, dev := splitTrainAndDev(filterLabeledInstances(instances))
+	if valid, err := isValidTrainAndDevelopmentInstances(train, dev); !valid {
+		return nil, err
+	}
+
 	train = overSamplingPositiveExamples(train)
 
 	params := []float64{1000, 500, 100, 50, 10.0, 5.0, 1.0, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001}
@@ -151,6 +197,10 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 	}
 	wg.Wait()
 
+	if len(models) == 0 {
+		return nil, errNoMIRAModelLearned
+	}
+
 	maxFvalue := math.Inf(-1)
 	for _, m := range models {
 		devPredicts := make([]model.LabelType, len(dev))
@@ -161,17 +211,17 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 		m.Precision = evaluation.GetPrecision(extractGoldLabels(dev), devPredicts)
 		m.Recall = evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
 		m.Fvalue = (2 * m.Recall * m.Precision) / (m.Recall + m.Precision)
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", m.C, m.Accuracy, m.Precision, m.Recall, m.Fvalue))
 		if math.IsNaN(m.Fvalue) {
 			continue
 		}
 		miraResults = append(miraResults, *m)
-		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", m.C, m.Accuracy, m.Precision, m.Recall, m.Fvalue))
 		if m.Fvalue >= maxFvalue {
 			maxFvalue = m.Fvalue
 		}
 	}
 	if len(miraResults) == 0 {
-		return nil, errors.New("Failed to learn MIRA")
+		return nil, errModelEvaluationFailure
 	}
 
 	sort.Sort(sort.Reverse(miraResults))
