@@ -44,6 +44,10 @@ var errNoTrainingInstances = errors.New("Empty training set")
 var errNoDevelopmentInstances = errors.New("Empty development set")
 var errNoMIRAModelLearned = errors.New("Fail to learn MIRA models")
 var errModelEvaluationFailure = errors.New("Failed to evaluate best MIRA")
+var errTrainingInstancesAllPositive = errors.New("Labels of training instances are all positive")
+var errTrainingInstancesAllNegative = errors.New("Labels of training instances are all negative")
+var errDevelopmentInstancesAllPositive = errors.New("Labels of development instances are all positive")
+var errDevelopmentInstancesAllNegative = errors.New("Labels of development instances are all negative")
 
 func newMIRAClassifier(modelType ModelType, c float64) *MIRAClassifier {
 	return &MIRAClassifier{
@@ -133,6 +137,15 @@ func (l MIRAClassifierList) Len() int           { return len(l) }
 func (l MIRAClassifierList) Less(i, j int) bool { return l[i].Fvalue < l[j].Fvalue }
 func (l MIRAClassifierList) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
+func allSameLabel(instances LearningInstances, label model.LabelType) bool {
+	for _, instance := range instances {
+		if instance.GetLabel() != label {
+			return false
+		}
+	}
+	return true
+}
+
 func isValidTrainAndDevelopmentInstances(train LearningInstances, dev LearningInstances) (bool, error) {
 	if len(train) == 0 {
 		return false, errNoTrainingInstances
@@ -140,6 +153,20 @@ func isValidTrainAndDevelopmentInstances(train LearningInstances, dev LearningIn
 	if len(dev) == 0 {
 		return false, errNoDevelopmentInstances
 	}
+
+	if allSameLabel(train, model.POSITIVE) {
+		return false, errTrainingInstancesAllPositive
+	}
+	if allSameLabel(train, model.NEGATIVE) {
+		return false, errTrainingInstancesAllNegative
+	}
+	if allSameLabel(dev, model.POSITIVE) {
+		return false, errDevelopmentInstancesAllPositive
+	}
+	if allSameLabel(dev, model.NEGATIVE) {
+		return false, errDevelopmentInstancesAllNegative
+	}
+
 	return true, nil
 }
 
