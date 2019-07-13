@@ -86,7 +86,7 @@ func TestInsertOrUpdateExample(t *testing.T) {
 		t.Errorf("len(examples) == %d, want 1", len(examples))
 	}
 	if examples[0].Label != model.UNLABELED {
-		t.Errorf("label == %d, want 1", examples[0].Label)
+		t.Errorf("label == %d, want 0", examples[0].Label)
 	}
 	if examples[0].Id == 0 {
 		t.Error("id must not be 0")
