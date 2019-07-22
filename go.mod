@@ -20,7 +20,7 @@ require (
 	github.com/lib/pq v1.2.0
 	github.com/lusis/go-slackbot v0.0.0-20180109053408-401027ccfef5 // indirect
 	github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 // indirect
-	github.com/mackerelio/mackerel-client-go v0.5.0
+	github.com/mackerelio/mackerel-client-go v0.6.0
 	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mattn/go-tty v0.0.0-20181127064339-e4f871175a2f
