@@ -212,6 +212,8 @@ func NewMIRAClassifierByCrossValidation(modelType ModelType, instances LearningI
 		m.Recall = evaluation.GetRecall(extractGoldLabels(dev), devPredicts)
 		m.Fvalue = (2 * m.Recall * m.Precision) / (m.Recall + m.Precision)
 		fmt.Fprintln(os.Stderr, fmt.Sprintf("C:%0.03f\tAccuracy:%0.03f\tPrecision:%0.03f\tRecall:%0.03f\tF-value:%0.03f", m.C, m.Accuracy, m.Precision, m.Recall, m.Fvalue))
+		tp, fp, fn, tn := evaluation.GetConfusionMatrix(extractGoldLabels(dev), devPredicts)
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("tp:%d\tfp:%d\tfn:%d\ttn:%d", tp, fp, fn, tn))
 		if math.IsNaN(m.Fvalue) {
 			continue
 		}
