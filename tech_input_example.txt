@@ -48,3 +48,14 @@ https://ynd.co/blog/tensorflow-vs-pytorch/	1
 https://cloudplatform-jp.googleblog.com/2019/07/analyze-bigquery-data-with-kaggle-kernels-notebooks.html	1
 https://omedstu.jimdo.com/2019/07/05/force法によるrecurrent-spiking-neural-networksの教師あり学習/	1
 https://buildersbox.corp-sansan.com/entry/2019/07/12/110000	1
+https://www.slideshare.net/shunsukekozawa5/gunosy-152302982	1
+https://ml-loft.connpass.com/event/136426/	1
+https://nlp.stanford.edu/blog/a-new-multi-turn-multi-domain-task-oriented-dialogue-dataset/	1
+https://blog.ml.cmu.edu/2019/08/02/regret-circuits-composability-of-regret-minimizers/	1
+https://tech-blog.abeja.asia/entry/noisy-label-ml-survey	1
+https://imas.connpass.com/event/140272/	-1
+http://alissak.hatenablog.com/entry/2019/08/03/170413	-1
+https://ai.facebook.com/blog/advances-in-conversational-ai/	1
+https://heartbeat.fritz.ai/a-2019-guide-to-semantic-segmentation-ca8242f5a7fc	1
+http://morningproject.hateblo.jp/entry/2019/08/03/112605	-1
+https://gendai.ismedia.jp/articles/-/66255	-1
