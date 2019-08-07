@@ -7,7 +7,6 @@ import (
 	"math"
 	"sort"
 
-	"github.com/codegangsta/cli"
 	"github.com/mattn/go-tty"
 	"github.com/pkg/browser"
 	"github.com/syou6162/go-active-learning/lib/classifier"
@@ -16,6 +15,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/service"
 	"github.com/syou6162/go-active-learning/lib/util"
 	"github.com/syou6162/go-active-learning/lib/util/converter"
+	"github.com/urfave/cli"
 )
 
 func input2ActionType() (ActionType, error) {
