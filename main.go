@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/command"
+	"github.com/urfave/cli"
 )
 
 func main() {

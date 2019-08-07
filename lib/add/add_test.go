@@ -3,8 +3,8 @@ package add_test
 import (
 	"testing"
 
-	"github.com/codegangsta/cli"
 	"github.com/syou6162/go-active-learning/lib/command"
+	"github.com/urfave/cli"
 )
 
 func TestDoAdd(t *testing.T) {
