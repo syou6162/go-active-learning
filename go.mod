@@ -10,7 +10,7 @@ require (
 	github.com/gigawattio/window v0.0.0-20180317192513-0f5467e35573 // indirect
 	github.com/go-sql-driver/mysql v1.4.1 // indirect
 	github.com/gorilla/websocket v1.4.0 // indirect
-	github.com/ikawaha/kagome v1.10.0
+	github.com/ikawaha/kagome v1.11.0
 	github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43 // indirect
 	github.com/jdkato/prose v0.0.0-20181022194337-a179b97cfa6f
 	github.com/jmoiron/sqlx v1.2.0

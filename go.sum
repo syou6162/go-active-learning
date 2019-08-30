@@ -22,6 +22,8 @@ github.com/gorilla/websocket v1.4.0 h1:WDFjx/TMzVgy9VdMMQi2K2Emtwi2QcUQsztZ/zLaH
 github.com/gorilla/websocket v1.4.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/ikawaha/kagome v1.10.0 h1:1cy/LhnxURvq6vIo558QagpaAGEPo3aFpSywR+eVf04=
 github.com/ikawaha/kagome v1.10.0/go.mod h1:eEV1yEy8Hm2eJRMz6nU1OlbrafRqXTECbsmm9aUMX2s=
+github.com/ikawaha/kagome v1.11.0 h1:mJ3W/SSDaDnmx1W2PaJsdTpab/mCeRgp586jXuYoh3Y=
+github.com/ikawaha/kagome v1.11.0/go.mod h1:eEV1yEy8Hm2eJRMz6nU1OlbrafRqXTECbsmm9aUMX2s=
 github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43 h1:jTkyeF7NZ5oIr0ESmcrpiDgAfoidCBF4F5kJhjtaRwE=
 github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43/go.mod h1:CVKlgaMiht+LXvHG173ujK6JUhZXKb2u/BQtjPDIvyk=
 github.com/jdkato/prose v0.0.0-20181022194337-a179b97cfa6f h1:AQ+AwWeEFf6NsjaMzhuVKLfxZH1+i7aoHuYXObQAzDo=
