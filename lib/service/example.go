@@ -148,7 +148,7 @@ func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]
 	return result
 }
 
-func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
+func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples model.Examples) error {
 	// make sure that example id must be filled
 	for _, e := range examples {
 		if e.Id == 0 {
@@ -171,10 +171,10 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 		}
 	}
 
-	return app.AttachLightMetadata(examples)
+	return app.AttachMetadata(examples)
 }
 
-func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {
+func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
 	if err != nil {
 		return err
@@ -288,7 +288,7 @@ func (app *goActiveLearningApp) Fetch(examples model.Examples) {
 				examplesWithMetaData = append(examplesWithMetaData, e)
 			}
 		}
-		app.AttachMetadata(examplesWithMetaData)
+		app.AttachMetadataIncludingFeatureVector(examplesWithMetaData)
 
 		wg := &sync.WaitGroup{}
 		cpus := runtime.NumCPU()

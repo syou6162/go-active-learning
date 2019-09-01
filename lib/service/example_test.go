@@ -45,7 +45,7 @@ func TestAttachMetaData(t *testing.T) {
 	if len(hatebu.Fv) != 0 {
 		t.Errorf("Feature vector must be empty for %s", hatebu.Url)
 	}
-	app.AttachMetadata(examples)
+	app.AttachMetadataIncludingFeatureVector(examples)
 
 	if hatebu.Title != "" {
 		t.Errorf("Title must be empty for %s", hatebu.Url)
@@ -88,7 +88,7 @@ func TestAttachMetaData(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = app.AttachMetadata(examples)
+	err = app.AttachMetadataIncludingFeatureVector(examples)
 	if err != nil {
 		t.Error(err)
 	}
