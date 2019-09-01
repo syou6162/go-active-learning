@@ -88,7 +88,7 @@ func TestAttachMetaData(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = app.AttachMetadata(examples)
+	err = app.AttachMetadataIncludingFeatureVector(examples)
 	if err != nil {
 		t.Error(err)
 	}
