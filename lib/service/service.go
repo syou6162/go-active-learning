@@ -47,7 +47,7 @@ type GoActiveLearningApp interface {
 	SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error)
 	Fetch(examples model.Examples)
 
-	AttachMetadata(examples model.Examples) error
+	AttachMetadataIncludingFeatureVector(examples model.Examples) error
 	AttachLightMetadata(examples model.Examples) error
 
 	UpdateRecommendation(listName string, examples model.Examples) error
