@@ -35,7 +35,7 @@ func doAdd(c *cli.Context) error {
 		return err
 	}
 
-	if err := app.AttachLightMetadata(examples); err != nil {
+	if err := app.AttachMetadata(examples); err != nil {
 		return err
 	}
 

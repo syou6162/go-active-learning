@@ -171,10 +171,10 @@ func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples mo
 		}
 	}
 
-	return app.AttachLightMetadata(examples)
+	return app.AttachMetadata(examples)
 }
 
-func (app *goActiveLearningApp) AttachLightMetadata(examples model.Examples) error {
+func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
 	if err != nil {
 		return err

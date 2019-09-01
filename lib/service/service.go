@@ -48,7 +48,7 @@ type GoActiveLearningApp interface {
 	Fetch(examples model.Examples)
 
 	AttachMetadataIncludingFeatureVector(examples model.Examples) error
-	AttachLightMetadata(examples model.Examples) error
+	AttachMetadata(examples model.Examples) error
 
 	UpdateRecommendation(listName string, examples model.Examples) error
 	GetRecommendation(listName string) (model.Examples, error)
