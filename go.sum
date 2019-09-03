@@ -43,6 +43,8 @@ github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 h1:MNApn+Z+fIT4NP
 github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018/go.mod h1:sFlOUpQL1YcjhFVXhg1CG8ZASEs/Mf1oVb6H75JL/zg=
 github.com/mackerelio/mackerel-client-go v0.6.0 h1:Zzer4jmHdDucOpO5Qco7r0MdIg0TExbQem1nLX8dtYE=
 github.com/mackerelio/mackerel-client-go v0.6.0/go.mod h1:/FVnUK7nsg/MEBpIVOCZLYzdIwY5mg/SyAlXDnxVcAI=
+github.com/mackerelio/mackerel-client-go v0.7.0 h1:iccCwvdDArIoXj6sdpdGMw5qhidFhT9au2hXbxf+Avs=
+github.com/mackerelio/mackerel-client-go v0.7.0/go.mod h1:/FVnUK7nsg/MEBpIVOCZLYzdIwY5mg/SyAlXDnxVcAI=
 github.com/mattn/go-isatty v0.0.8 h1:HLtExJ+uU2HOZ+wI0Tt5DtUDrx8yhUqDcp7fYERX4CE=
 github.com/mattn/go-isatty v0.0.8/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
 github.com/mattn/go-runewidth v0.0.4 h1:2BvfKmzob6Bmd4YsL0zygOqfdFnK7GR4QL06Do4/p7Y=
