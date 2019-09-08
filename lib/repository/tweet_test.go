@@ -94,9 +94,6 @@ func TestUpdateReferringTweets(t *testing.T) {
 		if result.Count == 0 {
 			t.Error("result must not be empty")
 		}
-		if result.Tweets[0].Name != "syou6162" {
-			t.Error("Name must be syou6162")
-		}
 	}
 
 	{
