@@ -107,8 +107,8 @@ func TestUpdateReferringTweets(t *testing.T) {
 		if len(result.Tweets) != 0 {
 			t.Error("result must be empty")
 		}
-		if result.Count != 0 {
-			t.Error("result must be zero")
+		if result.Count != 1 {
+			t.Error("result must be 1")
 		}
 	}
 }
