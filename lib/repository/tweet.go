@@ -6,7 +6,7 @@ import (
 )
 
 func (r *repository) UpdateOrCreateReferringTweets(e *model.Example) error {
-	if e.ReferringTweets == nil || len(*e.ReferringTweets) == 0 {
+	if e.ReferringTweets == nil || len((*e).ReferringTweets.Tweets) == 0 || (*e).ReferringTweets.Count == 0 {
 		return nil
 	}
 
@@ -16,7 +16,7 @@ func (r *repository) UpdateOrCreateReferringTweets(e *model.Example) error {
 	}
 	id := tmp.Id
 
-	for _, t := range *e.ReferringTweets {
+	for _, t := range (*e).ReferringTweets.Tweets {
 		t.ExampleId = id
 		if _, err = r.db.NamedExec(`
 INSERT INTO tweet
@@ -42,7 +42,12 @@ func (r *repository) UpdateTweetLabel(exampleId int, idStr string, label model.L
 	return nil
 }
 
-func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int]model.ReferringTweets, error) {
+type tweetsCountByExampleId struct {
+	ExampleId int `db:"example_id"`
+	Count     int `db:"count"`
+}
+
+func (r *repository) SearchReferringTweetsList(examples model.Examples, limitForEachExample int) (map[int]model.ReferringTweets, error) {
 	referringTweetsByExampleId := make(map[int]model.ReferringTweets)
 
 	referringTweets := model.ReferringTweets{}
@@ -51,14 +56,26 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 		exampleIds = append(exampleIds, e.Id)
 	}
 
-	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND label != -1 AND score > -1.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC;`
-	err := r.db.Select(&referringTweets, query, pq.Array(exampleIds))
+	tweetsCountsByExampleId := make([]tweetsCountByExampleId, 0)
+	tweetsCountByExampleQuery := `SELECT example_id, COUNT(*) AS count FROM tweet WHERE example_id = ANY($1) GROUP BY example_id ORDER BY count DESC;`
+	err := r.db.Select(&tweetsCountsByExampleId, tweetsCountByExampleQuery, pq.Array(exampleIds))
 	if err != nil {
 		return referringTweetsByExampleId, err
 	}
 
-	for _, t := range referringTweets {
-		referringTweetsByExampleId[t.ExampleId] = append(referringTweetsByExampleId[t.ExampleId], t)
+	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND label != -1 AND score > -1.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC LIMIT $2;`
+	err = r.db.Select(&referringTweets.Tweets, query, pq.Array(exampleIds), limitForEachExample)
+	if err != nil {
+		return referringTweetsByExampleId, err
+	}
+
+	for _, t := range referringTweets.Tweets {
+		tmp := referringTweetsByExampleId[t.ExampleId]
+		tmp.Tweets = append(tmp.Tweets, t)
+	}
+	for _, cnt := range tweetsCountsByExampleId {
+		tmp := referringTweetsByExampleId[cnt.ExampleId]
+		tmp.Count = cnt.Count
 	}
 	return referringTweetsByExampleId, nil
 }
@@ -66,10 +83,11 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples) (map[int
 func (r *repository) SearchReferringTweets(limit int) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 	query := `SELECT * FROM tweet WHERE lang = 'en' OR lang = 'ja' ORDER BY created_at DESC LIMIT $1;`
-	err := r.db.Select(&referringTweets, query, limit)
+	err := r.db.Select(&referringTweets.Tweets, query, limit)
 	if err != nil {
 		return referringTweets, err
 	}
+	referringTweets.Count = len(referringTweets.Tweets)
 	return referringTweets, nil
 }
 
@@ -85,10 +103,11 @@ SELECT * FROM tweet WHERE id IN
   ) AS t WHERE rank < 4)
 ORDER BY created_at DESC LIMIT $2
 ;`
-	err := r.db.Select(&referringTweets, query, label, limit)
+	err := r.db.Select(&referringTweets.Tweets, query, label, limit)
 	if err != nil {
 		return referringTweets, err
 	}
+	referringTweets.Count = len(referringTweets.Tweets)
 	return referringTweets, nil
 }
 
@@ -104,11 +123,19 @@ func (r *repository) SearchUnlabeledReferringTweets(limit int) (model.ReferringT
 	return r.searchReferringTweetsByLabel(model.UNLABELED, limit)
 }
 
-func (r *repository) FindReferringTweets(e *model.Example) (model.ReferringTweets, error) {
+func (r *repository) FindReferringTweets(e *model.Example, limit int) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{}
 
-	query := `SELECT * FROM tweet WHERE example_id = $1 AND label != -1 AND score > 0.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC;`
-	err := r.db.Select(&referringTweets, query, e.Id)
+	countQuery := `SELECT COUNT(*) FROM tweet WHERE example_id = $1;`
+	cnt := 0
+	err := r.db.Select(&cnt, countQuery, e.Id)
+	if err != nil {
+		return referringTweets, err
+	}
+	referringTweets.Count = cnt
+
+	query := `SELECT * FROM tweet WHERE example_id = $1 AND label != -1 AND score > 0.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC LIMIT $2;`
+	err = r.db.Select(&referringTweets.Tweets, query, e.Id, limit)
 	if err != nil {
 		return referringTweets, err
 	}
