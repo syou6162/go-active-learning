@@ -40,38 +40,59 @@ func TestUpdateReferringTweets(t *testing.T) {
 		Score:           1.0,
 	}
 
-	tweets := model.ReferringTweets{&t1}
+	tweets := model.ReferringTweets{}
+	tweets.Tweets = append(tweets.Tweets, &t1)
+	tweets.Count = len(tweets.Tweets)
 	e.ReferringTweets = &tweets
 	if err = repo.UpdateOrCreateReferringTweets(e); err != nil {
 		t.Error(err)
 	}
 
 	{
-		result, err := repo.SearchReferringTweetsList(model.Examples{e})
+		result, err := repo.SearchReferringTweetsList(model.Examples{e}, 10)
 		if err != nil {
 			t.Error(err)
 		}
 		if len(result) == 0 {
 			t.Error("result must not be empty")
 		}
-		if len(result[e.Id]) == 0 {
+		if len(result[e.Id].Tweets) == 0 {
 			t.Error("result must not be empty")
 		}
-		if result[e.Id][0].Name != "syou6162" {
+		if result[e.Id].Count == 0 {
+			t.Error("result must not be zero")
+		}
+		if result[e.Id].Tweets[0].Name != "syou6162" {
 			t.Error("Name must be syou6162")
 		}
 	}
 
 	{
-		result, err := repo.FindReferringTweets(e)
+		result, err := repo.FindReferringTweets(e, 10)
 		if err != nil {
 			t.Error(err)
 		}
-		if len(result) == 0 {
+		if len(result.Tweets) == 0 {
 			t.Error("result must not be empty")
 		}
-		if result[0].Name != "syou6162" {
+		if result.Count == 0 {
+			t.Error("result must not be empty")
+		}
+		if result.Tweets[0].Name != "syou6162" {
 			t.Error("Name must be syou6162")
+		}
+	}
+
+	{
+		result, err := repo.FindReferringTweets(e, 0)
+		if err != nil {
+			t.Error(err)
+		}
+		if len(result.Tweets) != 0 {
+			t.Error("result must be empty")
+		}
+		if result.Count == 0 {
+			t.Error("result must not be empty")
 		}
 	}
 
@@ -79,12 +100,15 @@ func TestUpdateReferringTweets(t *testing.T) {
 		if err := repo.UpdateTweetLabel(e.Id, idStr, model.NEGATIVE); err != nil {
 			t.Error(err)
 		}
-		result, err := repo.FindReferringTweets(e)
+		result, err := repo.FindReferringTweets(e, 10)
 		if err != nil {
 			t.Error(err)
 		}
-		if len(result) != 0 {
+		if len(result.Tweets) != 0 {
 			t.Error("result must be empty")
+		}
+		if result.Count != 1 {
+			t.Error("result must be 1")
 		}
 	}
 }
@@ -120,7 +144,9 @@ func TestSearchReferringTweetsByLabel(t *testing.T) {
 		Label:           model.POSITIVE,
 	}
 
-	tweets := model.ReferringTweets{&t1}
+	tweets := model.ReferringTweets{}
+	tweets.Tweets = append(tweets.Tweets, &t1)
+	tweets.Count = len(tweets.Tweets)
 	e.ReferringTweets = &tweets
 	if err = repo.UpdateOrCreateReferringTweets(e); err != nil {
 		t.Error(err)
@@ -132,8 +158,11 @@ func TestSearchReferringTweetsByLabel(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if len(result) != 1 {
+		if len(result.Tweets) != 1 {
 			t.Error("len(result) must be 1")
+		}
+		if result.Count != 1 {
+			t.Error("Count must be 1")
 		}
 	}
 	{
@@ -141,8 +170,11 @@ func TestSearchReferringTweetsByLabel(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if len(result) != 0 {
+		if len(result.Tweets) != 0 {
 			t.Error("len(result) must be empty")
+		}
+		if result.Count != 0 {
+			t.Error("Count must be zero")
 		}
 	}
 }

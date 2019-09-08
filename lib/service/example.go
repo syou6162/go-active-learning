@@ -148,7 +148,7 @@ func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]
 	return result
 }
 
-func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples model.Examples) error {
+func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples model.Examples, tweetLimit int) error {
 	// make sure that example id must be filled
 	for _, e := range examples {
 		if e.Id == 0 {
@@ -171,10 +171,10 @@ func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples mo
 		}
 	}
 
-	return app.AttachMetadata(examples)
+	return app.AttachMetadata(examples, tweetLimit)
 }
 
-func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
+func (app *goActiveLearningApp) AttachMetadata(examples model.Examples, tweetLimit int) error {
 	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
 	if err != nil {
 		return err
@@ -188,7 +188,7 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples) error {
 		}
 	}
 
-	referringTweetsById, err := app.repo.SearchReferringTweetsList(examples)
+	referringTweetsById, err := app.repo.SearchReferringTweetsList(examples, tweetLimit)
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,8 @@ func (app *goActiveLearningApp) Fetch(examples model.Examples) {
 				examplesWithMetaData = append(examplesWithMetaData, e)
 			}
 		}
-		app.AttachMetadataIncludingFeatureVector(examplesWithMetaData)
+		// ToDo: 本当に必要か考える
+		app.AttachMetadataIncludingFeatureVector(examplesWithMetaData, 0)
 
 		wg := &sync.WaitGroup{}
 		cpus := runtime.NumCPU()

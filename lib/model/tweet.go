@@ -22,4 +22,8 @@ type Tweet struct {
 	Score           float64   `json:"Score" db:"score"`
 }
 
-type ReferringTweets []*Tweet
+// type ReferringTweets []*Tweet
+type ReferringTweets struct {
+	Count  int      `json:"Count"`
+	Tweets []*Tweet `json:"Tweets"`
+}
