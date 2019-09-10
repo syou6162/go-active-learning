@@ -190,8 +190,24 @@ func (r *repository) FindExampleByUlr(url string) (*model.Example, error) {
 	return r.findExample(query, url)
 }
 
+// bodyなどは極めて長くなりえるので、DB側で絞って返すことができるようにする
+func buildSelectQuery(useTruncatedField bool) string {
+	title := "title"
+	description := "description"
+	ogDescription := "og_description"
+	body := "body"
+
+	if useTruncatedField {
+		title = "LEFT(title, 200) AS title"
+		description = "LEFT(description, 1000) AS description"
+		ogDescription = "LEFT(og_description, 1000) AS og_description"
+		body = "LEFT(body, 1000) AS body"
+	}
+	return fmt.Sprintf("SELECT id, label, url, final_url, %s, %s, %s, og_type, og_image, %s, score, is_new, status_code, favicon, error_count, created_at, updated_at", title, description, ogDescription, body)
+}
+
 func (r *repository) FindExampleById(id int) (*model.Example, error) {
-	query := `SELECT * FROM example WHERE id = $1;`
+	query := fmt.Sprintf(`%s FROM example WHERE id = $1;`, buildSelectQuery(true))
 	return r.findExample(query, id)
 }
 
@@ -202,7 +218,7 @@ func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error)
 }
 
 func (r *repository) SearchExamplesByIds(ids []int) (model.Examples, error) {
-	query := `SELECT * FROM example WHERE id = ANY($1);`
+	query := fmt.Sprintf(`%s FROM example WHERE id = ANY($1);`, buildSelectQuery(true))
 	return r.searchExamples(query, pq.Array(ids))
 }
 
@@ -214,7 +230,7 @@ func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator stri
 	for _, w := range keywords {
 		regexList = append(regexList, fmt.Sprintf(`.*%s.*`, w))
 	}
-	query := fmt.Sprintf(`SELECT * FROM example WHERE title ~* %s($1) AND label != -1 ORDER BY (label, score) DESC LIMIT $2;`, aggregator)
+	query := fmt.Sprintf(`%s FROM example WHERE title ~* %s($1) AND label != -1 ORDER BY (label, score) DESC LIMIT $2;`, buildSelectQuery(true), aggregator)
 	return r.searchExamples(query, pq.Array(regexList), limit)
 }
 
