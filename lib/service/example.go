@@ -148,7 +148,7 @@ func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]
 	return result
 }
 
-func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples model.Examples, tweetLimit int) error {
+func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples model.Examples, bookmarkLimit int, tweetLimit int) error {
 	// make sure that example id must be filled
 	for _, e := range examples {
 		if e.Id == 0 {
@@ -171,11 +171,11 @@ func (app *goActiveLearningApp) AttachMetadataIncludingFeatureVector(examples mo
 		}
 	}
 
-	return app.AttachMetadata(examples, tweetLimit)
+	return app.AttachMetadata(examples, bookmarkLimit, tweetLimit)
 }
 
-func (app *goActiveLearningApp) AttachMetadata(examples model.Examples, tweetLimit int) error {
-	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples)
+func (app *goActiveLearningApp) AttachMetadata(examples model.Examples, bookmarkLimit int, tweetLimit int) error {
+	hatenaBookmarks, err := app.repo.SearchHatenaBookmarks(examples, bookmarkLimit)
 	if err != nil {
 		return err
 	}
@@ -289,7 +289,7 @@ func (app *goActiveLearningApp) Fetch(examples model.Examples) {
 			}
 		}
 		// ToDo: 本当に必要か考える
-		app.AttachMetadataIncludingFeatureVector(examplesWithMetaData, 0)
+		app.AttachMetadataIncludingFeatureVector(examplesWithMetaData, 0, 0)
 
 		wg := &sync.WaitGroup{}
 		cpus := runtime.NumCPU()

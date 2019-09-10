@@ -44,7 +44,7 @@ func TestUpdateHatenaBookmark(t *testing.T) {
 	}
 
 	{
-		result, err := repo.SearchHatenaBookmarks(model.Examples{e})
+		result, err := repo.SearchHatenaBookmarks(model.Examples{e}, 10)
 		if err != nil {
 			t.Error(err)
 		}
@@ -65,7 +65,7 @@ func TestUpdateHatenaBookmark(t *testing.T) {
 	}
 
 	{
-		result, err := repo.FindHatenaBookmark(e)
+		result, err := repo.FindHatenaBookmark(e, 10)
 		if err != nil {
 			t.Error(err)
 		}
