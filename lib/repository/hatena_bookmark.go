@@ -51,7 +51,7 @@ ON CONFLICT (hatena_bookmark_id, "user") DO NOTHING
 	return nil
 }
 
-func (r *repository) SearchHatenaBookmarks(examples model.Examples) ([]*model.HatenaBookmark, error) {
+func (r *repository) SearchHatenaBookmarks(examples model.Examples, limitForEachExample int) ([]*model.HatenaBookmark, error) {
 	hatenaBookmarks := make([]*model.HatenaBookmark, 0)
 	exampleIds := make([]int, 0)
 	for _, e := range examples {
@@ -74,8 +74,8 @@ func (r *repository) SearchHatenaBookmarks(examples model.Examples) ([]*model.Ha
 	}
 
 	bookmarks := make([]*model.Bookmark, 0)
-	query = `SELECT * FROM bookmark WHERE hatena_bookmark_id = ANY($1);`
-	err = r.db.Select(&bookmarks, query, pq.Array(hatenaBookmarkIds))
+	query = `SELECT * FROM bookmark WHERE hatena_bookmark_id = ANY($1) ORDER BY timestamp LIMIT $2;`
+	err = r.db.Select(&bookmarks, query, pq.Array(hatenaBookmarkIds), limitForEachExample)
 	if err != nil {
 		return hatenaBookmarks, err
 	}
@@ -94,7 +94,7 @@ func (r *repository) SearchHatenaBookmarks(examples model.Examples) ([]*model.Ha
 	return result, nil
 }
 
-func (r *repository) FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark, error) {
+func (r *repository) FindHatenaBookmark(e *model.Example, limit int) (*model.HatenaBookmark, error) {
 	hatenaBookmark := &model.HatenaBookmark{}
 
 	query := `SELECT * FROM hatena_bookmark WHERE example_id = $1;`
@@ -103,10 +103,15 @@ func (r *repository) FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark
 		return hatenaBookmark, err
 	}
 
-	hatenaBookmarkId := hatenaBookmark.Id
 	bookmarks := make([]*model.Bookmark, 0)
-	query = `SELECT * FROM bookmark WHERE hatena_bookmark_id = $1;`
-	err = r.db.Select(&bookmarks, query, hatenaBookmarkId)
+	if limit == 0 {
+		hatenaBookmark.Bookmarks = bookmarks
+		return hatenaBookmark, nil
+	}
+
+	hatenaBookmarkId := hatenaBookmark.Id
+	query = `SELECT * FROM bookmark WHERE hatena_bookmark_id = $1 ORDER BY timestamp LIMIT $2;`
+	err = r.db.Select(&bookmarks, query, hatenaBookmarkId, limit)
 	if err != nil {
 		return hatenaBookmark, err
 	}
