@@ -66,6 +66,17 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples, limitFor
 		tweetsCountByExampleId[e.ExampleId] = e.TweetsCount
 	}
 
+	if limitForEachExample == 0 {
+		for _, exampleId := range exampleIds {
+			referringTweets := model.ReferringTweets{}
+			if cnt, ok := tweetsCountByExampleId[exampleId]; ok {
+				referringTweets.Count = cnt
+			}
+			referringTweetsByExampleId[exampleId] = referringTweets
+		}
+		return referringTweetsByExampleId, nil
+	}
+
 	tweets := make([]*model.Tweet, 0)
 	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND label != -1 AND score > -1.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC LIMIT $2;`
 	err = r.db.Select(&tweets, query, pq.Array(exampleIds), limitForEachExample)
@@ -147,6 +158,9 @@ func (r *repository) FindReferringTweets(e *model.Example, limit int) (model.Ref
 		return referringTweets, err
 	}
 	referringTweets.Count = cnt.Count
+	if limit == 0 {
+		return referringTweets, err
+	}
 
 	query := `SELECT * FROM tweet WHERE example_id = $1 AND label != -1 AND score > 0.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC LIMIT $2;`
 	err = r.db.Select(&referringTweets.Tweets, query, e.Id, limit)
