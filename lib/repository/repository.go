@@ -49,8 +49,8 @@ type Repository interface {
 	SearchFeatureVector(examples model.Examples) (map[int]feature.FeatureVector, error)
 
 	UpdateHatenaBookmark(e *model.Example) error
-	SearchHatenaBookmarks(examples model.Examples) ([]*model.HatenaBookmark, error)
-	FindHatenaBookmark(e *model.Example) (*model.HatenaBookmark, error)
+	SearchHatenaBookmarks(examples model.Examples, limitForEachExample int) ([]*model.HatenaBookmark, error)
+	FindHatenaBookmark(e *model.Example, limit int) (*model.HatenaBookmark, error)
 
 	UpdateOrCreateReferringTweets(e *model.Example) error
 	UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error
