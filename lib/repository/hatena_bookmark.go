@@ -67,7 +67,12 @@ func (r *repository) SearchHatenaBookmarks(examples model.Examples) ([]*model.Ha
 	hatenaBookmarkIds := make([]int, 0)
 	for _, hb := range hatenaBookmarks {
 		hatenaBookmarkIds = append(hatenaBookmarkIds, hb.Id)
+		hb.Bookmarks = make([]*model.Bookmark, 0)
 	}
+	if limitForEachExample == 0 {
+		return hatenaBookmarks, nil
+	}
+
 	bookmarks := make([]*model.Bookmark, 0)
 	query = `SELECT * FROM bookmark WHERE hatena_bookmark_id = ANY($1);`
 	err = r.db.Select(&bookmarks, query, pq.Array(hatenaBookmarkIds))
