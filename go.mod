@@ -33,7 +33,7 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/syou6162/GoOse v0.0.0-20190108170554-09969ebeb09f
-	github.com/urfave/cli v1.21.0
+	github.com/urfave/cli v1.22.1
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
 	google.golang.org/appengine v1.6.1 // indirect
