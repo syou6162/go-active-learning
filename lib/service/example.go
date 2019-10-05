@@ -140,6 +140,10 @@ func (app *goActiveLearningApp) SearchUnlabeledReferringTweets(limit int) (model
 	return app.repo.SearchUnlabeledReferringTweets(limit)
 }
 
+func (app *goActiveLearningApp) SearchRecentReferringTweetsWithHighScore(from time.Time, scoreThreshold float64, limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchRecentReferringTweetsWithHighScore(from, scoreThreshold, limit)
+}
+
 func hatenaBookmarkByExampleId(hatenaBookmarks []*model.HatenaBookmark) map[int]*model.HatenaBookmark {
 	result := make(map[int]*model.HatenaBookmark)
 	for _, hb := range hatenaBookmarks {

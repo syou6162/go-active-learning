@@ -60,6 +60,7 @@ type Repository interface {
 	SearchNegativeReferringTweets(limit int) (model.ReferringTweets, error)
 	SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error)
 	FindReferringTweets(e *model.Example, limit int) (model.ReferringTweets, error)
+	SearchRecentReferringTweetsWithHighScore(from time.Time, scoreThreshold float64, limit int) (model.ReferringTweets, error)
 
 	InsertMIRAModel(m classifier.MIRAClassifier) error
 	FindLatestMIRAModel(modelType classifier.ModelType) (*classifier.MIRAClassifier, error)
