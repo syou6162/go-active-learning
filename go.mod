@@ -5,7 +5,6 @@ go 1.12
 require (
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/set v0.2.1 // indirect
 	github.com/gigawattio/window v0.0.0-20180317192513-0f5467e35573 // indirect
 	github.com/go-sql-driver/mysql v1.4.1 // indirect

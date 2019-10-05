@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/model"
 )
@@ -105,6 +107,48 @@ func (r *repository) SearchReferringTweets(limit int) (model.ReferringTweets, er
 	referringTweets := model.ReferringTweets{Count: 0, Tweets: make([]*model.Tweet, 0)}
 	query := `SELECT * FROM tweet WHERE lang = 'en' OR lang = 'ja' ORDER BY created_at DESC LIMIT $1;`
 	err := r.db.Select(&referringTweets.Tweets, query, limit)
+	if err != nil {
+		return referringTweets, err
+	}
+	referringTweets.Count = len(referringTweets.Tweets)
+	return referringTweets, nil
+}
+
+func (r *repository) SearchRecentReferringTweetsWithHighScore(from time.Time, scoreThreshold float64, limit int) (model.ReferringTweets, error) {
+	referringTweets := model.ReferringTweets{Count: 0, Tweets: make([]*model.Tweet, 0)}
+	query := `
+SELECT 
+	tweet.id,
+	tweet.example_id,
+
+	tweet.created_at,
+	tweet.id_str,
+	tweet.full_text,
+	tweet.favorite_count,
+	tweet.retweet_count,
+	tweet.lang,
+
+	tweet.screen_name,
+	tweet.name,
+	tweet.profile_image_url,
+	tweet.label,
+	tweet.score
+FROM 
+	tweet 
+INNER JOIN 
+	example ON example.id = example_id 
+WHERE
+	tweet.created_at > $1 AND 
+	tweet.label != -1 AND 
+	example.label != -1 AND 
+	tweet.score > $2 AND 
+	(favorite_count > 0 OR retweet_count > 0) AND
+	(lang = 'en' OR lang = 'ja')
+ORDER BY tweet.score DESC
+LIMIT $3
+;
+`
+	err := r.db.Select(&referringTweets.Tweets, query, from, scoreThreshold, limit)
 	if err != nil {
 		return referringTweets, err
 	}
