@@ -118,7 +118,21 @@ func (r *repository) SearchRecentReferringTweetsWithHighScore(from time.Time, sc
 	referringTweets := model.ReferringTweets{Count: 0, Tweets: make([]*model.Tweet, 0)}
 	query := `
 SELECT 
-	*
+	tweet.id,
+	tweet.example_id,
+
+	tweet.created_at,
+	tweet.id_str,
+	tweet.full_text,
+	tweet.favorite_count,
+	tweet.retweet_count,
+	tweet.lang,
+
+	tweet.screen_name,
+	tweet.name,
+	tweet.profile_image_url,
+	tweet.label,
+	tweet.score
 FROM 
 	tweet 
 INNER JOIN 
