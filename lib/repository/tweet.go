@@ -130,7 +130,7 @@ WHERE
 	tweet.score > $2 AND 
 	(favorite_count > 0 OR retweet_count > 0) AND
 	(lang = 'en' OR lang = 'ja')
-ORDER BY score DESC
+ORDER BY tweet.score DESC
 LIMIT $3
 ;
 `
