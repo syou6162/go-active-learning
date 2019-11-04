@@ -230,18 +230,6 @@ func (app *goActiveLearningApp) GetRecommendation(listName string) (model.Exampl
 	return app.repo.SearchExamplesByIds(rec.ExampleIds)
 }
 
-func (app *goActiveLearningApp) ExistMetadata(e model.Example) bool {
-	tmp, err := app.FindExampleByUlr(e.Url)
-	if err != nil {
-		return false
-	}
-
-	if tmp.StatusCode == http.StatusOK {
-		return true
-	}
-	return false
-}
-
 func (app *goActiveLearningApp) splitExamplesByStatusOK(examples model.Examples) (model.Examples, model.Examples, error) {
 	urls := make([]string, 0)
 	exampleByurl := make(map[string]*model.Example)
