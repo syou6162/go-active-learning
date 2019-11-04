@@ -230,16 +230,33 @@ func (app *goActiveLearningApp) GetRecommendation(listName string) (model.Exampl
 	return app.repo.SearchExamplesByIds(rec.ExampleIds)
 }
 
-func (app *goActiveLearningApp) ExistMetadata(e model.Example) bool {
-	tmp, err := app.FindExampleByUlr(e.Url)
+func (app *goActiveLearningApp) splitExamplesByStatusOK(examples model.Examples) (model.Examples, model.Examples, error) {
+	urls := make([]string, 0)
+	exampleByurl := make(map[string]*model.Example)
+	for _, e := range examples {
+		exampleByurl[e.Url] = e
+		urls = append(urls, e.Url)
+	}
+	tmpExamples, err := app.SearchExamplesByUlrs(urls)
 	if err != nil {
-		return false
+		return nil, nil, err
 	}
 
-	if tmp.StatusCode == http.StatusOK {
-		return true
+	examplesWithMetaData := model.Examples{}
+	examplesWithEmptyMetaData := model.Examples{}
+	for _, e := range tmpExamples {
+		if e.StatusCode == http.StatusOK {
+			examplesWithMetaData = append(examplesWithMetaData, exampleByurl[e.Url])
+			delete(exampleByurl, e.Url)
+		} else {
+			examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, exampleByurl[e.Url])
+			delete(exampleByurl, e.Url)
+		}
 	}
-	return false
+	for _, e := range exampleByurl {
+		examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, e)
+	}
+	return examplesWithMetaData, examplesWithEmptyMetaData, nil
 }
 
 func fetchMetaData(e *model.Example) error {
@@ -283,14 +300,9 @@ func (app *goActiveLearningApp) Fetch(examples model.Examples) {
 		examplesList = append(examplesList, examples[i:max])
 	}
 	for _, l := range examplesList {
-		examplesWithMetaData := model.Examples{}
-		examplesWithEmptyMetaData := model.Examples{}
-		for _, e := range l {
-			if !app.ExistMetadata(*e) {
-				examplesWithEmptyMetaData = append(examplesWithEmptyMetaData, e)
-			} else {
-				examplesWithMetaData = append(examplesWithMetaData, e)
-			}
+		examplesWithMetaData, examplesWithEmptyMetaData, err := app.splitExamplesByStatusOK(l)
+		if err != nil {
+			log.Println(err.Error())
 		}
 		// ToDo: 本当に必要か考える
 		app.AttachMetadataIncludingFeatureVector(examplesWithMetaData, 0, 0)
