@@ -276,7 +276,8 @@ func fetchMetaData(e *model.Example) error {
 	e.Favicon = article.Favicon
 
 	now := time.Now()
-	if article.PublishDate != nil && now.After(*article.PublishDate) {
+	tooOldDate := time.Date(2000, time.January, 1, 1, 1, 0, 0, time.UTC)
+	if article.PublishDate != nil && (now.After(*article.PublishDate) || tooOldDate.Before(*article.PublishDate)) {
 		e.CreatedAt = *article.PublishDate
 		e.UpdatedAt = *article.PublishDate
 	}
