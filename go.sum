@@ -27,6 +27,8 @@ github.com/ikawaha/kagome v1.11.0 h1:mJ3W/SSDaDnmx1W2PaJsdTpab/mCeRgp586jXuYoh3Y
 github.com/ikawaha/kagome v1.11.0/go.mod h1:eEV1yEy8Hm2eJRMz6nU1OlbrafRqXTECbsmm9aUMX2s=
 github.com/ikawaha/kagome v1.11.1 h1:lCpczGLx/aWwXUQ0+aHd7Sq4fiHWW9hSAMtO2Rm3HBs=
 github.com/ikawaha/kagome v1.11.1/go.mod h1:lHwhkGuuWqKWTxeQMppD0EmQAfKbc39QKx9qoWqgo+A=
+github.com/ikawaha/kagome v1.11.2 h1:eCWpLqv5Euqa5JcwkaobUSy6uGM8rwwMw5Su3eRepBI=
+github.com/ikawaha/kagome v1.11.2/go.mod h1:lHwhkGuuWqKWTxeQMppD0EmQAfKbc39QKx9qoWqgo+A=
 github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43 h1:jTkyeF7NZ5oIr0ESmcrpiDgAfoidCBF4F5kJhjtaRwE=
 github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43/go.mod h1:CVKlgaMiht+LXvHG173ujK6JUhZXKb2u/BQtjPDIvyk=
 github.com/jdkato/prose v0.0.0-20181022194337-a179b97cfa6f h1:AQ+AwWeEFf6NsjaMzhuVKLfxZH1+i7aoHuYXObQAzDo=
