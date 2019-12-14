@@ -103,7 +103,7 @@ func postNumOfExamplesToMackerel(app service.GoActiveLearningApp) error {
 }
 
 func postNumOfExamplesByLabelToMackerel(label string, cnt int) error {
-	apiKey := os.Getenv("MACKEREL_API_KEY")
+	apiKey := os.Getenv("MACKEREL_APIKEY")
 	serviceName := os.Getenv("MACKEREL_SERVICE_NAME")
 	if apiKey == "" || serviceName == "" {
 		return nil
