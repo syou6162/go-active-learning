@@ -14,7 +14,7 @@ require (
 	github.com/jdkato/prose v0.0.0-20181022194337-a179b97cfa6f
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/lib/pq v1.2.0
+	github.com/lib/pq v1.3.0
 	github.com/lusis/go-slackbot v0.0.0-20180109053408-401027ccfef5 // indirect
 	github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 // indirect
 	github.com/mackerelio/mackerel-client-go v0.8.0
