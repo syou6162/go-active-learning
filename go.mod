@@ -17,7 +17,7 @@ require (
 	github.com/lib/pq v1.3.0
 	github.com/lusis/go-slackbot v0.0.0-20180109053408-401027ccfef5 // indirect
 	github.com/lusis/slack-test v0.0.0-20190426140909-c40012f20018 // indirect
-	github.com/mackerelio/mackerel-client-go v0.8.0
+	github.com/mackerelio/mackerel-client-go v0.9.1
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
