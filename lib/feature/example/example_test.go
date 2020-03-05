@@ -42,7 +42,7 @@ func TestEngNounFeatures(t *testing.T) {
 }
 
 func TestExtractPath(t *testing.T) {
-	url := "http://b.hatena.ne.jp/search/text?safe=on&q=nlp&users=50"
+	url := "https://b.hatena.ne.jp/search/text?safe=on&q=nlp&users=50"
 	path := "/search/text"
 	if ExtractPath(url) != path {
 		t.Error(fmt.Printf("path should be %s", path))
@@ -50,7 +50,7 @@ func TestExtractPath(t *testing.T) {
 }
 
 func TestExtractHostFeature(t *testing.T) {
-	url := "http://b.hatena.ne.jp/search/text?safe=on&q=nlp&users=50"
+	url := "https://b.hatena.ne.jp/search/text?safe=on&q=nlp&users=50"
 	hostFeature := "HOST:b.hatena.ne.jp"
 	if ExtractHostFeature(url) != hostFeature {
 		t.Error(fmt.Printf("Host feature should be %s", hostFeature))

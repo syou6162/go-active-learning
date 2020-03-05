@@ -8,7 +8,7 @@ import (
 )
 
 func TestFilterLabeledExamples(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e1 := example.NewExample("https://b.hatena.ne.jp", model.POSITIVE)
 	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("http://google.com", model.UNLABELED)
 
@@ -19,7 +19,7 @@ func TestFilterLabeledExamples(t *testing.T) {
 }
 
 func TestFilterUnlabeledExamples(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e1 := example.NewExample("https://b.hatena.ne.jp", model.POSITIVE)
 	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("http://google.com", model.UNLABELED)
 	e3.Title = "Google"
@@ -31,7 +31,7 @@ func TestFilterUnlabeledExamples(t *testing.T) {
 }
 
 func TestFilterStatusCodeOkExamples(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e1 := example.NewExample("https://b.hatena.ne.jp", model.POSITIVE)
 	e1.StatusCode = 200
 	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e2.StatusCode = 404
