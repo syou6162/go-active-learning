@@ -8,13 +8,13 @@ import (
 )
 
 func TestPredictScore(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e1 := example.NewExample("https://b.hatena.ne.jp", model.POSITIVE)
 	e1.Title = "bookmark"
 	e1.Fv = []string{"hoge", "fuga"}
 	e2 := example.NewExample("http://google.com", model.NEGATIVE)
 	e2.Title = "google"
 	e2.Fv = []string{"piyo", "aaa"}
-	e3 := example.NewExample("http://hatena.ne.jp", model.POSITIVE)
+	e3 := example.NewExample("https://www.hatena.ne.jp", model.POSITIVE)
 	e3.Title = "hatena"
 	e3.Fv = []string{"hoge", "fuga"}
 	e4 := example.NewExample("http://hogehoge.com", model.UNLABELED)
@@ -33,12 +33,12 @@ func TestSplitTrainAndDev(t *testing.T) {
 	e1 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
 	e2 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e3 := example.NewExample("http://google.com", model.UNLABELED)
-	e4 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
+	e4 := example.NewExample("https://a.hatena.ne.jp", model.POSITIVE)
 	e5 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
-	e6 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
+	e6 := example.NewExample("https://a.hatena.ne.jp", model.POSITIVE)
 	e7 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 	e8 := example.NewExample("http://google.com", model.UNLABELED)
-	e9 := example.NewExample("http://a.hatena.ne.jp", model.POSITIVE)
+	e9 := example.NewExample("https://a.hatena.ne.jp", model.POSITIVE)
 	e10 := example.NewExample("https://www.yasuhisay.info", model.NEGATIVE)
 
 	train, dev := splitTrainAndDev(LearningInstances{e1, e2, e3, e4, e5, e6, e7, e8, e9, e10})
@@ -51,13 +51,13 @@ func TestSplitTrainAndDev(t *testing.T) {
 }
 
 func TestGetWeight(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e1 := example.NewExample("https://b.hatena.ne.jp", model.POSITIVE)
 	e1.Title = "bookmark"
 	e1.Fv = []string{"hoge", "fuga"}
 	e2 := example.NewExample("http://google.com", model.NEGATIVE)
 	e2.Title = "google"
 	e2.Fv = []string{"piyo", "aaa"}
-	e3 := example.NewExample("http://hatena.ne.jp", model.POSITIVE)
+	e3 := example.NewExample("https://www.hatena.ne.jp", model.POSITIVE)
 	e3.Title = "hatena"
 	e3.Fv = []string{"hoge", "fuga"}
 	e4 := example.NewExample("http://hogehoge.com", model.UNLABELED)
@@ -73,13 +73,13 @@ func TestGetWeight(t *testing.T) {
 }
 
 func TestGetActiveFeatures(t *testing.T) {
-	e1 := example.NewExample("http://b.hatena.ne.jp", model.POSITIVE)
+	e1 := example.NewExample("https://b.hatena.ne.jp", model.POSITIVE)
 	e1.Title = "bookmark"
 	e1.Fv = []string{"hoge", "fuga"}
 	e2 := example.NewExample("http://google.com", model.NEGATIVE)
 	e2.Title = "google"
 	e2.Fv = []string{"piyo", "aaa"}
-	e3 := example.NewExample("http://hatena.ne.jp", model.POSITIVE)
+	e3 := example.NewExample("https://www.hatena.ne.jp", model.POSITIVE)
 	e3.Title = "hatena"
 	e3.Fv = []string{"hoge", "fuga"}
 	e4 := example.NewExample("http://hogehoge.com", model.UNLABELED)

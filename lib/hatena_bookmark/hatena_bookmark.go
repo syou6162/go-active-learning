@@ -11,7 +11,7 @@ import (
 
 func GetHatenaBookmark(url string) (*model.HatenaBookmark, error) {
 	// ref: http://developer.hatena.ne.jp/ja/documents/bookmark/apis/getinfo
-	res, err := http.Get(fmt.Sprintf("http://b.hatena.ne.jp/entry/jsonlite/?url=%s", url))
+	res, err := http.Get(fmt.Sprintf("https://b.hatena.ne.jp/entry/jsonlite/?url=%s", url))
 	if err != nil {
 		return nil, err
 	}
