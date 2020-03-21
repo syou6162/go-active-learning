@@ -210,7 +210,7 @@ func (app *goActiveLearningApp) UpdateRelatedExamples(related model.RelatedExamp
 	return app.repo.UpdateRelatedExamples(related)
 }
 
-func (app *goActiveLearningApp) FindRelatedExamples(e *model.Example) (model.Examples, error) {
+func (app *goActiveLearningApp) SearchRelatedExamples(e *model.Example) (model.Examples, error) {
 	related, err := app.repo.FindRelatedExamples(e)
 	if err != nil {
 		return nil, err

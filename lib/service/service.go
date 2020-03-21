@@ -55,7 +55,7 @@ type GoActiveLearningApp interface {
 	GetRecommendation(listName string) (model.Examples, error)
 
 	UpdateRelatedExamples(related model.RelatedExamples) error
-	FindRelatedExamples(e *model.Example) (model.Examples, error)
+	SearchRelatedExamples(e *model.Example) (model.Examples, error)
 
 	Ping() error
 	Close() error
