@@ -218,6 +218,18 @@ func (app *goActiveLearningApp) SearchRelatedExamples(e *model.Example) (model.E
 	return app.repo.SearchExamplesByIds(related.RelatedExampleIds)
 }
 
+func (app *goActiveLearningApp) UpdateTopAccessedExampleIds(exampleIds []int) error {
+	return app.repo.UpdateTopAccessedExampleIds(exampleIds)
+}
+
+func (app *goActiveLearningApp) SearchTopAccessedExamples() (model.Examples, error) {
+	exampleIds, err := app.repo.SearchTopAccessedExampleIds()
+	if err != nil {
+		return nil, err
+	}
+	return app.repo.SearchExamplesByIds(exampleIds)
+}
+
 func (app *goActiveLearningApp) UpdateRecommendation(listName string, examples model.Examples) error {
 	listType, err := model.GetRecommendationListType(listName)
 	if err != nil {

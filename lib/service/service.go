@@ -57,6 +57,9 @@ type GoActiveLearningApp interface {
 	UpdateRelatedExamples(related model.RelatedExamples) error
 	SearchRelatedExamples(e *model.Example) (model.Examples, error)
 
+	UpdateTopAccessedExampleIds(exampleIds []int) error
+	SearchTopAccessedExamples() (model.Examples, error)
+
 	Ping() error
 	Close() error
 }
