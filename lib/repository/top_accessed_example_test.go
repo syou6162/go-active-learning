@@ -8,7 +8,7 @@ import (
 	"github.com/syou6162/go-active-learning/lib/repository"
 )
 
-func TestUpdateTopAccessedExamples(t *testing.T) {
+func TestUpdateTopAccessedExampleIds(t *testing.T) {
 	repo, err := repository.New()
 	if err != nil {
 		t.Errorf(err.Error())
@@ -19,13 +19,18 @@ func TestUpdateTopAccessedExamples(t *testing.T) {
 	e2 := example.NewExample("http://hoge2.com", model.NEGATIVE)
 	e3 := example.NewExample("http://hoge3.com", model.UNLABELED)
 	examples := model.Examples{e1, e2, e3}
+
+	exampleIds := make([]int, 0)
+	for _, e := range examples {
+		exampleIds = append(exampleIds, e.Id)
+	}
 	for _, e := range examples {
 		err = repo.UpdateOrCreateExample(e)
 		if err != nil {
 			t.Error(err)
 		}
 	}
-	err = repo.UpdateTopAccessedExamples(examples)
+	err = repo.UpdateTopAccessedExampleIds(exampleIds)
 	if err != nil {
 		t.Error(err)
 	}

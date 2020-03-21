@@ -2,16 +2,11 @@ package repository
 
 import (
 	"github.com/lib/pq"
-	"github.com/syou6162/go-active-learning/lib/model"
 )
 
-func (r *repository) UpdateTopAccessedExamples(examples model.Examples) error {
+func (r *repository) UpdateTopAccessedExampleIds(exampleIds []int) error {
 	if _, err := r.db.Exec(`DELETE FROM top_accessed_example;`); err != nil {
 		return err
-	}
-	exampleIds := make([]int, 0)
-	for _, e := range examples {
-		exampleIds = append(exampleIds, e.Id)
 	}
 	if _, err := r.db.Exec(`INSERT INTO top_accessed_example (example_id) VALUES (unnest(cast($1 AS INT[])));`, pq.Array(exampleIds)); err != nil {
 		return err

@@ -71,7 +71,7 @@ type Repository interface {
 	UpdateRelatedExamples(related model.RelatedExamples) error
 	FindRelatedExamples(e *model.Example) (*model.RelatedExamples, error)
 
-	UpdateTopAccessedExamples(examples model.Examples) error
+	UpdateTopAccessedExampleIds([]int) error
 	SearchTopAccessedExampleIds() ([]int, error)
 
 	Ping() error
