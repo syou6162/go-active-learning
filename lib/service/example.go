@@ -206,6 +206,18 @@ func (app *goActiveLearningApp) AttachMetadata(examples model.Examples, bookmark
 	return nil
 }
 
+func (app *goActiveLearningApp) UpdateRelatedExamples(related model.RelatedExamples) error {
+	return app.repo.UpdateRelatedExamples(related)
+}
+
+func (app *goActiveLearningApp) SearchRelatedExamples(e *model.Example) (model.Examples, error) {
+	related, err := app.repo.FindRelatedExamples(e)
+	if err != nil {
+		return nil, err
+	}
+	return app.repo.SearchExamplesByIds(related.RelatedExampleIds)
+}
+
 func (app *goActiveLearningApp) UpdateRecommendation(listName string, examples model.Examples) error {
 	listType, err := model.GetRecommendationListType(listName)
 	if err != nil {

@@ -68,6 +68,9 @@ type Repository interface {
 	UpdateRecommendation(rec model.Recommendation) error
 	FindRecommendation(t model.RecommendationListType) (*model.Recommendation, error)
 
+	UpdateRelatedExamples(related model.RelatedExamples) error
+	FindRelatedExamples(e *model.Example) (*model.RelatedExamples, error)
+
 	Ping() error
 	Close() error
 }
