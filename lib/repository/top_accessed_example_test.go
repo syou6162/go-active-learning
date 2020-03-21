@@ -19,16 +19,15 @@ func TestUpdateTopAccessedExampleIds(t *testing.T) {
 	e2 := example.NewExample("http://hoge2.com", model.NEGATIVE)
 	e3 := example.NewExample("http://hoge3.com", model.UNLABELED)
 	examples := model.Examples{e1, e2, e3}
-
-	exampleIds := make([]int, 0)
-	for _, e := range examples {
-		exampleIds = append(exampleIds, e.Id)
-	}
 	for _, e := range examples {
 		err = repo.UpdateOrCreateExample(e)
 		if err != nil {
 			t.Error(err)
 		}
+	}
+	exampleIds := make([]int, 0)
+	for _, e := range examples {
+		exampleIds = append(exampleIds, e.Id)
 	}
 	err = repo.UpdateTopAccessedExampleIds(exampleIds)
 	if err != nil {
