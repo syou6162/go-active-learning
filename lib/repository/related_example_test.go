@@ -40,6 +40,15 @@ func TestUpdateRelatedExamples(t *testing.T) {
 			t.Error("len(related.RelatedExampleIds) must be 2")
 		}
 	}
+	{
+		related, err := repo.FindRelatedExamples(e2)
+		if err != nil {
+			t.Error(err)
+		}
+		if len(related.RelatedExampleIds) != 0 {
+			t.Error("len(related.RelatedExampleIds) must be 0")
+		}
+	}
 }
 
 func TestUpdateRelatedExamplesMyOwn(t *testing.T) {
