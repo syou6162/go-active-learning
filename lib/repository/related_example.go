@@ -18,7 +18,7 @@ func (r *repository) UpdateRelatedExamples(related model.RelatedExamples) error 
 func (r *repository) FindRelatedExamples(e *model.Example) (*model.RelatedExamples, error) {
 	related := &model.RelatedExamples{ExampleId: e.Id}
 	items := make([]int, 0)
-	query := `SELECT example_id FROM related_example WHERE example_id = $1;`
+	query := `SELECT related_example_id FROM related_example WHERE example_id = $1;`
 	err := r.db.Select(&items, query, e.Id)
 	if err != nil {
 		return nil, err
