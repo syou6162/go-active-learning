@@ -3,7 +3,6 @@ package repository
 import (
 	"time"
 
-	"github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/model"
 )
 
@@ -59,7 +58,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples, limitFor
 
 	exampleIdsWithTweetsCount := make([]exampleIdWithTweetsCount, 0)
 	tweetsCountByExampleQuery := `SELECT example_id, COUNT(*) AS tweets_count FROM tweet WHERE example_id = ANY($1) GROUP BY example_id ORDER BY tweets_count DESC;`
-	err := r.db.Select(&exampleIdsWithTweetsCount, tweetsCountByExampleQuery, pq.Array(exampleIds))
+	err := r.db.Select(&exampleIdsWithTweetsCount, tweetsCountByExampleQuery, exampleIds)
 	if err != nil {
 		return referringTweetsByExampleId, err
 	}
@@ -81,7 +80,7 @@ func (r *repository) SearchReferringTweetsList(examples model.Examples, limitFor
 
 	tweets := make([]*model.Tweet, 0)
 	query := `SELECT * FROM tweet WHERE example_id = ANY($1) AND label != -1 AND score > -1.0 AND (lang = 'en' OR lang = 'ja') ORDER BY favorite_count DESC LIMIT $2;`
-	err = r.db.Select(&tweets, query, pq.Array(exampleIds), limitForEachExample)
+	err = r.db.Select(&tweets, query, exampleIds, limitForEachExample)
 	if err != nil {
 		return referringTweetsByExampleId, err
 	}
