@@ -7,7 +7,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/feature"
 	"github.com/syou6162/go-active-learning/lib/model"
 	"github.com/syou6162/go-active-learning/lib/util/file"
@@ -89,7 +88,7 @@ func (r *repository) UpdateFeatureVector(e *model.Example) error {
 	if _, err = r.db.Exec(`DELETE FROM feature WHERE example_id = $1;`, id); err != nil {
 		return err
 	}
-	_, err = r.db.Exec(`INSERT INTO feature (example_id, feature) VALUES ($1, unnest(cast($2 AS TEXT[])));`, id, pq.Array(e.Fv))
+	_, err = r.db.Exec(`INSERT INTO feature (example_id, feature) VALUES ($1, unnest(cast($2 AS TEXT[])));`, id, e.Fv)
 	return err
 }
 
@@ -214,7 +213,7 @@ func (r *repository) FindExampleById(id int) (*model.Example, error) {
 func (r *repository) SearchExamplesByUlrs(urls []string) (model.Examples, error) {
 	// ref: https://godoc.org/github.com/lib/pq#Array
 	query := `SELECT * FROM example WHERE url = ANY($1);`
-	return r.searchExamples(query, pq.Array(urls))
+	return r.searchExamples(query, urls)
 }
 
 func (r *repository) SearchExamplesByIds(ids []int) (model.Examples, error) {
@@ -222,7 +221,7 @@ func (r *repository) SearchExamplesByIds(ids []int) (model.Examples, error) {
 		return model.Examples{}, nil
 	}
 	query := fmt.Sprintf(`%s FROM example WHERE id = ANY($1);`, buildSelectQuery(true))
-	return r.searchExamples(query, pq.Array(ids))
+	return r.searchExamples(query, ids)
 }
 
 func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator string, limit int) (model.Examples, error) {
@@ -234,7 +233,7 @@ func (r *repository) SearchExamplesByKeywords(keywords []string, aggregator stri
 		regexList = append(regexList, fmt.Sprintf(`.*%s.*`, w))
 	}
 	query := fmt.Sprintf(`%s FROM example WHERE title ~* %s($1) AND label != -1 ORDER BY (label, score) DESC LIMIT $2;`, buildSelectQuery(true), aggregator)
-	return r.searchExamples(query, pq.Array(regexList), limit)
+	return r.searchExamples(query, regexList, limit)
 }
 
 func (r *repository) countExamplesByLabel(label model.LabelType) (int, error) {
@@ -296,7 +295,7 @@ func (r *repository) SearchFeatureVector(examples model.Examples) (map[int]featu
 
 	query := `SELECT example_id, feature FROM feature WHERE example_id = ANY($1);`
 	pairs := make([]Pair, 0)
-	err = r.db.Select(&pairs, query, pq.Array(ids))
+	err = r.db.Select(&pairs, query, ids)
 	if err != nil {
 		return fvById, err
 	}

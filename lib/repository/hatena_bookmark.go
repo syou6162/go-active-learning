@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"github.com/lib/pq"
 	"github.com/syou6162/go-active-learning/lib/model"
 )
 
@@ -59,7 +58,7 @@ func (r *repository) SearchHatenaBookmarks(examples model.Examples, limitForEach
 	}
 
 	query := `SELECT * FROM hatena_bookmark WHERE example_id = ANY($1);`
-	err := r.db.Select(&hatenaBookmarks, query, pq.Array(exampleIds))
+	err := r.db.Select(&hatenaBookmarks, query, exampleIds)
 	if err != nil {
 		return hatenaBookmarks, err
 	}
@@ -75,7 +74,7 @@ func (r *repository) SearchHatenaBookmarks(examples model.Examples, limitForEach
 
 	bookmarks := make([]*model.Bookmark, 0)
 	query = `SELECT * FROM bookmark WHERE hatena_bookmark_id = ANY($1) ORDER BY timestamp LIMIT $2;`
-	err = r.db.Select(&bookmarks, query, pq.Array(hatenaBookmarkIds), limitForEachExample)
+	err = r.db.Select(&bookmarks, query, hatenaBookmarkIds, limitForEachExample)
 	if err != nil {
 		return hatenaBookmarks, err
 	}
