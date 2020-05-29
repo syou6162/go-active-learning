@@ -14,7 +14,7 @@ require (
 	github.com/jdkato/prose v0.0.0-20181022194337-a179b97cfa6f
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/lib/pq v1.3.0
+	github.com/lib/pq v1.6.0
 	github.com/mackerelio/mackerel-client-go v0.9.1
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
@@ -28,7 +28,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/shogo82148/go-shuffle v0.0.0-20180218125048-27e6095f230d // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/syou6162/GoOse v0.0.0-20190108170554-09969ebeb09f
 	github.com/urfave/cli v1.22.4
 	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
