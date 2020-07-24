@@ -172,7 +172,7 @@ WITH t AS (
 )
 
 SELECT
-  id
+  *
 FROM
   tweet
 WHERE
