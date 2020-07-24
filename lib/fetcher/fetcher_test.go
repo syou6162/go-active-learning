@@ -62,7 +62,7 @@ func TestFavicon(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
 	}
-	expectedFaviconPath := "https://abs.twimg.com/favicons/favicon.ico"
+	expectedFaviconPath := "https://abs.twimg.com/favicons/twitter.ico"
 	if expectedFaviconPath != a.Favicon {
 		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
 	}
@@ -72,7 +72,7 @@ func TestFavicon(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
 	}
-	expectedFaviconPath = "https://static.arxiv.org/static/browse/0.2.9/images/icons/favicon.ico"
+	expectedFaviconPath = "https://static.arxiv.org/static/browse/0.3.2/images/icons/favicon.ico"
 	if expectedFaviconPath != a.Favicon {
 		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
 	}
