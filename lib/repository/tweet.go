@@ -159,14 +159,27 @@ LIMIT $3
 func (r *repository) searchReferringTweetsByLabel(label model.LabelType, limit int) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{Count: 0, Tweets: make([]*model.Tweet, 0)}
 	query := `
-SELECT * FROM tweet WHERE id IN
-  (SELECT id FROM
-    (SELECT tweet.id, ROW_NUMBER() OVER(partition BY example_id ORDER BY favorite_count DESC) AS rank
-    FROM tweet
-    INNER JOIN example ON tweet.example_id = example.id
-    WHERE tweet.label = $1 AND (lang = 'en' OR lang = 'ja') AND (example.label = 1 OR example.label = 0)
-  ) AS t WHERE rank < 4)
-ORDER BY created_at DESC LIMIT $2
+WITH t AS (
+  SELECT
+    id,
+    example_id,
+    ROW_NUMBER() OVER(partition BY example_id ORDER BY favorite_count DESC) AS rank
+  FROM
+    tweet
+  WHERE
+    example_id IN (SELECT id FROM example WHERE label != -1 AND updated_at > NOW() - INTERVAL '30 DAYS')
+    AND label = $1 AND (lang = 'en' OR lang = 'ja')
+)
+
+SELECT
+  id
+FROM
+  tweet
+WHERE
+  id IN (SELECT id FROM t WHERE rank < 4)
+ORDER BY
+  created_at DESC
+LIMIT $2
 ;`
 	err := r.db.Select(&referringTweets.Tweets, query, label, limit)
 	if err != nil {
