@@ -66,6 +66,8 @@ func removeUtmParams(origUrl string) (string, error) {
 	q.Del("utm_term")
 	q.Del("utm_content")
 
+	q.Del("gi")
+
 	u.RawQuery = q.Encode()
 
 	return u.String(), nil
