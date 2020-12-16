@@ -57,22 +57,12 @@ func TestRemoveUtmParams(t *testing.T) {
 }
 
 func TestFavicon(t *testing.T) {
-	url := "https://twitter.com/facebookai/status/1057764513582215168"
+	url := "https://www.yasuhisay.info/entry/2020/11/22/190000"
 	a, err := GetArticle(url)
 	if err != nil {
 		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
 	}
-	expectedFaviconPath := "https://abs.twimg.com/favicons/twitter.ico"
-	if expectedFaviconPath != a.Favicon {
-		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
-	}
-
-	url = "https://arxiv.org/abs/1810.08403"
-	a, err = GetArticle(url)
-	if err != nil {
-		t.Error(fmt.Sprintf("Error must not occur for this url: %s", url))
-	}
-	expectedFaviconPath = "https://static.arxiv.org/static/browse/0.3.2/images/icons/favicon.ico"
+	expectedFaviconPath := "https://www.yasuhisay.info/icon/favicon"
 	if expectedFaviconPath != a.Favicon {
 		t.Errorf("Favicon: %s should be %s", a.Favicon, expectedFaviconPath)
 	}
