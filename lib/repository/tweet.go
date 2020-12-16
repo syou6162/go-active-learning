@@ -166,8 +166,8 @@ WITH t AS (
   FROM
     tweet
   WHERE
-    example_id IN (SELECT id FROM example WHERE label != -1 AND score > -1.0 AND updated_at > NOW() - INTERVAL '30 DAYS')
-    AND label = $1 AND (lang = 'en' OR lang = 'ja')
+    example_id IN (SELECT id FROM example WHERE label != -1 AND updated_at > NOW() - INTERVAL '30 DAYS')
+    AND label = $1 AND (lang = 'en' OR lang = 'ja') AND score > -1.0
 )
 
 SELECT
