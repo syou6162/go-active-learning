@@ -42,9 +42,9 @@ type GoActiveLearningApp interface {
 	UpdateOrCreateReferringTweets(e *model.Example) error
 	UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error
 	SearchReferringTweets(limit int) (model.ReferringTweets, error)
-	SearchPositiveReferringTweets(limit int) (model.ReferringTweets, error)
-	SearchNegativeReferringTweets(limit int) (model.ReferringTweets, error)
-	SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error)
+	SearchPositiveReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error)
+	SearchNegativeReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error)
+	SearchUnlabeledReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error)
 	SearchRecentReferringTweetsWithHighScore(from time.Time, scoreThreshold float64, limit int) (model.ReferringTweets, error)
 	Fetch(examples model.Examples)
 

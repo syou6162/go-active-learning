@@ -128,16 +128,16 @@ func (app *goActiveLearningApp) SearchReferringTweets(limit int) (model.Referrin
 	return app.repo.SearchReferringTweets(limit)
 }
 
-func (app *goActiveLearningApp) SearchPositiveReferringTweets(limit int) (model.ReferringTweets, error) {
-	return app.repo.SearchPositiveReferringTweets(limit)
+func (app *goActiveLearningApp) SearchPositiveReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchPositiveReferringTweets(scoreThreshold, tweetsLimitInSameExample, limit)
 }
 
-func (app *goActiveLearningApp) SearchNegativeReferringTweets(limit int) (model.ReferringTweets, error) {
-	return app.repo.SearchNegativeReferringTweets(limit)
+func (app *goActiveLearningApp) SearchNegativeReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchNegativeReferringTweets(scoreThreshold, tweetsLimitInSameExample, limit)
 }
 
-func (app *goActiveLearningApp) SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error) {
-	return app.repo.SearchUnlabeledReferringTweets(limit)
+func (app *goActiveLearningApp) SearchUnlabeledReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error) {
+	return app.repo.SearchUnlabeledReferringTweets(scoreThreshold, tweetsLimitInSameExample, limit)
 }
 
 func (app *goActiveLearningApp) SearchRecentReferringTweetsWithHighScore(from time.Time, scoreThreshold float64, limit int) (model.ReferringTweets, error) {
