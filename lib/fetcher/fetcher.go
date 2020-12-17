@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -34,6 +35,16 @@ var articleFetcher = http.Client{
 		MaxIdleConnsPerHost: 100,
 	},
 	Timeout: time.Duration(5 * time.Second),
+}
+
+func updateTitleIfArxiv(article *goose.Article, origUrl string, finalUrl string, html []byte) error {
+	arxivUrl := "https://arxiv.org/abs/"
+	if strings.Contains(origUrl, arxivUrl) || strings.Contains(finalUrl, arxivUrl) {
+		// arxivのhtml内にはtitleタグが複数存在するので、丁寧にタイトルを取得する...
+		re := regexp.MustCompile(`<title>(.*?)</title>`)
+		article.Title = string(re.FindSubmatch(html)[1])
+	}
+	return nil
 }
 
 func updateMetaDescriptionIfArxiv(article *goose.Article, origUrl string, finalUrl string, html []byte) error {
@@ -114,6 +125,7 @@ func GetArticle(origUrl string) (*Article, error) {
 		return nil, err
 	}
 
+	updateTitleIfArxiv(article, origUrl, finalUrl, html)
 	updateMetaDescriptionIfArxiv(article, origUrl, finalUrl, html)
 
 	favicon := ""
