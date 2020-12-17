@@ -162,7 +162,8 @@ func (r *repository) searchReferringTweetsByLabel(label model.LabelType, limit i
 WITH t AS (
   SELECT
     id,
-    ROW_NUMBER() OVER(partition BY example_id ORDER BY favorite_count DESC) AS rank
+    ROW_NUMBER() OVER(partition BY example_id ORDER BY favorite_count DESC) AS rank_example_id,
+    ROW_NUMBER() OVER(partition BY id_str ORDER BY favorite_count DESC) AS rank_id_str
   FROM
     tweet
   WHERE
@@ -175,7 +176,7 @@ SELECT
 FROM
   tweet
 WHERE
-  id IN (SELECT id FROM t WHERE rank < 4)
+  id IN (SELECT id FROM t WHERE rank_example_id < 4 AND rank_id_str = 1)
 ORDER BY
   created_at DESC
 LIMIT $2
