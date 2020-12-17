@@ -56,9 +56,9 @@ type Repository interface {
 	UpdateTweetLabel(exampleId int, idStr string, label model.LabelType) error
 	SearchReferringTweetsList(examples model.Examples, limit int) (map[int]model.ReferringTweets, error)
 	SearchReferringTweets(limit int) (model.ReferringTweets, error)
-	SearchPositiveReferringTweets(limit int) (model.ReferringTweets, error)
-	SearchNegativeReferringTweets(limit int) (model.ReferringTweets, error)
-	SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error)
+	SearchPositiveReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error)
+	SearchNegativeReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error)
+	SearchUnlabeledReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error)
 	FindReferringTweets(e *model.Example, limit int) (model.ReferringTweets, error)
 	SearchRecentReferringTweetsWithHighScore(from time.Time, scoreThreshold float64, limit int) (model.ReferringTweets, error)
 

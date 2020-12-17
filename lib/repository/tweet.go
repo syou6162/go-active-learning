@@ -156,18 +156,19 @@ LIMIT $3
 	return referringTweets, nil
 }
 
-func (r *repository) searchReferringTweetsByLabel(label model.LabelType, limit int) (model.ReferringTweets, error) {
+func (r *repository) searchReferringTweetsByLabel(label model.LabelType, scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error) {
 	referringTweets := model.ReferringTweets{Count: 0, Tweets: make([]*model.Tweet, 0)}
 	query := `
 WITH t AS (
   SELECT
     id,
-    ROW_NUMBER() OVER(partition BY example_id ORDER BY favorite_count DESC) AS rank
+    ROW_NUMBER() OVER(partition BY example_id ORDER BY favorite_count DESC) AS rank_example_id,
+    ROW_NUMBER() OVER(partition BY id_str ORDER BY favorite_count DESC) AS rank_id_str
   FROM
     tweet
   WHERE
     example_id IN (SELECT id FROM example WHERE label != -1 AND updated_at > NOW() - INTERVAL '30 DAYS')
-    AND label = $1 AND (lang = 'en' OR lang = 'ja') AND score > -1.0
+    AND label = $1 AND (lang = 'en' OR lang = 'ja') AND score > $2
 )
 
 SELECT
@@ -175,12 +176,12 @@ SELECT
 FROM
   tweet
 WHERE
-  id IN (SELECT id FROM t WHERE rank < 4)
+  id IN (SELECT id FROM t WHERE rank_example_id <= $3 AND rank_id_str = 1)
 ORDER BY
   created_at DESC
-LIMIT $2
+LIMIT $4
 ;`
-	err := r.db.Select(&referringTweets.Tweets, query, label, limit)
+	err := r.db.Select(&referringTweets.Tweets, query, label, scoreThreshold, tweetsLimitInSameExample, limit)
 	if err != nil {
 		return referringTweets, err
 	}
@@ -188,16 +189,16 @@ LIMIT $2
 	return referringTweets, nil
 }
 
-func (r *repository) SearchPositiveReferringTweets(limit int) (model.ReferringTweets, error) {
-	return r.searchReferringTweetsByLabel(model.POSITIVE, limit)
+func (r *repository) SearchPositiveReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error) {
+	return r.searchReferringTweetsByLabel(model.POSITIVE, scoreThreshold, tweetsLimitInSameExample, limit)
 }
 
-func (r *repository) SearchNegativeReferringTweets(limit int) (model.ReferringTweets, error) {
-	return r.searchReferringTweetsByLabel(model.NEGATIVE, limit)
+func (r *repository) SearchNegativeReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error) {
+	return r.searchReferringTweetsByLabel(model.NEGATIVE, scoreThreshold, tweetsLimitInSameExample, limit)
 }
 
-func (r *repository) SearchUnlabeledReferringTweets(limit int) (model.ReferringTweets, error) {
-	return r.searchReferringTweetsByLabel(model.UNLABELED, limit)
+func (r *repository) SearchUnlabeledReferringTweets(scoreThreshold float64, tweetsLimitInSameExample int, limit int) (model.ReferringTweets, error) {
+	return r.searchReferringTweetsByLabel(model.UNLABELED, scoreThreshold, tweetsLimitInSameExample, limit)
 }
 
 type tweetsCount struct {

@@ -154,7 +154,7 @@ func TestSearchReferringTweetsByLabel(t *testing.T) {
 
 	limit := 10
 	{
-		result, err := repo.SearchPositiveReferringTweets(limit)
+		result, err := repo.SearchPositiveReferringTweets(-1.0, 3, limit)
 		if err != nil {
 			t.Error(err)
 		}
@@ -166,7 +166,7 @@ func TestSearchReferringTweetsByLabel(t *testing.T) {
 		}
 	}
 	{
-		result, err := repo.SearchNegativeReferringTweets(limit)
+		result, err := repo.SearchNegativeReferringTweets(-1.0, 3, limit)
 		if err != nil {
 			t.Error(err)
 		}
