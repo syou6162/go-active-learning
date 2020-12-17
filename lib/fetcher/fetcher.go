@@ -42,7 +42,10 @@ func updateTitleIfArxiv(article *goose.Article, origUrl string, finalUrl string,
 	if strings.Contains(origUrl, arxivUrl) || strings.Contains(finalUrl, arxivUrl) {
 		// arxivのhtml内にはtitleタグが複数存在するので、丁寧にタイトルを取得する...
 		re := regexp.MustCompile(`<title>(.*?)</title>`)
-		article.Title = string(re.FindSubmatch(html)[1])
+		m := re.FindSubmatch(html)
+		if len(m) >= 2 {
+			article.Title = string(m[1])
+		}
 	}
 	return nil
 }
