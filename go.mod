@@ -14,7 +14,7 @@ require (
 	github.com/jdkato/prose v0.0.0-20181022194337-a179b97cfa6f
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.3.0
-	github.com/mackerelio/mackerel-client-go v0.12.0
+	github.com/mackerelio/mackerel-client-go v0.16.0
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
