@@ -7,17 +7,15 @@ require (
 	github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195 // indirect
 	github.com/fatih/set v0.2.1 // indirect
 	github.com/gigawattio/window v0.0.0-20180317192513-0f5467e35573 // indirect
-	github.com/go-sql-driver/mysql v1.4.1 // indirect
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/ikawaha/kagome v1.11.2
 	github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43 // indirect
 	github.com/jdkato/prose v0.0.0-20181022194337-a179b97cfa6f
-	github.com/jmoiron/sqlx v1.2.0
+	github.com/jmoiron/sqlx v1.3.1
 	github.com/lib/pq v1.10.0
 	github.com/mackerelio/mackerel-client-go v0.16.0
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	github.com/mattn/go-sqlite3 v1.11.0 // indirect
 	github.com/mattn/go-tty v0.0.0-20190424173100-523744f04859
 	github.com/montanaflynn/stats v0.5.0 // indirect
 	github.com/neurosnap/sentences v1.0.6 // indirect
@@ -31,7 +29,7 @@ require (
 	github.com/syou6162/GoOse v0.0.0-20190108170554-09969ebeb09f
 	github.com/urfave/cli v1.22.5
 	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
-	google.golang.org/appengine v1.6.1 // indirect
+	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
 	gopkg.in/vmarkovtsev/go-lcss.v1 v1.0.0-20181020221121-dfc501d07ea0
 )
