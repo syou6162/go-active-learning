@@ -1,0 +1,46 @@
+name: build and test
+on: [push]
+
+jobs:
+  build:
+    name: build and test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:9.6
+        env:
+          POSTGRES_USER: nobody 
+          POSTGRES_PASSWORD: nobody 
+          POSTGRES_DB: go-active-learning-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --name postgres
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: format
+        run: test `gofmt -l $(git ls-files | grep -e '\.go$' | grep -v -e vendor) | wc -l` = 0
+      - name: deps
+        run: make deps
+      - name: build
+        run: make build
+      - name: test
+        run: |
+          export GOPATH=$HOME/go
+          export GOBIN=$(go env GOPATH)/bin
+          export PATH=$PATH:$GOPATH
+          export PATH=$PATH:$GOBIN
+          sql-migrate up -env=test
+          make cover
+          goveralls -coverprofile=${COVERAGE} -service=circle-ci -repotoken=${{ secrets.COVERALLS_TOKEN }}
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432        
+          POSTGRES_USER: nobody 
+          POSTGRES_PASSWORD: nobody
+          COVERAGE: coverage.out
